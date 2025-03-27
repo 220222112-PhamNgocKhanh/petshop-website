@@ -10,13 +10,13 @@
 <body>
   <div id="header" > <a href="#" id="logo"><img src="images/logo.jpg" width="310" height="114" alt=""></a>
     <ul class="navigation">
-      <li class="active"><a href="index.html">Home</a></li>
-      <li><a href="petmart.html">PetMart</a></li>
-      <li><a href="about.html">About us</a></li>
-      <li><a href="blog.html">Blog</a></li>
-      <li><a href="petguide.html">PetGuide</a></li>
-      <li><a href="contact.html">Contact us</a></li>
-      <li ><a href="contact.html" ><img src="images/login.png"  height="25" width="25"></a></li>
+      <li ><a href="index.php">Home</a></li>
+      <li><a href="petmart.php">PetMart</a></li>
+      <li  class="active"><a href="about.php">About us</a></li>
+      <li><a href="blog.php">Blog</a></li>
+      <li><a href="petguide.php">PetGuide</a></li>
+      <li><a href="contact.php">Contact us</a></li>
+      <li ><a href="login.php" ><img src="images/login.png"  height="25" width="25"></a></li>
     </ul>
   </div>
 <div id="body">
