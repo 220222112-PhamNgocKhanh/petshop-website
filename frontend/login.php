@@ -29,7 +29,7 @@
                     <div>
                         <p>Please enter your credentials to log in to your Pet Shop account.</p>
                     </div>
-                    <form class="login-form">
+                    <form id="login-form" class="login-form">
                         <label for="email">Email:</label>
                         <input type="email" id="email" name="email" placeholder="Enter your email" required>
                         
@@ -39,6 +39,40 @@
                         <button type="submit">Login</button>
                         <p>Not a member? <a href="register.php">Register here</a></p>
                     </form>
+
+                    <!-- Thêm script xử lý AJAX -->
+                    <script>
+                        document.getElementById('login-form').addEventListener('submit', async function (e) {
+                            e.preventDefault(); // Ngăn form gửi dữ liệu theo cách mặc định
+
+                            const email = document.getElementById('email').value;
+                            const password = document.getElementById('password').value;
+
+                            try {
+                                const response = await fetch('http://localhost:4000/auth/login', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({ email, password }),
+                                });
+
+                                const result = await response.json();
+
+                                if (response.ok) {
+                                    alert('Login successful!');
+                                    console.log(result); // Xem thông tin trả về từ server
+                                    // Chuyển hướng đến trang chính (index.php)
+                                    window.location.href = 'index.php';
+                                } else {
+                                    alert(result.message || 'Login failed!');
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                alert('An error occurred while logging in.');
+                            }
+                        });
+                    </script>
                 </div>
             </div>
             <div id="sidebar">
