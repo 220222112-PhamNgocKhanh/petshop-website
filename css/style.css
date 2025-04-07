@@ -20,41 +20,90 @@ body {
 	border:0;
 }
 /**-------------- Navigation style ---------------**/
-  #header ul.navigation {
-	list-style-type:none;
-	margin:-82px 0 0 300px;
-	padding:0;
-	overflow:hidden;
+/* Reset mặc định */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
+
+/* Header */
+#header {
+    width: 100%;
+    max-width: 1200px; /* Giới hạn chiều rộng */
+    height: 70px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Canh logo trái, menu phải */
+    padding: 0 20px;
+    background-color: #f4a701; /* Màu nền header */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo */
+#header #logo img {
+    height: 60px; /* Điều chỉnh kích thước logo */
+    width: auto;
+}
+
+/* Navigation Menu */
+#header ul.navigation {
+    list-style: none;
+    display: flex; /* Sử dụng flexbox để căn chỉnh */
+    gap: 15px; /* Khoảng cách giữa các mục menu */
+}
+
 #header ul.navigation li {
-	float:left;
-	height:35px;
-	width:107px;
+    position: relative;
+	display: flex;
+    align-items: center;
 }
-#header ul.navigation li.active {
-	background:url("../images/menu.gif");
-	background-repeat:no-repeat;
-	background-position: 0 -160px;
-}
+
 #header ul.navigation li a {
-	text-decoration:none;
-	color:#2c1d00;
-	font-family:"Myriad Pro";
-	font-size:14px;
-	font-weight:bold;
-	display:inline-block;
-	line-height:35px;
-	background:url("../images/menu-separator.gif");
-	background-repeat:no-repeat;
-	background-position:right;
-	height:35px;
-	padding:0 20px 0 20px;
-	text-align:center;
-	width:67px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    color: #2c1d00;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: 0.3s ease;
 }
+
+#header ul.navigation li.active a,
 #header ul.navigation li a:hover {
-	color:#ffffff;
+    background-color: #ffffff; /* Màu nền khi chọn */
+    color: #ffad00;
 }
+
+/* Responsive Menu */
+@media (max-width: 768px) {
+    #header {
+        flex-direction: column;
+        height: auto;
+        padding: 10px 0;
+    }
+
+    #header ul.navigation {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #header ul.navigation li a {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+
+#header {
+    margin: 0 auto; /* Giữ header ở giữa */
+    overflow: visible; /* Đảm bảo không bị ẩn */
+}
+
 /**------------- Start of body style ----------------**/
   
   #body div.banner {
