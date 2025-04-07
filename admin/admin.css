@@ -1,0 +1,71 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    background: #f8f9fa;
+}
+
+.sidebar {
+    width: 250px;
+    background: #343a40;
+    color: white;
+    height: 100vh;
+    padding-top: 20px;
+    transition: width 0.3s;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.collapsed {
+    width: 80px;
+}
+
+.sidebar .toggle-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    margin-left: 15px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+}
+
+.sidebar ul li:hover {
+    background: #17a2b8;
+    color: white;
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+    background: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    border-radius: 10px;
+}
+
+.sidebar ul li a {
+    color: white; /* Màu chữ trắng */
+    text-decoration: none; /* Xóa gạch chân */
+}
+
+.sidebar ul li a:visited {
+    color: white; /* Giữ nguyên màu trắng sau khi click */
+}
+
+.sidebar ul li a:hover {
+    color: #f39c12; /* Màu vàng khi di chuột vào */
+}
