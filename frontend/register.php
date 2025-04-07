@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pet Shop | Login</title>
+    <title>Pet Shop | Register</title>
     <meta charset="iso-8859-1">
     <link href="css/style.css" rel="stylesheet" type="text/css">
-    <link href="css/login.css" rel="stylesheet" type="text/css">
+    <link href="css/register.css" rel="stylesheet" type="text/css"> <!-- Thêm file CSS riêng -->
     <!--[if IE 6]><link href="css/ie6.css" rel="stylesheet" type="text/css"><![endif]-->
     <!--[if IE 7]><link href="css/ie7.css" rel="stylesheet" type="text/css"><![endif]-->
 </head>
@@ -24,22 +24,26 @@
     <div id="body">
         <div id="content">
             <div class="content">
-                <div class="login-container">
-                    <h2>Login</h2>
-                    <div>
-                        <p>Please enter your credentials to log in to your Pet Shop account.</p>
-                    </div>
-                    <form class="login-form">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                        
-                        <label for="password">Password:</label>
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                        
-                        <button type="submit">Login</button>
-                        <p>Not a member? <a href="register.php">Register here</a></p>
-                    </form>
+                <h2>Register</h2>
+                <div>
+                    <p>Create a new account to join the Pet Shop community!</p>
                 </div>
+                <form class="register-form">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                    
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    
+                    <label for="confirm-password">Confirm Password:</label>
+                    <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password" required>
+                    
+                    <button type="submit">Register</button>
+                    <p>Already have an account? <a href="login.php">Login here</a></p>
+                </form>
             </div>
             <div id="sidebar">
                 <div class="connect">
