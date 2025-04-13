@@ -28,7 +28,7 @@
                 <div>
                     <p>Create a new account to join the Pet Shop community!</p>
                 </div>
-                <form class="register-form">
+                <form id="register-form" class="register-form">
                     <label for="username">Username:</label>
                     <input type="text" id="username" name="username" placeholder="Enter your username" required>
                     
@@ -94,5 +94,47 @@
             <div class="section">Copyright © 2012 <a href="#">Company Name</a> All rights reserved | Website Template By <a target="_blank" href="http://www.freewebsitetemplates.com/">freewebsitetemplates.com</a></div>
         </div>
     </div>
+    <script>
+    document.getElementById('register-form').addEventListener('submit', async function (e) {
+        e.preventDefault(); // Ngăn form gửi dữ liệu theo cách mặc định
+
+        // Lấy dữ liệu từ form
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        // Kiểm tra mật khẩu và xác nhận mật khẩu
+        if (password !== confirmPassword) {
+            alert('Passwords do not match!');
+            return;
+        }
+
+        try {
+            // Gửi dữ liệu đến API backend
+            const response = await fetch('http://localhost:4000/user-service/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, email, password }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('Registration successful!');
+                console.log(result); // Xem thông tin trả về từ server
+                // Chuyển hướng đến trang đăng nhập
+                window.location.href = 'login.php';
+            } else {
+                alert(result.message || 'Registration failed!');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while registering.');
+        }
+    });
+</script>
 </body>
 </html>

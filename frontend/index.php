@@ -18,7 +18,41 @@
             <li><a href="blog.php">Blog</a></li>
             <li><a href="petguide.php">PetGuide</a></li>
             <li><a href="contact.php">Contact us</a></li>
-            <li><a href="login.php"><img src="images/login.png" height="25" width="25"></a></li>
+            <!-- <li><a href="login.php"><img src="images/login.png" height="25" width="25"></a></li> -->
+            <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+
+        if (token && user) {
+            // Hiển thị avatar và menu thả xuống
+            const nav = document.querySelector('.navigation');
+            nav.innerHTML += `
+                <li class="user-menu">
+                    <img src="images/${user.avatar}" alt="Avatar" class="user-avatar" height="25" width="25">
+                    <ul class="dropdown-menu">
+                        <li><a href="profile.php">Thông tin cá nhân</a></li>
+                        <li><a href="cart.php">Giỏ hàng</a></li>
+                        <li><a href="orders.php">Đơn đã đặt</a></li>
+                        <li><a href="#" id="logout">Đăng xuất</a></li>
+                    </ul>
+                </li>
+            `;
+
+            // Thêm sự kiện đăng xuất
+            document.getElementById('logout').addEventListener('click', () => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                alert('Bạn đã đăng xuất.');
+                window.location.href = 'login.php';
+            });
+        } else {
+            // Hiển thị nút đăng nhập nếu chưa đăng nhập
+            const nav = document.querySelector('.navigation');
+            nav.innerHTML += `<li><a href="login.php">Login</a></li>`;
+        }
+    });
+</script>
         </ul>
     </div>
     <div id="body">

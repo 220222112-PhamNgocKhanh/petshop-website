@@ -5,8 +5,7 @@
     <meta charset="iso-8859-1">
     <link href="css/style.css" rel="stylesheet" type="text/css">
     <link href="css/login.css" rel="stylesheet" type="text/css">
-    <!--[if IE 6]><link href="css/ie6.css" rel="stylesheet" type="text/css"><![endif]-->
-    <!--[if IE 7]><link href="css/ie7.css" rel="stylesheet" type="text/css"><![endif]-->
+    <link href="css/custom.css" rel="stylesheet" type="text/css"> <!-- Liên kết file custom.css -->
 </head>
 <body>
     <div id="header"> 
@@ -30,8 +29,8 @@
                         <p>Please enter your credentials to log in to your Pet Shop account.</p>
                     </div>
                     <form id="login-form" class="login-form">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    <label for="username"> Username:</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
                         
                         <label for="password">Password:</label>
                         <input type="password" id="password" name="password" placeholder="Enter your password" required>
@@ -45,16 +44,16 @@
                         document.getElementById('login-form').addEventListener('submit', async function (e) {
                             e.preventDefault(); // Ngăn form gửi dữ liệu theo cách mặc định
 
-                            const email = document.getElementById('email').value;
+                            const username = document.getElementById('username').value;
                             const password = document.getElementById('password').value;
 
                             try {
-                                const response = await fetch('http://localhost:4000/auth/login', {
+                                const response = await fetch('http://localhost:3000/user-service/login', {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
                                     },
-                                    body: JSON.stringify({ email, password }),
+                                    body: JSON.stringify({ username, password }),
                                 });
 
                                 const result = await response.json();
@@ -62,8 +61,7 @@
                                 if (response.ok) {
                                     alert('Login successful!');
                                     console.log(result); // Xem thông tin trả về từ server
-                                    // Chuyển hướng đến trang chính (index.php)
-                                    window.location.href = 'index.php';
+
                                 } else {
                                     alert(result.message || 'Login failed!');
                                 }

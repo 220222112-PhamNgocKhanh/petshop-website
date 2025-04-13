@@ -29,11 +29,13 @@ const requestHandler = (req, res, serviceUrl) => {
         res.end(JSON.stringify({ message: 'Internal Server Error', error: err.message }));
     });
 
-    if (req.method === 'POST' || req.method === 'PUT') {
+    // Gửi body cho tất cả các phương thức có thể có body
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
         req.pipe(proxy);
     } else {
         proxy.end();
     }
+
 };
 
 module.exports = requestHandler;
