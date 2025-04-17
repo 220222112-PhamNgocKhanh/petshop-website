@@ -111,8 +111,6 @@ exports.updatePaymentStatus = (req, res, paymentId) => {
         }
     });
 };
-const Payment = require('../models/payment');
-const parseRequestBody = require('../utils/parseRequestBody');
 
 // Tạo thanh toán mới
 exports.createPayment = (req, res) => {

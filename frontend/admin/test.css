@@ -1,0 +1,120 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f8f9fa;
+}
+
+.sidebar {
+    width: 250px;
+    background: #343a40;
+    color: white;
+    height: 100vh;
+    padding-top: 20px;
+    position: fixed;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.sidebar ul li:hover {
+    background: #ffb74d;
+}
+
+.sidebar .toggle-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    margin-left: 15px;
+}
+
+.content {
+    margin-left: 260px;
+    padding: 20px;
+}
+
+.add-btn {
+    background: #28a745;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.product-img {
+    width: 50px;
+    height: 50px;
+    text-decoration: none; /* Đảm bảo không có gạch chân */
+}
+
+.edit-btn, .delete-btn {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 16px;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+}
+
+.close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+}
+.sidebar ul li a {
+    color: white; /* Màu chữ trắng */
+    text-decoration: none; /* Xóa gạch chân */
+}
+
+.sidebar ul li a:visited {
+    color: white; /* Giữ nguyên màu trắng sau khi click */
+}
+
+.sidebar ul li a:hover {
+    color: #f39c12; /* Màu vàng khi di chuột vào */
+}
+.sidebar ul li.active a {
+    font-weight: bold;
+}
+

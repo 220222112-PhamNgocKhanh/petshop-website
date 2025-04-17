@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'your_secret_key'; // giống user-service
+const SECRET_KEY = 'petshop'; // giống user-service
 
 function verifyToken(req, res, next) {
     const authHeader = req.headers['authorization'];
@@ -12,9 +12,11 @@ function verifyToken(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
-        req.user = decoded; // Gán toàn bộ user info vào request
+        console.log('Decoded token:', decoded); // Log thông tin token
+        req.user = decoded;
         next();
     } catch (err) {
+        console.error('Token verification error:', err); // Log lỗi chi tiết
         res.writeHead(403, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'Invalid or expired token' }));
     }

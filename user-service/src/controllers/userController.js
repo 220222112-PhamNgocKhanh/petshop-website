@@ -9,11 +9,14 @@ exports.verifyToken = (req) => {
     if (!authHeader) return null;
     const token = authHeader.split(' ')[1];
     try {
-        return jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-    } catch {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'petshop');
+        return decoded;
+    } catch (err) {
+        console.error('Token Verification Error:', err);
         return null;
     }
 };
+
 
 // Kiểm tra role
 exports.checkRole = (decoded, role) => decoded && decoded.role === role;
@@ -69,7 +72,7 @@ exports.login = (req, res) => {
                     username: user.username,
                     role: user.role
                 },
-                process.env.JWT_SECRET || 'your-secret-key',
+                process.env.JWT_SECRET || 'petshop',
                 { expiresIn: '1h' }
             );
             
@@ -264,7 +267,7 @@ exports.changePassword = (req, res) => {
     parseRequestBody(req, res, async (body) => {
         const { old_password, new_password } = body;
         try {
-            const user = await User.findByPk(decoded.user_id); // Sử dụng user_id thay vì username
+            const user = await User.findByPk(decoded.user_id);
             if (!user) {
                 res.writeHead(404, { 'Content-Type': 'application/json' });
                 return res.end(JSON.stringify({ message: 'User not found' }));
@@ -273,15 +276,16 @@ exports.changePassword = (req, res) => {
             const isValid = await bcrypt.compare(old_password, user.password_hash);
             if (!isValid) {
                 res.writeHead(401, { 'Content-Type': 'application/json' });
-                return res.end(JSON.stringify({ message: 'Incorrect current password' }));
+                return res.end(JSON.stringify({ message: 'Mật khẩu hiện tại không đúng' }));
             }
 
             user.password_hash = await bcrypt.hash(new_password, 10);
             await user.save();
 
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Password changed successfully' }));
+            res.end(JSON.stringify({ message: 'Đổi mật khẩu thành công' }));
         } catch (error) {
+            console.error('Change password error:', error);
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ message: 'Internal server error' }));
         }
@@ -292,9 +296,9 @@ exports.changePassword = (req, res) => {
 // Quên mật khẩu
 exports.forgotPassword = (req, res) => {
     parseRequestBody(req, res, async (body) => {
-        const { username } = body;
+        const { email } = body; // Thay đổi từ username sang email
         try {
-            const user = await User.findOne({ where: { username } });
+            const user = await User.findOne({ where: { email } }); // Tìm user theo email
             if (!user) {
                 res.writeHead(404, { 'Content-Type': 'application/json' });
                 return res.end(JSON.stringify({ message: 'User not found' }));
