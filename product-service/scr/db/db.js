@@ -1,13 +1,11 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
+require('dotenv').config(); // Thêm dòng này
 
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '082004',
-    database: 'pet_store',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
 });
 
-module.exports = pool.promise();
+module.exports = pool;

@@ -11,6 +11,18 @@ const server = http.createServer((req, res) => {
     const url = req.url;
     const method = req.method;
 
+    // Thêm header CORS
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Cho phép tất cả các nguồn
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Các phương thức được phép
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Các header được phép
+
+    // Xử lý preflight request (OPTIONS)
+    if (method === 'OPTIONS') {
+        res.writeHead(204); // No Content
+        console.log('Preflight request received');
+        return res.end();
+    }
+
     // Định tuyến các request
     if (url.startsWith('/user-service')) {
         userServiceRoutes(req, res, url, method);

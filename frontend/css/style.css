@@ -112,7 +112,7 @@ body {
 	height:606px;
 }
 #body div#content {
-	width:960px;
+	width:1160px;
 	margin:0 auto;
 	overflow:hidden;
 	background-image:none;
@@ -539,9 +539,6 @@ body {
 	width:100px;
 }
 /**---------------- End for Pet guide Page Style ------------------**/
-  
-  
-  
   
  /** Start Sidebar style **/ 
   #body #content #sidebar {

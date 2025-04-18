@@ -15,11 +15,11 @@ const validateProduct = [
 ];
 
 const createProduct = async (req, res) => {
-    const { name, price, description, category_id } = req.body;
+    const { name, price, description, category_id, amount } = req.body;
     try {
         const [result] = await db.execute(
-            'INSERT INTO products (name, price, description, category_id) VALUES (?, ?, ?, ?)',
-            [name, price, description, category_id]
+            'INSERT INTO products (name, price, description, category_id, amount) VALUES (?, ?, ?, ?, ?)',
+            [name, price, description, category_id, amount]
         );
         res.status(201).json({ message: 'Product created', productId: result.insertId });
     } catch (error) {
@@ -29,7 +29,7 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, price, description, category_id } = req.body;
+    const { name, price, description, category_id, amount } = req.body;
 
     // Xây dựng câu lệnh SQL động
     let query = 'UPDATE products SET';
@@ -50,6 +50,10 @@ const updateProduct = async (req, res) => {
     if (category_id) {
         query += ' category_id = ?,';
         params.push(category_id);
+    }
+    if (amount) {
+        query += ' amount = ?,';
+        params.push(amount);
     }
 
     // Xóa dấu phẩy cuối cùng
@@ -86,8 +90,8 @@ const getProducts = async (req, res) => {
         params.push(category_id);
     }
 
-    query += ' LIMIT ? OFFSET ?';
-    params.push(parseInt(limit), parseInt(offset));
+    // Nối LIMIT OFFSET vào chuỗi truy vấn luôn, KHÔNG đưa vào params
+    query += ` LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
 
     try {
         const [products] = await db.execute(query, params);
@@ -109,6 +113,42 @@ const getProductById = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const getProductBysubcategory = async (req, res) => {
+    const { subcategory } = req.params;
+    try {
+        const [products] = await db.execute(
+            'SELECT * FROM products WHERE LOWER(subcategory) LIKE ?',
+            [`%${subcategory.toLowerCase()}%`]
+        );
+
+        if (products.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy sản phẩm nào phù hợp' });
+        }
+
+        res.status(200).json({ products }); // Trả về toàn bộ danh sách
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getProductByName = async (req, res) => {
+    const { name } = req.params;
+    try {
+        const [products] = await db.execute(
+            'SELECT * FROM products WHERE LOWER(name) LIKE ?',
+            [`%${name.toLowerCase()}%`]
+        );
+
+        if (products.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy sản phẩm nào phù hợp' });
+        }
+
+        res.status(200).json({ products });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
@@ -144,4 +184,6 @@ module.exports = {
     updateProduct,
     deleteProduct,
     getProductsByCategory,
+    getProductBysubcategory,
+    getProductByName,
 };
