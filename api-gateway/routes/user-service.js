@@ -34,7 +34,22 @@ const userServiceRoutes = (req, res, url, method) => {
     } else if (url === '/user-service/change-password' && method === 'PUT') {
         // Đổi mật khẩu
         requestHandler(req, res, 'http://localhost:4000/user-service/change-password');
-    } else {
+    } else if (url === '/user-service/change-avatar' && method === 'POST') {
+        // Đổi avatar
+        requestHandler(req, res, 'http://localhost:4000/user-service/change-avatar');
+    } else if (req.url.startsWith('/user-service/avatar/') && req.method === 'GET') {
+        // Lấy avatar
+        requestHandler(req, res, 'http://localhost:4000/user-service/avatar/' + req.url);
+    }
+    else if( req.url.startsWith('/user-service/users/email/') && req.method === 'GET') {
+        // Lấy thông tin người dùng theo email
+        requestHandler(req, res, 'http://localhost:4000' + req.url);
+    }
+    else if( req.url.startsWith('/user-service/users/username/') && req.method === 'GET') {
+        // Lấy thông tin người dùng theo username
+        requestHandler(req, res, 'http://localhost:4000' + req.url);
+    }
+    else {
         // Route không tồn tại
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'User service route not found' }));

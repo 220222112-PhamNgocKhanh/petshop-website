@@ -4,8 +4,7 @@ body {
 	background: url("../images/bg-body.gif");
 	background-repeat:repeat-x;
 }
-#page {
-}
+
 #header {
 	width:960px;
 	height:72px;
@@ -113,7 +112,7 @@ body {
 	height:606px;
 }
 #body div#content {
-	width:960px;
+	width:1160px;
 	margin:0 auto;
 	overflow:hidden;
 	background-image:none;
@@ -204,7 +203,7 @@ body {
 }
 /**--------- Start of Blog Page Style **/	
     #body #content .content ul.articles {
-	list-tyle-type:none;
+	/* list-tyle-type:none; */
 	margin:80px 25px 0 0;
 	padding:0;
 	background-image:none;
@@ -541,9 +540,6 @@ body {
 }
 /**---------------- End for Pet guide Page Style ------------------**/
   
-  
-  
-  
  /** Start Sidebar style **/ 
   #body #content #sidebar {
 	float:left;
@@ -751,7 +747,7 @@ body {
 	/*
 	  _width:200px;
 	  */
-	  float:left;
+	  /* float:left; */
 }
 #body #content #sidebar .section .aside div div ul li a:hover {
 	color:#e4a217;

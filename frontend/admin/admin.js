@@ -1,3 +1,32 @@
+// Kiểm tra đăng nhập
+document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '../login.php';
+        return;
+    }
+});
+
+// Xử lý responsive
+window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+        document.querySelector('.sidebar').classList.remove('active');
+        document.querySelector('.content').classList.remove('expanded');
+    }
+});
+
+// Hiển thị thông báo
+function showMessage(message, isError = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isError ? 'error' : 'success'}`;
+    messageDiv.textContent = message;
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+
 function toggleSidebar() {
     document.querySelector('.sidebar').classList.toggle('collapsed');
 }

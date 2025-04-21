@@ -1,0 +1,373 @@
+/* Sidebar container */
+.sidebar {
+    position: fixed;
+    left: -230px; /* Ẩn gần hết sidebar */
+    top: 0;
+    width: 250px;
+    height: 100vh;
+    background: #2c3e50;
+    color: #fff;
+    transition: all 0.3s ease;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding-top: 20px;
+    overflow-y: auto; /* Cho phép cuộn dọc */
+    overflow-x: hidden; /* Ẩn thanh cuộn ngang */
+    display: flex; /* Thêm display flex */
+    flex-direction: column; /* Sắp xếp theo chiều dọc */
+}
+
+/* Thanh trigger để hover */
+.sidebar-trigger {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 20px;
+    height: 100vh;
+    background: #2c3e50;
+    z-index: 999;
+}
+
+/* Hiện sidebar khi hover */
+.sidebar:hover,
+.sidebar-trigger:hover + .sidebar {
+    left: 0;
+}
+
+/* Menu list */
+.sidebar ul {
+    list-style: none;
+    padding: 20px 0;
+    margin: 0;
+    flex: 1; /* Cho phép menu chiếm hết không gian có thể */
+    overflow-y: auto; /* Cho phép cuộn phần menu */
+}
+
+.sidebar li {
+    margin: 8px 0;
+    padding: 0 15px;
+    position: relative;
+}
+
+/* Menu items */
+.sidebar li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    color: #ecf0f1;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+/* Icons trong menu */
+.sidebar li i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+/* Hover effect cho menu items */
+.sidebar li:hover a {
+    background: #34495e;
+    color: #3498db;
+    transform: translateX(5px);
+}
+
+/* Active menu item */
+.sidebar li.active a {
+    background: #3498db;
+    color: #fff;
+}
+
+/* Đường gạch bên trái cho active item */
+.sidebar li.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    background: #3498db;
+    border-radius: 0 2px 2px 0;
+}
+
+/* Nút đăng xuất - container riêng */
+.logout-container {
+    padding: 15px;
+    border-top: 1px solid #34495e;
+    background: #2c3e50; /* Giữ màu nền giống sidebar */
+}
+
+.logout-container a {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    color: #e74c3c; /* Màu đỏ cho nút logout */
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.logout-container a:hover {
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.logout-container i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Underline effect khi hover */
+.sidebar li a::after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    bottom: 8px;
+    height: 2px;
+    width: 0;
+    background: #3498db;
+    transition: width 0.3s ease;
+}
+
+.sidebar li:hover a::after {
+    width: calc(100% - 30px);
+}
+
+/* Custom scrollbar cho phần menu */
+.sidebar ul::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar ul::-webkit-scrollbar-track {
+    background: #2c3e50;
+}
+
+.sidebar ul::-webkit-scrollbar-thumb {
+    background: #34495e;
+    border-radius: 5px;
+}
+
+.sidebar ul::-webkit-scrollbar-thumb:hover {
+    background: #3498db;
+}
+
+/* Content adjustment */
+.content {
+    margin-left: 20px; /* Khoảng cách ban đầu */
+    transition: margin-left 0.3s ease;
+    padding: 20px;
+    position: relative; /* Thêm position relative */
+}
+
+/* Khi sidebar hiện ra, content cũng dịch sang phải */
+.sidebar:hover ~ .content,
+.sidebar-trigger:hover ~ .content {
+    margin-left: 270px; /* 250px (width của sidebar) + 20px padding */
+}
+
+/* Hover effect animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.sidebar li a:hover {
+    animation: slideIn 0.3s ease forwards;
+}
+
+/* Box shadow effect khi hover */
+.sidebar:hover {
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        left: -250px;
+        padding-bottom: 70px; /* Thêm padding bottom cho mobile */
+    }
+    
+    .content {
+        margin-left: 15px;
+        transition: margin-left 0.3s ease;
+    }
+
+    .sidebar:hover ~ .content,
+    .sidebar-trigger:hover ~ .content {
+        margin-left: 15px; /* Không dịch content trên mobile */
+    }
+
+    .sidebar-trigger {
+        width: 15px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .sidebar {
+        background: #1a1a1a;
+    }
+
+    .sidebar-trigger {
+        background: #1a1a1a;
+    }
+
+    .sidebar li:hover a {
+        background: #2d2d2d;
+    }
+}
+
+/* Hiệu ứng transition cho tất cả các thành phần */
+.sidebar *,
+.content {
+    transition: all 0.3s ease;
+}
+
+/* Hiệu ứng hover cho icons */
+.sidebar li:hover i {
+    transform: scale(1.1);
+    color: #3498db;
+}
+
+/* Style cho active menu */
+.sidebar li.active i {
+    color: #fff;
+}
+
+/* Hiệu ứng ripple khi click */
+.sidebar li a {
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar li a::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.sidebar li a:active::before {
+    width: 200px;
+    height: 200px;
+}
+
+.sidebar-header {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #34495e;
+}
+
+.logo {
+    width: 70px;
+    height: 60px;
+    margin-bottom: 10px;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #ecf0f1;
+}
+
+.admin-info {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #34495e;
+}
+
+.admin-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.admin-details {
+    flex: 1;
+}
+
+.admin-name {
+    margin: 0;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.admin-role {
+    color: #bdc3c7;
+    font-size: 0.8em;
+}
+
+.sidebar li.active {
+    position: relative;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+    }
+
+    .sidebar.collapsed {
+        transform: translateX(-100%);
+    }
+
+    .sidebar-header h3,
+    .admin-details,
+    .sidebar-nav span {
+        display: none;
+    }
+
+    .logo {
+        width: 50px;
+        height: 30px;
+    }
+
+    .admin-avatar {
+        margin: 0 auto;
+    }
+
+    .sidebar-nav a {
+        justify-content: center;
+        padding: 15px;
+    }
+
+    .sidebar-nav i {
+        margin: 0;
+        font-size: 1.2em;
+    }
+
+    .logout-btn {
+        justify-content: center;
+    }
+
+    .logout-btn span {
+        display: none;
+    }
+
+    .content {
+        margin-left: 70px;
+    }
+
+    .content.expanded {
+        margin-left: 0;
+    }
+} 

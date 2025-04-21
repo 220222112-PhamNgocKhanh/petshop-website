@@ -38,6 +38,11 @@ const User = sequelize.define('User', {
         defaultValue: DataTypes.NOW,
         onUpdate: DataTypes.NOW,
     },
+    image_url: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+    }
+    
 }, {
     tableName: 'users',
     timestamps: false,

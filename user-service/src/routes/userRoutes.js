@@ -21,6 +21,14 @@ const userRoutes = (req, res, pathname, method) => {
         userController.forgotPassword(req, res);
     } else if (pathname === '/user-service/change-password' && method === 'PUT') {
         userController.changePassword(req, res);
+    }else if (pathname === '/user-service/change-avatar' && method === 'POST') {
+        userController.changeAvatar(req, res);
+    }else if (pathname.startsWith('/user-service/avatar/') && method === 'GET') {
+        userController.getAvatar(req, res);
+    }else if (pathname.startsWith('/user-service/users/email/') && method === 'GET') {
+        userController.getUserByEmail(req, res);
+    } else if (pathname.startsWith('/user-service/users/username/') && method === 'GET') {
+        userController.getUserIdByUsername(req, res);
     } else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'User service route not found' }));

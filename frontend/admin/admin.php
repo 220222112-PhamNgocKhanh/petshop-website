@@ -4,72 +4,134 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="admin.css">
-    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="sidebar.css">
+    <style>
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .stat-card .number {
+            font-size: 2em;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .stat-card .icon {
+            float: right;
+            font-size: 2.5em;
+            color: rgba(52, 152, 219, 0.2);
+        }
+
+        .welcome-message {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .welcome-message h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .welcome-message p {
+            margin: 10px 0 0 0;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
-    <div class="sidebar">
-        <button class="toggle-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
-        <ul>
-            <li class="active"><i class="fas fa-box"></i> <a href="product_management.html">Quản lý sản phẩm</a></li>
-            <li><i class="fas fa-shopping-cart"></i> <a href="order_management.html">Quản lý đơn hàng</a></li>
-            <li><i class="fas fa-users"></i> <a href="customer_management.html">Quản lý khách hàng</a></li>
-            <li><i class="fas fa-edit"></i> <a href="blog_management.php">Quản lý bài viết</a></li>
-            <li><i class="fas fa-chart-bar"></i> <a href="report_management.php">Thống kê & Báo cáo</a></li>
-            <li><i class="fas fa-sign-out-alt"></i> <a href="#" onclick="logout()">Đăng xuất</a></li>
-
-
-        </ul>
-    </div>
+    <?php include 'sidebar.php'; ?>
+    
     <div class="content">
-        <h1>Dashboard Admin</h1>
-        <div class="charts">
-            <canvas id="revenueChart"></canvas>
-            <canvas id="orderChart"></canvas>
+        <div class="welcome-message">
+            <h2>Chào mừng đến với Trang quản trị</h2>
+            <p>Quản lý và theo dõi hoạt động của cửa hàng thú cưng của bạn</p>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <i class="fas fa-users icon"></i>
+                <h3>Tổng số khách hàng</h3>
+                <div class="number" id="customerCount">0</div>
+            </div>
+
+            <div class="stat-card">
+                <i class="fas fa-shopping-cart icon"></i>
+                <h3>Đơn hàng mới</h3>
+                <div class="number" id="orderCount">0</div>
+            </div>
+
+            <div class="stat-card">
+                <i class="fas fa-box icon"></i>
+                <h3>Sản phẩm</h3>
+                <div class="number" id="productCount">0</div>
+            </div>
+
+            <div class="stat-card">
+                <i class="fas fa-dollar-sign icon"></i>
+                <h3>Doanh thu tháng này</h3>
+                <div class="number" id="revenue">0đ</div>
+            </div>
         </div>
     </div>
+
     <script>
-        function toggleSidebar() {
-            document.querySelector('.sidebar').classList.toggle('collapsed');
-        }
-        
-        // Biểu đồ thống kê doanh thu
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
-                datasets: [{
-                    label: 'Doanh thu (triệu VND)',
-                    data: [50, 75, 100, 90, 120, 140],
-                    borderColor: 'blue',
-                    fill: false
-                }]
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Kiểm tra đăng nhập
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '../login.php';
+                return;
+            }
+
+            try {
+                // Lấy thống kê từ API
+                const response = await fetch('http://localhost:3000/admin/dashboard-stats', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 403) {
+                    alert('Bạn không có quyền truy cập trang này');
+                    window.location.href = '../login.php';
+                    return;
+                }
+
+                if (response.ok) {
+                    const stats = await response.json();
+                    // Cập nhật số liệu thống kê
+                    document.getElementById('customerCount').textContent = stats.customerCount || 0;
+                    document.getElementById('orderCount').textContent = stats.orderCount || 0;
+                    document.getElementById('productCount').textContent = stats.productCount || 0;
+                    document.getElementById('revenue').textContent = 
+                        new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+                            .format(stats.revenue || 0);
+                }
+            } catch (error) {
+                console.error('Error:', error);
             }
         });
-        
-        // Biểu đồ số lượng đơn hàng
-        const orderCtx = document.getElementById('orderChart').getContext('2d');
-        new Chart(orderCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
-                datasets: [{
-                    label: 'Số đơn hàng',
-                    data: [120, 150, 180, 160, 200, 220],
-                    backgroundColor: 'orange'
-                }]
-            }
-        });
-        function logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '../login.php'; // hoặc trang đăng nhập của bạn
-    }
     </script>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>
