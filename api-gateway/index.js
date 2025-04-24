@@ -19,7 +19,6 @@ const server = http.createServer((req, res) => {
     // Xử lý preflight request (OPTIONS)
     if (method === 'OPTIONS') {
         res.writeHead(204); // No Content
-        console.log('Preflight request received');
         return res.end();
     }
 

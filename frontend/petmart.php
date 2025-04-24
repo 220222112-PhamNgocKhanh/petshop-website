@@ -12,35 +12,27 @@
   <!--[if IE 6]><link href="css/ie6.css" rel="stylesheet" type="text/css"><![endif]-->
   <!--[if IE 7]><link href="css/ie7.css" rel="stylesheet" type="text/css"><![endif]-->
   <link rel="stylesheet" href="css/petmart.css">
+  <link rel="stylesheet" href="css/modal_style.css">
+  <link href="css/header.css" rel="stylesheet" type="text/css">
 </head>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <body>
-  <div id="header"> <a href="#" id="logo"><img src="images/logo.jpg" width="310" height="114" alt=""></a>
-    <ul class="navigation">
-      <li><a href="index.php">Home</a></li>
-      <li class="active"><a href="petmart.php">PetMart</a></li>
-      <li><a href="about.php">About us</a></li>
-      <li><a href="blog.php">Blog</a></li>
-      <li><a href="petguide.php">PetGuide</a></li>
-      <li><a href="contact.php">Contact us</a></li>
-      <li><a href="login.php"><img src="images/login.png" height="25" width="25"></a></li>
-    </ul>
-  </div>
+<?php include 'header.php'; ?>
 
   <div class="search-bar">
-  <select id="categorySelect">
-    <option value="all">All Categories</option>
-    <option value="Area">Food Area</option>
-    <option value="Accessories">Accessories</option>
-    <option value="Health">Health Center</option>
-    <option value="Grooming">Grooming</option>
-    <!-- Thêm danh mục khác nếu muốn -->
-  </select>
-  <input type="text" id="search-input" placeholder="Tìm kiếm...">
-  <button id="search-btn"><i class="fa fa-search"></i></button>
-</div>
-<div class="yellow-line"></div>
+    <select id="categorySelect">
+      <option value="all">All Categories</option>
+      <option value="Area">Food Area</option>
+      <option value="Accessories">Accessories</option>
+      <option value="Health">Health Center</option>
+      <option value="Grooming">Grooming</option>
+      <!-- Thêm danh mục khác nếu muốn -->
+    </select>
+    <input type="text" id="search-input" placeholder="Tìm kiếm...">
+    <button id="search-btn"><i class="fa fa-search"></i></button>
+  </div>
+  <div class="yellow-line"></div>
   <div id="body">
     <div id="content">
 
@@ -66,7 +58,7 @@
             <li>
               <div class="category-item">
                 <a>Food Area</a>
-                <span>(1)</span>
+
               </div>
               <ul>
                 <li><a href="#">Dog Food</a></li>
@@ -80,22 +72,23 @@
             <li>
               <div class="category-item">
                 <a>Accessories</a>
-                <span>(2)</span>
+
               </div>
-              <ul>
-                <li><a href="#" onclick="saveCategoryAndShow('Odor Control')">Odor Control</a></li>
-                <li><a href="#" onclick="saveCategoryAndShow('Liners')">Liners</a></li>
-                <li><a href="#" onclick="saveCategoryAndShow('Scoops & Mats')">Scoops & Mats</a></li>
-                <li><a href="#" onclick="saveCategoryAndShow('Collars')">Collars</a></li>
-                <li><a href="#" onclick="saveCategoryAndShow('Harnesses')">Harnesses</a></li>
-                <li><a href="#" onclick="saveCategoryAndShow('Leashes')">Leashes</a></li>
+              <ul class="category-list">
+                <li><a href="#" data-category="Odor Control">Odor Control</a></li>
+                <li><a href="#" data-category="Liners">Liners</a></li>
+                <li><a href="#" data-category="Scoops & Mats">Scoops & Mats</a></li>
+                <li><a href="#" data-category="Collars">Collars</a></li>
+                <li><a href="#" data-category="Harnesses">Harnesses</a></li>
+                <li><a href="#" data-category="Leashes">Leashes</a></li>
               </ul>
+
             </li>
 
             <li>
               <div class="category-item">
                 <a>Health Center</a>
-                <span>(10)</span>
+
               </div>
               <ul>
                 <li><a href="#">Multivitamins</a></li>
@@ -109,7 +102,7 @@
             <li>
               <div class="category-item">
                 <a>Grooming</a>
-                <span>(12)</span>
+
               </div>
               <ul>
                 <li><a href="#">Brushes & Combs</a></li>
@@ -145,40 +138,64 @@
         </div>
       </div>
     </div>
+    <div id="toast" class="toast"></div>
+
+    <script src="../backend/product/cart.js"></script>
+    <script src="../backend/product/category_count.js"></script>
+    <script src="../backend/untils/renderProducts.js"></script>
     <script src="../backend/product/product_detail.js"></script>
     <script src="../backend/product/search_product.js"></script>
-  <div class="featured">
-    <ul>
-      <li><a href="#"><img src="images/organic-and-chemical-free.jpg" width="300" height="90" alt=""></a></li>
-      <li><a href="#"><img src="images/good-food.jpg" width="300" height="90" alt=""></a></li>
-      <li class="last"><a href="#"><img src="images/pet-grooming.jpg" width="300" height="90" alt=""></a></li>
-    </ul>
-  </div>
-<div id="footer">
-  <div class="section">
-    <ul>
-      <li> <img src="images/friendly-pets.jpg" width="240" height="186" alt="">
-        <h2><a href="#">Friendly Pets</a></h2>
-        <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diam nonummy nib. <a class="more" href="#">Read More</a> </p>
-      </li>
-      <li> <img src="images/pet-lover2.jpg" width="240" height="186" alt="">
-        <h2><a href="#">How dangerous are they</a></h2>
-        <p> Lorem ipsum dolor sit amet, cons ectetuer adepis cing, sed diam euis. <a class="more" href="#">Read More</a> </p>
-      </li>
-      <li> <img src="images/healthy-dog.jpg" width="240" height="186" alt="">
-        <h2><a href="#">Keep them healthy</a></h2>
-        <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diam nonu mmy. <a class="more" href="#">Read More</a> </p>
-      </li>
-      <li>
-        <h2><a href="#">Love...love...love...pets</a></h2>
-        <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diameusim. <a class="more" href="#">Read More</a> </p>
-        <img src="images/pet-lover.jpg" width="240" height="186" alt=""> </li>
-    </ul>
-  </div>
-  <div id="footnote">
-   
+
+    <div class="featured">
+      <ul>
+        <li><a href="#"><img src="images/organic-and-chemical-free.jpg" width="300" height="90" alt=""></a></li>
+        <li><a href="#"><img src="images/good-food.jpg" width="300" height="90" alt=""></a></li>
+        <li class="last"><a href="#"><img src="images/pet-grooming.jpg" width="300" height="90" alt=""></a></li>
+      </ul>
+    </div>
+    <div id="footer">
+      <div class="section">
+        <ul>
+          <li> <img src="images/friendly-pets.jpg" width="240" height="186" alt="">
+            <h2><a href="#">Friendly Pets</a></h2>
+            <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diam nonummy nib. <a class="more"
+                href="#">Read More</a> </p>
+          </li>
+          <li> <img src="images/pet-lover2.jpg" width="240" height="186" alt="">
+            <h2><a href="#">How dangerous are they</a></h2>
+            <p> Lorem ipsum dolor sit amet, cons ectetuer adepis cing, sed diam euis. <a class="more" href="#">Read
+                More</a> </p>
+          </li>
+          <li> <img src="images/healthy-dog.jpg" width="240" height="186" alt="">
+            <h2><a href="#">Keep them healthy</a></h2>
+            <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diam nonu mmy. <a class="more"
+                href="#">Read More</a> </p>
+          </li>
+          <li>
+            <h2><a href="#">Love...love...love...pets</a></h2>
+            <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diameusim. <a class="more" href="#">Read
+                More</a> </p>
+            <img src="images/pet-lover.jpg" width="240" height="186" alt="">
+          </li>
+        </ul>
+      </div>
+      <div id="footnote">
+
+      </div>
+    </div>
+
+    <!-- Modal -->
+<div id="productModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <div id="modal-body">
+      <!-- Nội dung sản phẩm sẽ render tại đây -->
+    </div>
   </div>
 </div>
+
+<script src = "../backend/product/modal_handler.js"></script>
+
 </body>
 
 </html>

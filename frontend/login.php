@@ -4,23 +4,12 @@
     <title>Pet Shop | Login</title>
     <meta charset="iso-8859-1">
     <link href="css/style.css" rel="stylesheet" type="text/css">
+    <link href="css/header.css" rel="stylesheet" type="text/css">
+    <link href="css/custom.css" rel="stylesheet" type="text/css">
     <link href="css/login.css" rel="stylesheet" type="text/css">
-    <!--[if IE 6]><link href="css/ie6.css" rel="stylesheet" type="text/css"><![endif]-->
-    <!--[if IE 7]><link href="css/ie7.css" rel="stylesheet" type="text/css"><![endif]-->
 </head>
 <body>
-    <div id="header"> 
-        <a href="#" id="logo"><img src="images/logo.gif" width="310" height="114" alt=""></a>
-        <ul class="navigation">
-            <li><a href="index.php">Home</a></li>
-            <li><a href="petmart.php">PetMart</a></li>
-            <li><a href="about.php">About us</a></li>
-            <li><a href="blog.php">Blog</a></li>
-            <li><a href="petguide.php">PetGuide</a></li>
-            <li><a href="contact.php">Contact us</a></li>
-            <li class="active" ><a href="login.php" ><img src="images/login.png"  height="25" width="25"></a></li>
-        </ul>
-    </div>
+<?php include 'header.php'; ?>
     <div id="body">
         <div id="content">
             <div class="content">
@@ -29,36 +18,75 @@
                     <div>
                         <p>Please enter your credentials to log in to your Pet Shop account.</p>
                     </div>
-                    <form class="login-form">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    <form id="login-form" class="login-form">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required>
                         
                         <label for="password">Password:</label>
                         <input type="password" id="password" name="password" placeholder="Enter your password" required>
                         
                         <button type="submit">Login</button>
-                        <p>Not a member? <a href="register.php">Register here</a></p>
+                        <p id="error-message" style="color: red; font-size: 12px; display: none;">Invalid username or password</p>
+                        <p>
+                            Not a member? <a href="register.php" style="color: orange;">Register here</a> | 
+                            <a href="forgotPassword.php" style="color: blue;">Forgot password?</a>
+                        </p>
                     </form>
+
+                    <!-- Script xử lý AJAX -->
+                    <!-- Script xử lý AJAX -->
+                    <script>
+                    document.getElementById('login-form').addEventListener('submit', async function (e) {
+                        e.preventDefault(); // Ngăn form gửi dữ liệu theo cách mặc định
+
+                        const username = document.getElementById('username').value;
+                        const password = document.getElementById('password').value;
+                        const errorMessage = document.getElementById('error-message');
+
+                        try {
+                            const response = await fetch('http://localhost:3000/user-service/login', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ username, password }),
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                // Sau khi nhận token:
+                                const token = result.token;
+                                const payload = JSON.parse(atob(token.split('.')[1]));
+
+                                console.log("Role từ token:", payload.role);
+                                console.log("Username từ token:", payload.username);
+
+                                // Lưu vào localStorage nếu cần
+                                localStorage.setItem('token', token);
+                                localStorage.setItem('user', JSON.stringify(payload));
+
+                                // Redirect
+                                if (payload.role === 'admin') {
+                                    window.location.href = 'admin/admin.php';
+                                } else {
+                                    window.location.href = 'index.php';
+                                }
+
+                            } else {
+                                // Đăng nhập thất bại
+                                errorMessage.style.display = 'block';
+                                errorMessage.textContent = result.message || 'Invalid username or password';
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            errorMessage.style.display = 'block';
+                            errorMessage.textContent = 'An error occurred while logging in.';
+                        }
+                    });
+                </script>
                 </div>
             </div>
-            <div id="sidebar">
-                <div class="connect">
-                    <h2>Follow Us</h2>
-                    <ul>
-                        <li><a class="facebook" href="#">Facebook</a></li>
-                        <li><a class="subscribe" href="#">Subscribe</a></li>
-                        <li><a class="twitter" href="#">Twitter</a></li>
-                        <li><a class="flicker" href="#">Flicker</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="featured">
-            <ul>
-                <li><a href="#"><img src="images/organic-and-chemical-free.jpg" width="300" height="90" alt=""></a></li>
-                <li><a href="#"><img src="images/good-food.jpg" width="300" height="90" alt=""></a></li>
-                <li class="last"><a href="#"><img src="images/pet-grooming.jpg" width="300" height="90" alt=""></a></li>
-            </ul>
         </div>
     </div>
     <div id="footer">
@@ -87,7 +115,7 @@
             </ul>
         </div>
         <div id="footnote">
-            <div class="section">Copyright © 2012 <a href="#">Company Name</a> All rights reserved | Website Template By <a target="_blank" href="http://www.freewebsitetemplates.com/">freewebsitetemplates.com</a></div>
+            <div class="section">Copyright © 2025 <a href="#">Pet Shop</a> All rights reserved.</div>
         </div>
     </div>
 </body>

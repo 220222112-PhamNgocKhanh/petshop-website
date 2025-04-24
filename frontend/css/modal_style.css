@@ -1,0 +1,157 @@
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5); /* Màu nền mờ */
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: auto;
+  top: 50%;
+  left: 25%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  width: 50%;
+  height: 450px ;/* Chiều cao của modal */
+  border-radius: 15px;
+  position: relative;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Hiệu ứng đổ bóng */
+  font-family: 'Roboto', sans-serif; /* Font chữ hiện đại */
+}
+
+.close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 25px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close:hover {
+  color: #d63384; /* Màu hồng khi hover */
+}
+
+/* Modal container */
+#modal-body-content {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+/* Hình ảnh sản phẩm */
+#modal-body-content .product-image {
+  flex-shrink: 0;
+  border-radius: 10px;
+  width: 350px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+}
+
+/* Thông tin sản phẩm */
+#modal-body-content .product-info {
+  flex: 1;
+  font-family: 'Roboto', sans-serif;
+}
+
+#modal-body-content h2 {
+  margin-top: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+#modal-body-content .product-price {
+  font-size: 22px;
+  font-weight: bold;
+  color: #d63384; /* Màu hồng */
+  margin: 10px 0;
+}
+
+#modal-body-content .product-status {
+  font-size: 16px;
+  color: #28a745; /* Màu xanh lá */
+  margin-bottom: 15px;
+}
+
+#modal-body-content .quantity-group {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Tăng khoảng cách giữa các phần tử */
+}
+
+#modal-body-content .quantity-group input {
+  width: 80px; /* Tăng chiều rộng */
+  height: 50px; /* Tăng chiều cao */
+  text-align: center;
+  font-size: 18px; /* Tăng kích thước chữ */
+  font-weight: bold;
+  border: 2px solid #ccc; /* Đường viền dày hơn */
+  border-radius: 8px; /* Bo góc */
+  padding: 5px;
+}
+
+#modal-body-content .quantity-group button {
+  padding: 10px 20px; /* Tăng kích thước nút */
+  font-size: 18px; /* Tăng kích thước chữ */
+  background-color: #f8d7e3;
+  color: #d63384;
+  border: 2px solid #d63384;
+  border-radius: 25px; /* Bo góc tròn hơn */
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+#modal-body-content .quantity-group button:hover {
+  background-color: #d63384;
+  color: #fff;
+  transform: scale(1.1); /* Hiệu ứng phóng to nhẹ khi hover */
+}
+
+/* Nút mua hàng */
+.buy-button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #d63384;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.buy-button:hover {
+  background-color: #c2185b;
+  transform: scale(1.1); /* Hiệu ứng phóng to nhẹ */
+}
+
+.zoom-container {
+  position: relative;
+  overflow: hidden;
+  height: auto;
+}
+
+.zoom-image {
+  width: 200px;
+  transition: transform 0.1s ease;
+  transform-origin: center center;
+  cursor: zoom-in;
+}
+
+.zoom-container:hover .zoom-image {
+  transform: scale(1.5); /* Có thể điều chỉnh mức độ phóng */
+}

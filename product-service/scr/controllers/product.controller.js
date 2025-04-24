@@ -1,10 +1,11 @@
-const db = require('../db/db.js'); // Import the database connection
+const db = require('../db/db.js');
 const { body, param, validationResult } = require('express-validator');
 
+// Validate dữ liệu đầu vào khi tạo sản phẩm
 const validateProduct = [
     body('name').notEmpty().withMessage('Name is required'),
     body('price').isFloat({ min: 0 }).withMessage('Price must be a positive number'),
-    body('category_id').isInt().withMessage('Category ID must be an integer'),
+    body('category').notEmpty().withMessage('Category is required'),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -14,12 +15,13 @@ const validateProduct = [
     },
 ];
 
+// Tạo sản phẩm
 const createProduct = async (req, res) => {
-    const { name, price, description, category_id, amount } = req.body;
+    const { name, price, description, amount, image, category } = req.body;
     try {
         const [result] = await db.execute(
-            'INSERT INTO products (name, price, description, category_id, amount) VALUES (?, ?, ?, ?, ?)',
-            [name, price, description, category_id, amount]
+            'INSERT INTO products (name, price, description, amount, image, category, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+            [name, price, description, amount, image, category]
         );
         res.status(201).json({ message: 'Product created', productId: result.insertId });
     } catch (error) {
@@ -27,37 +29,22 @@ const createProduct = async (req, res) => {
     }
 };
 
+// Cập nhật sản phẩm
 const updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, price, description, category_id, amount } = req.body;
+    const { name, price, description, amount, image, category } = req.body;
 
-    // Xây dựng câu lệnh SQL động
     let query = 'UPDATE products SET';
     const params = [];
-    
-    if (name) {
-        query += ' name = ?,';
-        params.push(name);
-    }
-    if (price) {
-        query += ' price = ?,';
-        params.push(price);
-    }
-    if (description) {
-        query += ' description = ?,';
-        params.push(description);
-    }
-    if (category_id) {
-        query += ' category_id = ?,';
-        params.push(category_id);
-    }
-    if (amount) {
-        query += ' amount = ?,';
-        params.push(amount);
-    }
 
-    // Xóa dấu phẩy cuối cùng
-    query = query.slice(0, -1);
+    if (name) { query += ' name = ?,'; params.push(name); }
+    if (price) { query += ' price = ?,'; params.push(price); }
+    if (description !== undefined) { query += ' description = ?,'; params.push(description); }
+    if (amount !== undefined) { query += ' amount = ?,'; params.push(amount); }
+    if (image !== undefined) { query += ' image = ?,'; params.push(image); }
+    if (category !== undefined) { query += ' category = ?,'; params.push(category); }
+
+    query = query.slice(0, -1); // Xoá dấu phẩy cuối
     query += ' WHERE id = ?';
     params.push(id);
 
@@ -72,8 +59,9 @@ const updateProduct = async (req, res) => {
     }
 };
 
+// Lấy danh sách sản phẩm
 const getProducts = async (req, res) => {
-    const { limit = 10, offset = 0, search = '', min_price, max_price, category_id } = req.query;
+    const { limit = 10, offset = 0, search = '', min_price, max_price, category } = req.query;
     let query = 'SELECT * FROM products WHERE name LIKE ?';
     const params = [`%${search}%`];
 
@@ -85,13 +73,12 @@ const getProducts = async (req, res) => {
         query += ' AND price <= ?';
         params.push(max_price);
     }
-    if (category_id) {
-        query += ' AND category_id = ?';
-        params.push(category_id);
+    if (category) {
+        query += ' AND category LIKE ?';
+        params.push(`%${category}%`);
     }
 
-    // Nối LIMIT OFFSET vào chuỗi truy vấn luôn, KHÔNG đưa vào params
-    query += ` LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
+    query += ` ORDER BY created_at DESC LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
 
     try {
         const [products] = await db.execute(query, params);
@@ -101,6 +88,7 @@ const getProducts = async (req, res) => {
     }
 };
 
+// Lấy sản phẩm theo ID
 const getProductById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -113,24 +101,8 @@ const getProductById = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-const getProductBysubcategory = async (req, res) => {
-    const { subcategory } = req.params;
-    try {
-        const [products] = await db.execute(
-            'SELECT * FROM products WHERE LOWER(subcategory) LIKE ?',
-            [`%${subcategory.toLowerCase()}%`]
-        );
 
-        if (products.length === 0) {
-            return res.status(404).json({ message: 'Không tìm thấy sản phẩm nào phù hợp' });
-        }
-
-        res.status(200).json({ products }); // Trả về toàn bộ danh sách
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
+// Tìm theo tên sản phẩm
 const getProductByName = async (req, res) => {
     const { name } = req.params;
     try {
@@ -138,18 +110,33 @@ const getProductByName = async (req, res) => {
             'SELECT * FROM products WHERE LOWER(name) LIKE ?',
             [`%${name.toLowerCase()}%`]
         );
-
         if (products.length === 0) {
             return res.status(404).json({ message: 'Không tìm thấy sản phẩm nào phù hợp' });
         }
-
         res.status(200).json({ products });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
+// Tìm theo danh mục
+const getProductBycategory = async (req, res) => {
+    const { categoryName } = req.params;
+    try {
+        const [products] = await db.execute(
+            'SELECT * FROM products WHERE LOWER(category) LIKE ?',
+            [`%${categoryName.toLowerCase()}%`]
+        );
+        if (products.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy sản phẩm nào phù hợp' });
+        }
+        res.status(200).json({ products });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
+// Xoá sản phẩm
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
     try {
@@ -162,28 +149,40 @@ const deleteProduct = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
-const getProductsByCategory = async (req, res) => {
-    const { categoryId } = req.params;
+const latestProduct = async (req, res) => {
     try {
-        const [products] = await db.execute(
-            'SELECT * FROM products WHERE category_id = ?',
-            [categoryId]
-        );
+        const [products] = await db.execute('SELECT * FROM products ORDER BY created_at DESC LIMIT 6');
         res.status(200).json({ products });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-// Export hàm
+const countByCategory = async (req, res) => {
+    try {
+        const [results] = await db.execute(`
+            SELECT category, COUNT(*) as count
+            FROM products
+            GROUP BY category
+        `);
+
+        res.status(200).json({ counts: results });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+// Xuất module
 module.exports = {
+    validateProduct,
     createProduct,
     getProducts,
     getProductById,
     updateProduct,
     deleteProduct,
-    getProductsByCategory,
-    getProductBysubcategory,
+    getProductBycategory,
     getProductByName,
+    latestProduct,
+    countByCategory,
 };
