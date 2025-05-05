@@ -4,6 +4,9 @@ const userServiceRoutes = (req, res, url, method) => {
     if (url === '/user-service/users' && method === 'GET') {
         // Lấy danh sách người dùng
         requestHandler(req, res, 'http://localhost:4000/user-service/users');
+    } else if (url === '/user-service/users/count' && method === 'GET') {
+        // Lấy số lượng người dùng
+        requestHandler(req, res, 'http://localhost:4000/user-service/users/count');
     } else if (url === '/user-service/register' && method === 'POST') {
         // Đăng ký người dùng
         requestHandler(req, res, 'http://localhost:4000/user-service/register');

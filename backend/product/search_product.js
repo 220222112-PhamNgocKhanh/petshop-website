@@ -1,72 +1,37 @@
+
+
+// Trong searchProduct
 function searchProduct(keyword) {
-    fetch(`http://localhost:3000/product-service/products/searchbyname/${encodeURIComponent(keyword)}`)
-      .then(response => {
-        // if (!response.ok) throw new Error('Không tìm thấy sản phẩm');
-        return response.json();
-      })
-      .then(data => {
-        const products = data.products;
-  
-        const productContainer = document.getElementById('product-container');
-        productContainer.innerHTML = '';
-  
-        const productsWrapper = document.createElement('div');
-        productsWrapper.classList.add('products');
-  
-        const header = document.createElement('div');
-        header.classList.add('products-header');
-        header.innerHTML = `<h1>Kết quả tìm kiếm cho: "${keyword}"</h1>`;
-        productsWrapper.appendChild(header);
-  
-        const mainProducts = document.createElement('div');
-        mainProducts.classList.add('main-products');
-     
-        if (data.message == 'Không tìm thấy sản phẩm nào phù hợp') {
-          mainProducts.innerHTML = '<p>Không có sản phẩm nào phù hợp.</p>';
-        } else {
-          products.forEach(product => {
-            const productTag = document.createElement('div');
-            productTag.classList.add('product-tags');
-  
-            productTag.innerHTML = `
-              <div class="product-img">
-                <img src="../backend/image/${product.subcategory}/${product.image || 'default-product.jpg'}" alt="${product.name}">
-                <div class="overlay">
-                  <div class="icon-buttons">
-                    <div class="icon-wrapper">
-                      <button class="icon-btn"><i class="fa fa-heart"></i></button>
-                      <span class="tooltip-text">Yêu thích</span>
-                    </div>
-                    <div class="icon-wrapper">
-                      <button class="icon-btn"><i class="fa fa-search"></i></button>
-                      <span class="tooltip-text">Xem thêm</span>
-                    </div>
-                  </div>
-                  <button class="buy-btn">
-                    <div><a>MUA HÀNG</a></div>
-                  </button>
-                </div>
-              </div>
-              <h1>${product.name}</h1>
-              <h2>${Number(product.price).toLocaleString('vi-VN')} <span>₫</span></h2>
-            `;
-            mainProducts.appendChild(productTag);
-          });
-        }
-  
-        productsWrapper.appendChild(mainProducts);
-        productContainer.appendChild(productsWrapper);
-      })
-      .catch(error => {
-        console.error('Lỗi tìm kiếm:', error);
-        alert('Không thể tìm thấy sản phẩm!');
-      });
-  }
-  const searchInput = document.getElementById('search-input');
+  fetch(`http://localhost:3000/product-service/products/searchbyname/${keyword}`)
+    .then(response => response.json())
+    .then(data => {
+      renderProducts(data.products, `Kết quả tìm kiếm cho: "${keyword}"`);
+    })
+    .catch(error => {
+      console.error('Lỗi tìm kiếm:', error);
+      alert('Không thể tìm thấy sản phẩm!');
+    });
+}
+
+// Trong showLatestProducts
+function showLatestProducts() {
+  fetch('http://localhost:3000/product-service/products/latest')
+    .then(res => res.json())
+    .then(data => {
+      renderProducts(data.products, 'Sản phẩm mới nhất');
+    })
+    .catch(err => {
+      console.error('Không thể tải sản phẩm mới nhất:', err);
+    });
+}
+// Xử lý sự kiện tìm kiếm
+const searchInput = document.getElementById('search-input');
 const searchBtn = document.getElementById('search-btn');
 
 function handleSearch() {
   const keyword = searchInput.value.trim();
+  const allCategoryLinks = document.querySelectorAll('.category-list li a');
+  allCategoryLinks.forEach(link => link.classList.remove('category-active'));
   if (keyword) {
     localStorage.setItem('searchKeyword', keyword);
     searchProduct(keyword);
@@ -74,20 +39,100 @@ function handleSearch() {
 }
 
 searchBtn.addEventListener('click', handleSearch);
-
-// ✅ Bắt sự kiện Enter trên input
 searchInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     handleSearch();
   }
 });
-  window.addEventListener('DOMContentLoaded', () => {
-    const savedKeyword = localStorage.getItem('searchKeyword');
+
+document.querySelector('.product-categories').addEventListener('click', (e) => {
+  const link = e.target.closest('a');
+  console.log('Clearing searchKeyword and navigating to:', link.href);
+
+  if (link) {
+    e.preventDefault();
+    // Xóa từ khóa tìm kiếm trong localStorage và ô tìm kiếm
+    localStorage.removeItem('searchKeyword');
+    searchInput.value = ''; // Xóa nội dung trong ô tìm kiếm
+
+    // Điều hướng đến liên kết sau một khoảng thời gian ngắn
+    setTimeout(() => {
+      window.location.href = link.href;
+    }, 100); // delay ngắn để đảm bảo xoá xong
+  }
+});
+
+
+
+
+
+// window.addEventListener('DOMContentLoaded', () => {
+//   const navType = performance.getEntriesByType("navigation")[0].type;
+//   const savedKeyword = localStorage.getItem('searchKeyword');
+//   const allCategoryLinks = document.querySelectorAll('.product-categories ul li ul li a');
+//   if (navType === 'reload') {
+//     // 👉 Trường hợp reload trang
+//     console.log("Reload detected");
+//     if (savedKeyword) {
+//       allCategoryLinks.forEach(link => link.classList.remove('category-active'));
+//       searchInput.value = savedKeyword;
+//       searchProduct(savedKeyword);
+//     } else {
+//       searchInput.value = '';
+//       showLatestProducts();
+//     }
+//   } else {
+//     //  Trường hợp vào trang mới (nhập URL, chuyển từ trang khác,...)
+//     console.log("Fresh visit detected");
+//     searchInput.value = '';
+//     showLatestProducts();
+//     // Nếu muốn xóa luôn keyword đã lưu:
+//     localStorage.removeItem('searchKeyword');
+//   }
+// });
+window.addEventListener('DOMContentLoaded', async () => {
+  const navType = performance.getEntriesByType("navigation")[0].type;
+  const savedCategory = localStorage.getItem('selectedCategory');
+  const savedKeyword = localStorage.getItem('searchKeyword');
+  const allCategoryLinks = document.querySelectorAll('.category-list li a, .product-categories ul li ul li a');
+  const searchInput = document.querySelector('#searchInput');
+
+  if (navType === 'reload') {
+    console.log("🔁 Reload detected");
+
+    // 👉 Ưu tiên tìm kiếm nếu có từ khóa tìm kiếm
     if (savedKeyword) {
-      document.getElementById('search-input').value = savedKeyword; // Set lại ô input
+      allCategoryLinks.forEach(link => link.classList.remove('category-active'));
+      if (searchInput) searchInput.value = savedKeyword;
       searchProduct(savedKeyword);
+    } else if (savedCategory) {
+      // 👉 Nếu không có từ khóa thì xử lý theo danh mục
+      showCategory(savedCategory);
+      if (searchInput) searchInput.value = '';
+
+      // Reset class active
+      allCategoryLinks.forEach(link => link.classList.remove('category-active'));
+      const activeLink = Array.from(allCategoryLinks).find(link => link.getAttribute('data-category') === savedCategory);
+      if (activeLink) {
+        activeLink.classList.add('category-active');
+      }
+    } else {
+      // 👉 Nếu không có gì, hiển thị sản phẩm mới nhất
+      if (searchInput) searchInput.value = '';
+      showLatestProducts();
     }
-  });
-  
-  
-  
+
+  } else {
+    // 👉 Truy cập mới
+    console.log("🆕 Fresh visit detected");
+
+    allCategoryLinks.forEach(link => link.classList.remove('category-active'));
+    if (searchInput) searchInput.value = '';
+    showLatestProducts();
+
+    localStorage.removeItem('selectedCategory');
+    localStorage.removeItem('searchKeyword');
+  }
+});
+
+

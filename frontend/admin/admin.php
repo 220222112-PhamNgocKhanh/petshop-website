@@ -20,6 +20,13 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .stat-card h3 {
@@ -69,25 +76,25 @@
         </div>
 
         <div class="dashboard-stats">
-            <div class="stat-card">
+            <div class="stat-card" onclick="window.location.href='customer_management.php'">
                 <i class="fas fa-users icon"></i>
                 <h3>Tổng số khách hàng</h3>
-                <div class="number" id="customerCount">0</div>
+                <div class="number" id="userCount">0</div>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card" onclick="window.location.href='order_management.php'">
                 <i class="fas fa-shopping-cart icon"></i>
                 <h3>Đơn hàng mới</h3>
                 <div class="number" id="orderCount">0</div>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card" onclick="window.location.href='product_management.php'">
                 <i class="fas fa-box icon"></i>
                 <h3>Sản phẩm</h3>
                 <div class="number" id="productCount">0</div>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card" onclick="window.location.href='pages/report.php'">
                 <i class="fas fa-dollar-sign icon"></i>
                 <h3>Doanh thu tháng này</h3>
                 <div class="number" id="revenue">0đ</div>
@@ -105,7 +112,19 @@
             }
 
             try {
-                // Lấy thống kê từ API
+                // Lấy số lượng người dùng
+                const userCountResponse = await fetch('http://localhost:3000/user-service/users/count', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (userCountResponse.ok) {
+                    const userCountData = await userCountResponse.json();
+                    document.getElementById('userCount').textContent = userCountData.count || 0;
+                }
+
+                // Lấy thống kê khác từ API
                 const response = await fetch('http://localhost:3000/admin/dashboard-stats', {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -121,7 +140,6 @@
                 if (response.ok) {
                     const stats = await response.json();
                     // Cập nhật số liệu thống kê
-                    document.getElementById('customerCount').textContent = stats.customerCount || 0;
                     document.getElementById('orderCount').textContent = stats.orderCount || 0;
                     document.getElementById('productCount').textContent = stats.productCount || 0;
                     document.getElementById('revenue').textContent = 

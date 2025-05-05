@@ -190,10 +190,8 @@
             <table class="blog-table">
                 <thead>
                     <tr>
-                        <th>Hình ảnh</th>
                         <th>Tiêu đề</th>
                         <th>Ngày đăng</th>
-                        <th>Trạng thái</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
@@ -218,10 +216,6 @@
                     <label for="content">Nội dung</label>
                     <textarea id="content" name="content" required></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="image">Hình ảnh</label>
-                    <input type="file" id="image" name="image" accept="image/*">
-                </div>
                 <button type="submit" class="add-blog-btn">Lưu bài viết</button>
             </form>
         </div>
@@ -243,7 +237,7 @@
                     return;
                 }
 
-                const response = await fetch('http://localhost:3000/blog-service/blogs', {
+                const response = await fetch('http://localhost:3000/blog-service/posts', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -258,10 +252,14 @@
                 }
 
                 const blogs = await response.json();
-                displayBlogs(blogs);
+                if (Array.isArray(blogs)) {
+                    displayBlogs(blogs);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('Lỗi khi tải danh sách blog', true);
+                showMessage('Lỗi khi tải danh sách blog: ' + error.message, true);
             }
         }
 
@@ -271,16 +269,22 @@
 
             blogs.forEach(blog => {
                 const row = document.createElement('tr');
+                const createdDate = new Date(blog.created_at).toLocaleDateString('vi-VN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
                 row.innerHTML = `
-                    <td><img src="${blog.image_url || '../images/default-blog.jpg'}" alt="${blog.title}" class="blog-image"></td>
                     <td>${blog.title}</td>
-                    <td>${new Date(blog.created_at).toLocaleDateString('vi-VN')}</td>
-                    <td>${blog.status ? 'Đã đăng' : 'Nháp'}</td>
+                    <td>${createdDate}</td>
                     <td class="action-buttons">
-                        <button class="edit-btn" onclick="editBlog(${blog.id})">
+                        <button class="edit-btn" onclick="editBlog(${blog.post_id})">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="delete-btn" onclick="deleteBlog(${blog.id})">
+                        <button class="delete-btn" onclick="deleteBlog(${blog.post_id})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -289,28 +293,126 @@
             });
         }
 
+        let currentBlogId = null;
+
         function openModal(blogId = null) {
+            currentBlogId = blogId;
             document.getElementById('blogModal').style.display = 'block';
             document.getElementById('modalTitle').textContent = blogId ? 'Sửa bài viết' : 'Thêm bài viết mới';
-            // Reset form
             document.getElementById('blogForm').reset();
+            
+            if (blogId) {
+                loadBlogData(blogId);
+            }
+        }
+
+        async function loadBlogData(blogId) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:3000/blog-service/posts/${blogId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể tải thông tin bài viết');
+                }
+
+                const blog = await response.json();
+                document.getElementById('title').value = blog.title || '';
+                document.getElementById('content').value = blog.content || '';
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Lỗi khi tải thông tin bài viết: ' + error.message, true);
+            }
         }
 
         function closeModal() {
             document.getElementById('blogModal').style.display = 'none';
+            currentBlogId = null;
         }
 
         async function saveBlog(event) {
             event.preventDefault();
-            // Thêm code xử lý lưu blog
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showMessage('Vui lòng đăng nhập lại', true);
+                return;
+            }
+
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+
+            if (!title || !content) {
+                showMessage('Vui lòng điền đầy đủ tiêu đề và nội dung', true);
+                return;
+            }
+
+            const blogData = {
+                title: title,
+                content: content
+            };
+
+            try {
+                const url = currentBlogId ? 
+                    `http://localhost:3000/blog-service/posts/${currentBlogId}` :
+                    'http://localhost:3000/blog-service/posts';
+
+                const method = currentBlogId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(blogData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Lỗi khi lưu bài viết');
+                }
+
+                showMessage(currentBlogId ? 'Cập nhật bài viết thành công' : 'Thêm bài viết thành công');
+                closeModal();
+                loadBlogs();
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Lỗi khi lưu bài viết: ' + error.message, true);
+            }
         }
 
         async function editBlog(blogId) {
-            // Thêm code xử lý sửa blog
+            openModal(blogId);
         }
 
         async function deleteBlog(blogId) {
-            // Thêm code xử lý xóa blog
+            if (!confirm('Bạn có chắc muốn xóa bài viết này?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:3000/blog-service/posts/${blogId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Không thể xóa bài viết');
+                }
+
+                showMessage('Xóa bài viết thành công');
+                loadBlogs();
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Lỗi khi xóa bài viết: ' + error.message, true);
+            }
         }
 
         function showMessage(message, isError = false) {

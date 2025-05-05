@@ -7,10 +7,12 @@ const userRoutes = (req, res, pathname, method) => {
         userController.login(req, res);
     } else if (pathname === '/user-service/users' && method === 'GET') {
         userController.getUsers(req, res);
+    } else if (pathname === '/user-service/users/count' && method === 'GET') {
+        userController.getUserCount(req, res);
     } else if (pathname === '/user-service/update' && method === 'PUT') {
         userController.updateUser(req, res);
     } else if (pathname === '/user-service/admin-update' && method === 'PUT') {
-        userController.adminUpdateUser(req, res); // Route mới cho adminUpdateUser
+        userController.adminUpdateUser(req, res);
     } else if (pathname === '/user-service/delete' && method === 'DELETE') {
         userController.deleteUser(req, res);
     } else if (method === 'GET' && pathname.startsWith('/user-service/user/')) {
@@ -21,11 +23,7 @@ const userRoutes = (req, res, pathname, method) => {
         userController.forgotPassword(req, res);
     } else if (pathname === '/user-service/change-password' && method === 'PUT') {
         userController.changePassword(req, res);
-    }else if (pathname === '/user-service/change-avatar' && method === 'POST') {
-        userController.changeAvatar(req, res);
-    }else if (pathname.startsWith('/user-service/avatar/') && method === 'GET') {
-        userController.getAvatar(req, res);
-    }else if (pathname.startsWith('/user-service/users/email/') && method === 'GET') {
+    } else if (pathname.startsWith('/user-service/users/email/') && method === 'GET') {
         userController.getUserByEmail(req, res);
     } else if (pathname.startsWith('/user-service/users/username/') && method === 'GET') {
         userController.getUserIdByUsername(req, res);

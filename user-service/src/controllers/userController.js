@@ -110,7 +110,11 @@ exports.getUsers = async (req, res) => {
     }
 
     try {
-        const users = await User.findAll();
+        const users = await User.findAll({
+            where: {
+                role: 'user' // Chỉ lấy người dùng có role là user
+            }
+        });
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(users));
     } catch (error) {
@@ -124,9 +128,9 @@ exports.getUserById = async (req, res) => {
     const decoded = exports.verifyToken(req);
     const id = req.url.split('/').pop();
 
-    if (!decoded || (decoded.user_id !== Number(id) && decoded.role !== 'admin')) {
-        res.writeHead(403, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ message: 'Permission denied' }));
+    if (!decoded) {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ message: 'Vui lòng đăng nhập' }));
     }
 
     try {
@@ -134,6 +138,18 @@ exports.getUserById = async (req, res) => {
         if (!user) {
             res.writeHead(404, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ message: 'User not found' }));
+        }
+
+        // Kiểm tra nếu user là admin thì không cho phép xem
+        if (user.role === 'admin') {
+            res.writeHead(403, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ message: 'Access denied' }));
+        }
+
+        // Kiểm tra quyền truy cập
+        if (decoded.user_id !== Number(id) && decoded.role !== 'admin') {
+            res.writeHead(403, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ message: 'Permission denied' }));
         }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -146,21 +162,12 @@ exports.getUserById = async (req, res) => {
 // Lấy user theo email
 exports.getUserByEmail = async (req, res) => {
     const decoded = exports.verifyToken(req);
-    // Lấy email từ URL
     const email = req.url.split('/email/').pop();
 
     if (!decoded) {
         res.writeHead(401, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ 
             message: 'Vui lòng đăng nhập để thực hiện thao tác này'
-        }));
-    }
-
-    // Kiểm tra quyền: admin có thể tìm tất cả, user thường chỉ tìm được email của mình
-    if (decoded.role !== 'admin' && decoded.email !== email) {
-        res.writeHead(403, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ 
-            message: 'Bạn không có quyền truy cập thông tin này'
         }));
     }
 
@@ -176,9 +183,23 @@ exports.getUserByEmail = async (req, res) => {
             }));
         }
 
+        // Kiểm tra nếu user là admin thì không cho phép xem
+        if (user.role === 'admin') {
+            res.writeHead(403, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ message: 'Access denied' }));
+        }
+
+        // Kiểm tra quyền truy cập
+        if (decoded.role !== 'admin' && decoded.email !== email) {
+            res.writeHead(403, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ 
+                message: 'Bạn không có quyền truy cập thông tin này'
+            }));
+        }
+
         // Loại bỏ thông tin nhạy cảm trước khi gửi
         const userResponse = {
-            id: user.id,
+            user_id: user.user_id,
             email: user.email,
             username: user.username,
             address: user.address,
@@ -496,6 +517,30 @@ exports.getUserIdByUsername = async (req, res) => {
             message: 'Đã xảy ra lỗi khi tìm kiếm user_id',
             error: error.message 
         }));
+    }
+};
+
+// Lấy số lượng người dùng (không tính admin)
+exports.getUserCount = async (req, res) => {
+    const decoded = exports.verifyToken(req);
+    if (!exports.checkRole(decoded, 'admin')) {
+        res.writeHead(403, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ message: 'Access denied' }));
+    }
+
+    try {
+        const count = await User.count({
+            where: {
+                role: 'user'
+            }
+        });
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ count }));
+    } catch (error) {
+        console.error('Error in getUserCount:', error);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Internal server error' }));
     }
 };
 

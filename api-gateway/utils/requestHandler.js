@@ -19,23 +19,32 @@ const requestHandler = (req, res, serviceUrl) => {
         });
 
         serviceRes.on('end', () => {
-            res.writeHead(serviceRes.statusCode, serviceRes.headers);
-            res.end(data);
+            if (!res.headersSent) {
+                res.writeHead(serviceRes.statusCode, serviceRes.headers);
+                res.end(data);
+            }
         });
     });
 
     proxy.on('error', (err) => {
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Internal Server Error', error: err.message }));
+        if (!res.headersSent) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Internal Server Error', error: err.message }));
+        }
     });
 
-    // Gửi body cho tất cả các phương thức có thể có body
+    req.on('error', (err) => {
+        if (!res.headersSent) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Request error', error: err.message }));
+        }
+    });
+
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
         req.pipe(proxy);
     } else {
         proxy.end();
     }
-
 };
 
 module.exports = requestHandler;

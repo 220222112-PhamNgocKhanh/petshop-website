@@ -5,7 +5,6 @@
         <li><a href="petmart.php">PetMart</a></li>
         <li><a href="about.php">About us</a></li>
         <li><a href="blog.php">Blog</a></li>
-        <li><a href="petguide.php">PetGuide</a></li>
         <li><a href="contact.php">Contact us</a></li>
         <div id="userSection"></div> <!-- Phần này sẽ được cập nhật bằng JavaScript -->
     </ul>

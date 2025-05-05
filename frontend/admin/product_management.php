@@ -232,6 +232,7 @@
     
     <div class="content">
         <div class="product-container">
+            <img src="../../" alt="">
             <div class="product-header">
                 <h1>Quản lý Sản phẩm</h1>
                 <button class="add-product-btn" onclick="openModal()">
@@ -434,7 +435,7 @@
                 showMessage('Lỗi khi tìm kiếm sản phẩm', true);
             }
         }
-
+        
         document.getElementById('productForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
