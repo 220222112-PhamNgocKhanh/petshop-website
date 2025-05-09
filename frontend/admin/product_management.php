@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Sản phẩm</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="sidebar.css">
     <style>
@@ -18,7 +20,7 @@
             background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .product-header {
@@ -76,14 +78,15 @@
             margin-top: 20px;
         }
 
-        .product-table th, .product-table td {
+        .product-table th,
+        .product-table td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
         .product-table th {
-            background-color: #f8f9fa;
+
             font-weight: bold;
         }
 
@@ -103,7 +106,8 @@
             gap: 10px;
         }
 
-        .edit-btn, .delete-btn {
+        .edit-btn,
+        .delete-btn {
             padding: 6px 12px;
             border: none;
             border-radius: 4px;
@@ -127,6 +131,14 @@
             background: #c82333;
         }
 
+        .tooltip-inner {
+            color: hotpink;
+            /* màu chữ */
+            background-color: white;
+            font-weight: bold;
+        }
+
+
         /* Modal styles */
         .modal {
             display: none;
@@ -135,7 +147,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
         }
 
@@ -227,9 +239,11 @@
         }
     </style>
 </head>
+
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <?php include 'sidebar.php'; ?>
-    
+
     <div class="content">
         <div class="product-container">
             <div class="product-header">
@@ -258,7 +272,8 @@
                         <th>Giá</th>
                         <th>Số lượng</th>
                         <th>Trạng thái</th>
-                        <th>Hành động</th>
+                        <th class="text-center">Hành động</th>
+
                     </tr>
                 </thead>
                 <tbody id="productTable">
@@ -280,7 +295,8 @@
                 </div>
                 <div class="form-group">
                     <label for="price">Giá</label>
-                    <input type="number" id="price" name="price" min="0" required>
+                    <input type="number" id="price" name="price" step="0.01" min = "0"  required>
+
                 </div>
                 <div class="form-group">
                     <label for="quantity">Số lượng</label>
@@ -292,16 +308,19 @@
                 </div>
                 <div class="form-group">
                     <label for="category">Danh mục</label>
+                    <textarea id="category" name="category" required></textarea>
+                    <!-- <label for="category">Danh mục</label>
                     <select id="category" name="category" required>
                         <option value="">Chọn danh mục</option>
                         <option value="food">Thức ăn</option>
                         <option value="toys">Đồ chơi</option>
                         <option value="accessories">Phụ kiện</option>
-                    </select>
+                    </select> -->
                 </div>
                 <div class="form-group">
                     <label for="image">Hình ảnh</label>
                     <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+                    <input type="hidden" id="imageName" name="imageName">
                     <img id="imagePreview" class="preview-image" style="display: none;">
                 </div>
                 <button type="submit" class="add-product-btn">Lưu sản phẩm</button>
@@ -310,7 +329,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             loadProducts();
         });
 
@@ -340,7 +359,7 @@
                 }
 
                 const products = await response.json();
-                
+
                 displayProducts(products.products);
             } catch (error) {
                 console.error('Error:', error);
@@ -353,24 +372,31 @@
             tableBody.innerHTML = '';
 
             products.forEach(product => {
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><img src="../../backend/image/${product.category}/${product.image || '../images/default-product.jpg'}" alt="${product.name}" class="product-image"></td>
                     <td>${product.name}</td>
                     <td>${formatCurrency(product.price)}</td>
                     <td>${product.amount}</td>
-                    <td><span class="stock-status ${getStockStatusClass(product.quantity)}">${getStockStatusText(product.quantity)}</span></td>
-                    <td class="action-buttons">
-                        <button class="edit-btn" onclick="editProduct(${product.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="delete-btn" onclick="deleteProduct(${product.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
+                    <td><span class="stock-status ${getStockStatusClass(product.amount)}">${getStockStatusText(product.amount)}</span></td>
+                        <td class="text-center align-middle">
+        <button class="btn btn-primary btn-sm me-2" data-bs-toggle="tooltip" title="Chỉnh sửa" onclick="editProduct(${product.id})">
+            <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Xóa" onclick="deleteProduct(${product.id})">
+            <i class="fas fa-trash"></i>
+        </button>
+    </td>
+
                 `;
                 tableBody.appendChild(row);
             });
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+
         }
 
         function getStockStatusClass(quantity) {
@@ -386,20 +412,25 @@
         }
 
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
         }
 
+
         function previewImage(event) {
+
             const file = event.target.files[0];
             const preview = document.getElementById('imagePreview');
-            
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     preview.src = e.target.result;
                     preview.style.display = 'block';
+
                 }
                 reader.readAsDataURL(file);
+                document.getElementById('imageName').value = file.name;
+
+
             }
         }
 
@@ -418,15 +449,16 @@
             const searchTerm = document.getElementById('searchInput').value;
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3000/product-service/products/search?q=${searchTerm}`, {
+                const response = await fetch(`http://localhost:3000/product-service/products/searchbyname/${searchTerm}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
                 const products = await response.json();
+                console.log(products);
                 if (response.ok) {
-                    displayProducts(products);
+                    displayProducts(products.products);
                 } else {
                     showMessage('Không tìm thấy sản phẩm', true);
                 }
@@ -436,18 +468,74 @@
             }
         }
 
-        document.getElementById('productForm').addEventListener('submit', async function(e) {
+        let currentEditingId = null;
+
+        document.getElementById('productForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            const formData = new FormData(this);
-            
+            if (currentEditingId) {
+                updateProduct(currentEditingId);
+            } else {
+                addProduct();
+            }
+        });
+
+        async function updateProduct(productId) {
+            const form = document.getElementById('productForm');
+            const data = {
+                name: form.querySelector('#name').value,
+                price: parseFloat(form.querySelector('#price').value),
+                amount: parseInt(form.querySelector('#quantity').value),
+                description: form.querySelector('#description').value,
+                category: form.querySelector('#category').value,
+                image: form.querySelector('#imageName').value // nếu bạn dùng trường này cho đường dẫn ảnh
+            };
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:3000/product-service/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    showMessage('Cập nhật sản phẩm thành công');
+                    closeModal();
+                    searchProducts();
+                } else {
+                    showMessage(result.message || 'Lỗi khi cập nhật sản phẩm', true);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Lỗi khi cập nhật sản phẩm', true);
+            }
+        }
+
+
+        async function addProduct() {
+            const form = document.getElementById('productForm');
+            const data = {
+                name: form.querySelector('#name').value,
+                price: parseFloat(form.querySelector('#price').value),
+                amount: parseInt(form.querySelector('#quantity').value),
+                description: form.querySelector('#description').value,
+                category: form.querySelector('#category').value,
+                image: form.querySelector('#imageName').value // hoặc dùng file name nếu bạn có
+            };
+
             try {
                 const token = localStorage.getItem('token');
                 const response = await fetch('http://localhost:3000/product-service/products', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     },
-                    body: formData
+                    body: JSON.stringify(data)
                 });
 
                 const result = await response.json();
@@ -462,7 +550,8 @@
                 console.error('Error:', error);
                 showMessage('Lỗi khi thêm sản phẩm', true);
             }
-        });
+        }
+
 
         async function editProduct(productId) {
             try {
@@ -472,19 +561,26 @@
                         'Authorization': `Bearer ${token}`
                     }
                 });
-
-                const product = await response.json();
+                const form = document.getElementById('productForm').value;
+                const products = await response.json();
                 if (response.ok) {
+                    const product = products.product;
+                    currentEditingId = productId;
                     openModal(productId);
+
                     // Fill form with product data
                     document.getElementById('name').value = product.name;
                     document.getElementById('price').value = product.price;
-                    document.getElementById('quantity').value = product.quantity;
+                    document.getElementById('quantity').value = product.amount;
                     document.getElementById('description').value = product.description;
                     document.getElementById('category').value = product.category;
-                    if (product.image_url) {
-                        document.getElementById('imagePreview').src = product.image_url;
+                    if (product.image) {
+                        const url = `../../backend/image/${product.category}/${product.image}`;
+                        document.getElementById('imagePreview').src = url;
+                        document.getElementById('imageName').value = product.image;
+
                         document.getElementById('imagePreview').style.display = 'block';
+
                     }
                 } else {
                     showMessage(product.message || 'Lỗi khi tải thông tin sản phẩm', true);
@@ -533,18 +629,19 @@
         }
 
         // Close modal when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target == document.getElementById('productModal')) {
                 closeModal();
             }
         }
 
         // Add event listener for Enter key in search input
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 searchProducts();
             }
         });
     </script>
 </body>
+
 </html>

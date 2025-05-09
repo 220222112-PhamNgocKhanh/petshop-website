@@ -7,6 +7,8 @@
   <link href="css/style.css" rel="stylesheet" type="text/css">
   <link href="css/header.css" rel="stylesheet" type="text/css">
   <link href="css/cart.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../cart-service/public/css/toast.css">
   <!--[if IE 6]><link href="css/ie6.css" rel="stylesheet" type="text/css"><![endif]-->
   <!--[if IE 7]><link href="css/ie7.css" rel="stylesheet" type="text/css"><![endif]-->
 
@@ -85,7 +87,7 @@
       </div>
     </div>
 
-    <script src="../backend/product/loadCart.js"></script>
+    
 
     <div class="featured">
       <ul>
@@ -128,6 +130,11 @@
       </div>
     </div>
   </div>
+
+  <!-- Sử dụng JavaScript modules từ cart-service -->
+  <script src="../cart-service/public/js/cartAPI.js"></script>
+  <script src="../cart-service/public/js/cartManager.js"></script>
+  <script src="../cart-service/public/js/cartUI.js"></script>
 </body>
 
 </html>

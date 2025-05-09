@@ -6,13 +6,13 @@
     <meta charset="UTF-8">
     <link href="css/style.css" rel="stylesheet" type="text/css">
     <link href="css/header.css" rel="stylesheet" type="text/css"> <!-- Liên kết file header.css -->
-    <link href="css/footer.css" rel="stylesheet" type="text/css"> <!-- Liên kết file footer.css -->
+    
     <link href="css/custom.css" rel="stylesheet" type="text/css"> <!-- Liên kết file custom.css -->
 </head>
 
 <body>
 <?php include 'header.php'; ?>
-
+<script src="../cart-service/public/js/cartAPI.js"></script>
     <!-- Body -->
     <div id="body">
         <div class="banner">&nbsp;</div>

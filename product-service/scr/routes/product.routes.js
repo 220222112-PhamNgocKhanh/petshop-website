@@ -9,6 +9,7 @@ router.get('/latest', productController.latestProduct);
 // 🔍 Tìm kiếm
 router.get('/searchbyname/:name', productController.getProductByName);
 router.get('/search/:categoryName', productController.getProductBycategory);
+router.get('/search-category/:categoryName/:keyword', productController.searchInCategory);
 
 // 🧩 CRUD cơ bản
 router.post('/', productController.createProduct);

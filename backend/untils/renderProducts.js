@@ -24,7 +24,11 @@ function renderProducts(products, title = 'Sản phẩm') {
   
         productTag.innerHTML = `
           <div class="product-img">
-            <img src="../backend/image/${product.category}/${product.image || 'default-product.jpg'}" alt="${product.name}">
+            <img src="../backend/image/${product.category}/${product.image || 'default-product.jpg'}" 
+                 alt="${product.name}" 
+                 loading="lazy" 
+                 decoding="async"
+                 onerror="this.onerror=null; this.src='../backend/image/default-product.jpg';">
             <div class="overlay">
               <div class="icon-buttons">
                 <div class="icon-wrapper">
@@ -54,9 +58,25 @@ function renderProducts(products, title = 'Sản phẩm') {
 // Sau khi forEach products xong
 document.querySelectorAll('.buy-btn').forEach(btn => {
   btn.addEventListener('click', (e) => {
+   
     const productId = btn.closest('.product-tags').querySelector('.view-detail-btn').dataset.id;
+   
     const selectedProduct = products.find(p => p.id == productId);
-    if (selectedProduct) addToCart(selectedProduct,1);
+    
+    
+    if (selectedProduct) {
+     
+      CartManager.addToCart(selectedProduct, 1);
+      
+      // Đợi một chút để đảm bảo giỏ hàng đã được cập nhật
+      setTimeout(() => {
+        // Kích hoạt cập nhật UI thủ công nếu cần
+       
+        if (typeof window.updateCartCount === 'function') {
+          window.updateCartCount();
+        }
+      }, 100);
+    }
   });
 });
 

@@ -32,30 +32,31 @@ function saveCategoryAndShow(categoryName) {
 }
 
 
-const categoryContainer = document.querySelector('.category-list'); // Thay đổi selector cho đúng với HTML
+const categoryWrapper = document.querySelector('.category-wrapper'); // đúng vùng chứa tất cả danh mục
 
-if (categoryContainer) {
-  categoryContainer.addEventListener('click', (e) => {
-    const link = e.target.closest('a'); // Tìm link gần nhất (nếu có)
+if (categoryWrapper) {
+  categoryWrapper.addEventListener('click', (e) => {
+    const link = e.target.closest('a'); // Tìm phần tử <a> gần nhất
 
-    if (!link) return; // Nếu không phải link, thì thoát
+    if (!link) return;
 
-    const category = link.dataset.category; // Lấy danh mục từ thuộc tính data-category
+    const category = link.dataset.category; // lấy data-category
     if (category) {
-      e.preventDefault(); // Ngăn trang load lại
+      e.preventDefault(); // Ngăn load lại trang
 
       // Xóa từ khóa tìm kiếm cũ trong localStorage (nếu có)
       localStorage.removeItem('searchKeyword');
-      
+
       // Nếu có ô tìm kiếm, xóa nội dung ô tìm kiếm
       const searchInput = document.querySelector('#searchInput');
       if (searchInput) searchInput.value = '';
 
-      // Gọi hàm saveCategoryAndShow để hiển thị sản phẩm theo danh mục
+      // Gọi hàm để xử lý danh mục
       saveCategoryAndShow(category);
     }
   });
 }
+
 
 
 

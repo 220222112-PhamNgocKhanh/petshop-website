@@ -172,6 +172,22 @@ const countByCategory = async (req, res) => {
     }
 };
 
+// Tìm kiếm sản phẩm theo cả danh mục và từ khóa
+const searchInCategory = async (req, res) => {
+    const { categoryName, keyword } = req.params;
+    try {
+        const [products] = await db.execute(
+            'SELECT * FROM products WHERE LOWER(category) LIKE ? AND LOWER(name) LIKE ?',
+            [`%${categoryName.toLowerCase()}%`, `%${keyword.toLowerCase()}%`]
+        );
+        if (products.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy sản phẩm nào phù hợp' });
+        }
+        res.status(200).json({ products });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
 // Xuất module
 module.exports = {
@@ -185,4 +201,5 @@ module.exports = {
     getProductByName,
     latestProduct,
     countByCategory,
+    searchInCategory,
 };

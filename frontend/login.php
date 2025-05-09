@@ -55,6 +55,9 @@
                             const result = await response.json();
 
                             if (response.ok) {
+                                // Xóa thông tin giỏ hàng cũ trước khi đăng nhập
+                                localStorage.removeItem('cart');
+                                
                                 // Sau khi nhận token:
                                 const token = result.token;
                                 const payload = JSON.parse(atob(token.split('.')[1]));

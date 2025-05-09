@@ -46,6 +46,11 @@ const productServiceRoutes = (req, res, url, method) => {
         const name = parts[3];
         requestHandler(req, res, `http://localhost:6000/products/searchbyname/${name}`);
     }
+    else if (parts[0] === 'product-service' && parts[1] === 'products' && parts[2] === 'search-category' && parts.length === 5 && method === 'GET') {
+        const category = parts[3];
+        const keyword = parts[4];
+        requestHandler(req, res, `http://localhost:6000/products/search-category/${category}/${keyword}`);
+    }
 
 
     // Nếu không khớp bất kỳ route nào ở trên
