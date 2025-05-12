@@ -2,7 +2,7 @@ const userController = require('../controllers/userController');
 
 const userRoutes = (req, res, pathname, method) => {
     if (pathname === '/user-service/register' && method === 'POST') {
-        userController.register(req, res);
+        userController.register(req, res); // 
     } else if (pathname === '/user-service/login' && method === 'POST') {
         userController.login(req, res);
     } else if (pathname === '/user-service/users' && method === 'GET') {
@@ -18,7 +18,7 @@ const userRoutes = (req, res, pathname, method) => {
     } else if (method === 'GET' && pathname.startsWith('/user-service/user/')) {
         return userController.getUserById(req, res);
     } else if (pathname === '/user-service/reset-password' && method === 'POST') {
-        userController.resetPassword(req, res);
+        userController.resetPassword(req, res); // ✅ Đảm bảo gửi thông báo khi đặt lại mật khẩu
     } else if (pathname === '/user-service/forgot-password' && method === 'POST') {
         userController.forgotPassword(req, res);
     } else if (pathname === '/user-service/change-password' && method === 'PUT') {

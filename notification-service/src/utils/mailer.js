@@ -1,26 +1,26 @@
-const nodemailer = require('nodemailer');
+require('dotenv').config(); // 🚨 Đảm bảo biến môi trường được tải
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const postmark = require("postmark");
+const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY); // 🔥 Sử dụng API Key từ .env
 
-function sendEmail(to, subject, body) {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to,
-    subject,
-    text: body,
-  };
-
-  return transporter.sendMail(mailOptions);
+async function sendEmail(to, subject, body) {
+    try {
+        await client.sendEmail({
+            From: process.env.EMAIL_USER, // 📌 Email phải được xác minh trong Postmark
+            To: to,
+            Subject: subject,
+            TextBody: body
+        });
+        console.log("✅ Email sent via Postmark!");
+    } catch (err) {
+        console.error("❌ Error sending email via Postmark:", err.message);
+    }
 }
-console.log('SMTP Config:', {
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    user: process.env.SMTP_USER,
+
+// 📌 Kiểm tra biến môi trường để đảm bảo API Key được tải đúng
+console.log("📌 Postmark Config:", {
+    apiKey: process.env.POSTMARK_API_KEY,
+    sender: process.env.EMAIL_USER,
 });
+
 module.exports = { sendEmail };

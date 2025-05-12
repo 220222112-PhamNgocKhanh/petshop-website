@@ -4,6 +4,7 @@ const User = require('../models/User');
 const parseRequestBody = require('../utils/parseRequestBody');
 const fs = require('fs');
 const path = require('path');
+const { sendNotification } = require('../utils/requestHelper');
 
 // Xác thực token từ header Authorization
 exports.verifyToken = (req) => {
@@ -24,7 +25,7 @@ exports.verifyToken = (req) => {
 exports.checkRole = (decoded, role) => decoded && decoded.role === role;
 
 // Đăng ký
-exports.register = (req, res) => {
+exports.register = async (req, res) => {
     parseRequestBody(req, res, async (body) => {
         const { username, password, email } = body;
         if (!username || !password || !email) {
@@ -39,6 +40,16 @@ exports.register = (req, res) => {
                 email,
                 password_hash: hashedPassword,
                 role: 'user'
+            });
+
+            // 📌 Kiểm tra xem request có thực sự gửi đi không
+            console.log('📩 Đang gửi thông báo:', { type: 'accountCreated', to: email, name: username });
+
+            // ✅ Gửi email thông báo đăng ký tài khoản mới (chờ phản hồi)
+            await sendNotification({
+                type: 'accountCreated',
+                to: email,
+                name: username
             });
 
             res.writeHead(201, { 'Content-Type': 'application/json' });
@@ -63,6 +74,7 @@ exports.register = (req, res) => {
         }
     });
 };
+
 
 // Đăng nhập
 exports.login = (req, res) => {
@@ -458,6 +470,14 @@ exports.forgotPassword = (req, res) => {
                 res.writeHead(404, { 'Content-Type': 'application/json' });
                 return res.end(JSON.stringify({ message: 'Email không tồn tại trong hệ thống' }));
             }
+
+            // ✅ Gửi email thông báo mật khẩu mới
+            sendNotification({
+                type: 'passwordReset',
+                to: email,
+                name: user.username,
+                link: `https://example.com/reset-password?token=${Date.now()}`
+            });
 
             const newPassword = generateRandomPassword();
             user.password_hash = await bcrypt.hash(newPassword, 10);
