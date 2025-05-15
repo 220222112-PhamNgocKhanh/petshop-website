@@ -15,7 +15,7 @@
 
 <!-- Thêm JavaScript -->
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         const userSection = document.getElementById('userSection');
         const token = localStorage.getItem('token'); // Kiểm tra token trong localStorage
 
@@ -26,18 +26,20 @@
                     <a href="#" id="userIcon"><img src="images/login.png" height="25" width="25" onclick="toggleDropdown(event)"></a>
                     <div id="userDropdown" class="dropdown-content">
                         <a href="account.php"><i class="fa fa-user"></i> Account</a>
-                        <a href="cart.php"><i class="fa fa-shopping-cart"></i> Shopping cart</a>
+                        <a href="cart.php" class="cart-link"><i class="fa fa-shopping-cart"></i> Shopping cart <span id="cart-count" class="cart-count">0</span></a>
                         <a href="order.php"><i class="fa fa-list-alt"></i> Order</a>
                         <a href="#" id="logoutButton"><i class="fa fa-sign-out"></i> Log out</a>
                     </div>
                 </div>
             `;
+            await updateCartCount();
 
             // Xử lý sự kiện Log out
             const logoutButton = document.getElementById('logoutButton');
             logoutButton.addEventListener('click', (event) => {
                 event.preventDefault();
-                // Xóa token khỏi localStorage
+                // Xóa token và giỏ hàng khỏi localStorage
+                localStorage.removeItem('cart');
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 alert('You have been logged out.');
@@ -45,12 +47,54 @@
                 window.location.href = 'login.php';
             });
         } else {
-            // Nếu chưa đăng nhập, chỉ hiển thị biểu tượng Login
+            // Nếu chưa đăng nhập, chỉ hiển thị biểu tượng Login 
             userSection.innerHTML = `
                 <a href="login.php"><img src="images/login.png" height="25" width="25" alt="Login"></a>
             `;
         }
     });
+
+    // Cập nhật số lượng sản phẩm trong giỏ hàng từ API
+    async function updateCartCount() {
+        
+        try {
+            const cartCount = document.getElementById('cart-count');
+            
+            
+            if (!cartCount) {
+                console.warn("Không tìm thấy element cart-count");
+                return;
+            }
+            
+            let totalItems = 0;
+            
+            // Lấy từ localStorage trước để đảm bảo UI cập nhật nhanh
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.forEach(item => {
+                totalItems += item.quantity || 1;
+            });
+            
+            
+            // Cập nhật UI trước
+            cartCount.textContent = totalItems;
+            cartCount.style.display = totalItems > 0 ? 'inline-block' : 'none';
+            
+            // Sau đó kiểm tra API nếu cần
+            if (typeof window.CartAPI !== 'undefined' && window.CartAPI && typeof window.CartAPI.isAuthenticated === 'function' && window.CartAPI.isAuthenticated()) {
+                // Lấy số lượng từ API để so sánh
+                const apiTotal = await window.CartAPI.getCartCount();
+             
+                
+                // Nếu có sự khác biệt, cập nhật lại UI
+                if (apiTotal !== totalItems) {
+                    cartCount.textContent = apiTotal;
+                    cartCount.style.display = apiTotal > 0 ? 'inline-block' : 'none';
+                }
+            }
+        } catch (error) {
+            console.error("Lỗi khi cập nhật số lượng giỏ hàng:", error);
+        }
+    }
 
     // Hiển thị/ẩn menu thả xuống
     function toggleDropdown(event) {
@@ -70,4 +114,19 @@
             }
         }
     }
+    
+    // Đăng ký sự kiện lắng nghe thay đổi giỏ hàng
+    document.addEventListener('cartUpdated', async function() {
+        await updateCartCount();
+    });
+    
+    // Lắng nghe sự kiện thay đổi từ localStorage (cho tab khác)
+    window.addEventListener('storage', async function(event) {
+        if (event.key === 'cart') {
+            await updateCartCount();
+        }
+    });
+
+    // Đưa hàm updateCartCount lên global scope để các module khác có thể gọi
+    window.updateCartCount = updateCartCount;
 </script>

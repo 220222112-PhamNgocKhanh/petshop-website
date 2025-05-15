@@ -124,6 +124,18 @@
                     document.getElementById('userCount').textContent = userCountData.count || 0;
                 }
 
+                // Lấy tổng số sản phẩm
+                const productCountResponse = await fetch('http://localhost:3000/product-service/products/count-total', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (productCountResponse.ok) {
+                    const productCountData = await productCountResponse.json();
+                    document.getElementById('productCount').textContent = productCountData.total || 0;
+                }
+
                 // Lấy thống kê khác từ API
                 const response = await fetch('http://localhost:3000/admin/dashboard-stats', {
                     headers: {
@@ -141,7 +153,6 @@
                     const stats = await response.json();
                     // Cập nhật số liệu thống kê
                     document.getElementById('orderCount').textContent = stats.orderCount || 0;
-                    document.getElementById('productCount').textContent = stats.productCount || 0;
                     document.getElementById('revenue').textContent = 
                         new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
                             .format(stats.revenue || 0);

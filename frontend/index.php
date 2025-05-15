@@ -18,28 +18,12 @@
         <div class="banner">&nbsp;</div>
         <div id="content">
             <div class="content">
-                <ul>
-                    <li>
-                        <a href="#"><img src="images/puppy.jpg" width="114" height="160" alt="Puppy"></a>
-                        <h2>What they need</h2>
-                        <p>Mirum est notare quam littera gothica, quam nunc putamus parum clara m, ant epo suerit li...</p>
-                    </li>
-                    <li>
-                        <a href="#"><img src="images/cat.jpg" width="114" height="160" alt="Cat"></a>
-                        <h2>Something good</h2>
-                        <p>Gothica, quam nunc putamus parum claram, anteposuerit litterarum formas humanitatis...</p>
-                    </li>
-                    <li>
-                        <a href="#"><img src="images/koi.jpg" width="114" height="160" alt="Koi"></a>
-                        <h2>Kinds of Fish</h2>
-                        <p>Quam nunc putamus parum claram, anteposuerit litterarum formas humanitatis per seacula...</p>
-                    </li>
-                    <li>
-                        <a href="#"><img src="images/bird.jpg" width="114" height="160" alt="Bird"></a>
-                        <h2>Fun birds</h2>
-                        <p>Mirum est notare quam littera gothica, quam nunc putamus parum claram, anteposuerit...</p>
-                    </li>
-                </ul>
+                <h2>Sản phẩm mới nhất</h2>
+                <div class="latest-products">
+                    <div class="products-grid" id="latestProducts">
+                        <!-- Products will be loaded here -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -47,23 +31,7 @@
     <!-- Footer -->
     <div id="footer">
         <div class="section">
-            <ul>
-                <li>
-                    <img src="images/friendly-pets.jpg" width="240" height="186" alt="Friendly Pets">
-                    <h2><a href="#">Friendly Pets</a></h2>
-                    <p>Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diam nonummy nib...</p>
-                </li>
-                <li>
-                    <img src="images/pet-lover2.jpg" width="240" height="186" alt="Pet Lover">
-                    <h2><a href="#">How dangerous are they</a></h2>
-                    <p>Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diam nonummy nib...</p>
-                </li>
-                <li>
-                    <img src="images/healthy-dog.jpg" width="240" height="186" alt="Healthy Dog">
-                    <h2><a href="#">Keep them healthy</a></h2>
-                    <p>Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diam nonummy nib...</p>
-                </li>
-            </ul>
+            
         </div>
         <div id="footnote">
             <div class="section">
@@ -71,6 +39,42 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch('http://localhost:3000/product-service/products/latest');
+                if (response.ok) {
+                    const products = await response.json();
+                    const productsContainer = document.getElementById('latestProducts');
+                    
+                    products.forEach(product => {
+                        const productCard = document.createElement('div');
+                        productCard.className = 'product-card';
+                        productCard.innerHTML = `
+                            <div class="product-image">
+                                <img src="${product.image || 'images/default-product.jpg'}" alt="${product.name}">
+                            </div>
+                            <div class="product-info">
+                                <h3>${product.name}</h3>
+                                <p class="price">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}</p>
+                                <p class="description">${product.description || ''}</p>
+                                <button class="add-to-cart" onclick="addToCart(${product.id})">Thêm vào giỏ</button>
+                            </div>
+                        `;
+                        productsContainer.appendChild(productCard);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading latest products:', error);
+            }
+        });
+
+        function addToCart(productId) {
+            // Implement add to cart functionality
+            console.log('Adding product to cart:', productId);
+        }
+    </script>
 </body>
 
 </html>

@@ -7,7 +7,9 @@ const productServiceRoutes = (req, res, url, method) => {
     if (url === '/product-service/products' && method === 'GET') {
         requestHandler(req, res, 'http://localhost:6000/products');
     }
-
+    else if (url === '/product-service/products/count-total' && method === 'GET') {
+        requestHandler(req, res, 'http://localhost:6000/products/count-total');
+    }
     // Route: GET /product-service/products/:id
     else if (parts[0] === 'product-service' && parts[1] === 'products' && parts.length === 3 && method === 'GET') {
         const id = parts[2];
@@ -45,6 +47,22 @@ const productServiceRoutes = (req, res, url, method) => {
     else if (parts[0] === 'product-service' && parts[1] === 'products' && parts[2] === 'searchbyname' && parts.length === 4 && method === 'GET') {
         const name = parts[3];
         requestHandler(req, res, `http://localhost:6000/products/searchbyname/${name}`);
+    }
+    else if (parts[0] === 'product-service' && parts[1] === 'products' && parts[2] === 'search-category' && parts.length === 5 && method === 'GET') {
+        const category = parts[3];
+        const keyword = parts[4];
+        requestHandler(req, res, `http://localhost:6000/products/search-category/${category}/${keyword}`);
+    }
+    else if (parts[0] === 'product-service' && parts[1] === 'products' && parts[2] === 'upload' && method === 'POST') {
+        requestHandler(req, res, `http://localhost:6000/products/upload`);
+
+    } 
+    else if (url === '/product-service/products/latest' && method === 'GET') {
+        requestHandler(req, res, 'http://localhost:6000/products/latest');
+    }
+    else if (parts[0] === 'product-service' && parts[1] === 'products' && parts[2] === 'upload' && parts.length === 4 && method === 'PUT') {
+        const id = parts[3];
+        requestHandler(req, res, `http://localhost:6000/products/upload/${id}`);
     }
 
 

@@ -4,6 +4,8 @@
 <head>
   <title>Pet Shop | PetMart</title>
   <meta charset="iso-8859-1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="css/style.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,8 +16,10 @@
   <link rel="stylesheet" href="css/petmart.css">
   <link rel="stylesheet" href="css/modal_style.css">
   <link href="css/header.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 </head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 
 <body>
 <?php include 'header.php'; ?>
@@ -23,11 +27,29 @@
   <div class="search-bar">
     <select id="categorySelect">
       <option value="all">All Categories</option>
-      <option value="Area">Food Area</option>
-      <option value="Accessories">Accessories</option>
-      <option value="Health">Health Center</option>
-      <option value="Grooming">Grooming</option>
-      <!-- Thêm danh mục khác nếu muốn -->
+      <option value="Dog Food">Dog Food</option>
+      <option value="Cat Food">Cat Food</option>
+      <option value="Bird Food">Bird Food</option>
+      <option value="Fish Food">Fish Food</option>
+      <option value="Small Pet Food">Small Pet Food</option>
+      <option value="Large Pet Food">Large Pet Food</option>
+      <option value="Odor Control">Odor Control</option>
+      <option value="Liners">Liners</option>
+      <option value="Scoops & Mats">Scoops & Mats</option>
+      <option value="Collars">Collars</option>
+      <option value="Harnesses">Harnesses</option>
+      <option value="Leashes">Leashes</option>
+      <option value="Multivitamins">Multivitamins</option>
+      <option value="Dental Care">Dental Care</option>
+      <option value="First Aid Kits">First Aid Kits</option>
+      <option value="Eye & Ear Care">Eye & Ear Care</option>
+      <option value="Hip & Joint Health">Hip & Joint Health</option>
+      <option value="Brushes & Combs">Brushes & Combs</option>
+      <option value="Deodorizers">Deodorizers</option>
+      <option value="Cologne">Cologne</option>
+      <option value="Ear & Eye Cleaners">Ear & Eye Cleaners</option>
+      <option value="Nail Clippers">Nail Clippers</option>
+      
     </select>
     <input type="text" id="search-input" placeholder="Tìm kiếm...">
     <button id="search-btn"><i class="fa fa-search"></i></button>
@@ -36,16 +58,7 @@
   <div id="body">
     <div id="content">
 
-      <!-- <div class="search">
-        <input type="text" name="s" value="Find">
-        <button>&nbsp;</button>
-        <label for="articles">
-          <input type="radio" id="articles">
-          Articles</label>
-        <label for="products">
-          <input type="radio" id="products" checked>
-          PetMart Products</label>
-      </div> -->
+      
 
       <div class="main-content">
         <div class="product-categories">
@@ -54,25 +67,23 @@
               PRODUCT CATEGORIES
             </a>
           </div>
-          <ul>
+          <ul class="category-wrapper">
             <li>
               <div class="category-item">
                 <a>Food Area</a>
-
               </div>
-              <ul>
-                <li><a href="#">Dog Food</a></li>
-                <li><a href="#">Cat Food</a></li>
-                <li><a href="#">Bird Food</a></li>
-                <li><a href="#">Fish Food</a></li>
-                <li><a href="#">Small Pet Food</a></li>
-                <li><a href="#">Large Pet Food</a></li>
+              <ul class="category-list">
+                <li><a href="#" data-category="Dog Food">Dog Food</a></li>
+                <li><a href="#" data-category="Cat Food">Cat Food</a></li>
+                <li><a href="#" data-category="Bird Food">Bird Food</a></li>
+                <li><a href="#" data-category="Fish Food">Fish Food</a></li>
+                <li><a href="#" data-category="Small Pet Food">Small Pet Food</a></li>
+                <li><a href="#" data-category="Large Pet Food">Large Pet Food</a></li>
               </ul>
             </li>
             <li>
               <div class="category-item">
                 <a>Accessories</a>
-
               </div>
               <ul class="category-list">
                 <li><a href="#" data-category="Odor Control">Odor Control</a></li>
@@ -91,11 +102,11 @@
 
               </div>
               <ul>
-                <li><a href="#">Multivitamins</a></li>
-                <li><a href="#">Dental Care</a></li>
-                <li><a href="#">First Aid Kits</a></li>
-                <li><a href="#">Eye & Ear Care</a></li>
-                <li><a href="#">Hip & Joint Health</a></li>
+                <li><a href= "#" data-category="Multivitamins">Multivitamins</a></li>
+                <li><a href= "#" data-category="Dental Care">Dental Care</a></li>
+                <li><a href= "#" data-category="First Aid Kits">First Aid Kits</a></li>
+                <li><a href= "#" data-category="Eye & Ear Care">Eye & Ear Care</a></li>
+                <li><a href= "#" data-category="Hip & Joint Health">Hip & Joint Health</a></li>
               </ul>
             </li>
 
@@ -105,11 +116,11 @@
 
               </div>
               <ul>
-                <li><a href="#">Brushes & Combs</a></li>
-                <li><a href="#">Deodorizers</a></li>
-                <li><a href="#">Cologne</a></li>
-                <li><a href="#">Ear & Eye Cleaners</a></li>
-                <li><a href="#">Nail Clippers</a></li>
+                <li><a href= "#" data-category="Brushes & Combs">Brushes & Combs</a></li>
+                <li><a href= "#" data-category="Deodorizers">Deodorizers</a></li>
+                <li><a href= "#" data-category="Cologne">Cologne</a></li>
+                <li><a href= "#" data-category="Ear & Eye Cleaners">Ear & Eye Cleaners</a></li>
+                <li><a href= "#" data-category="Nail Clippers">Nail Clippers</a></li>
               </ul>
             </li>
           </ul>
@@ -140,7 +151,8 @@
     </div>
     <div id="toast" class="toast"></div>
 
-    <script src="../backend/product/cart.js"></script>
+    <script src="../cart-service/public/js/cartAPI.js"></script>
+    <script src="../cart-service/public/js/cartManager.js"></script>
     <script src="../backend/product/category_count.js"></script>
     <script src="../backend/untils/renderProducts.js"></script>
     <script src="../backend/product/product_detail.js"></script>
