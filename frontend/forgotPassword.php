@@ -71,7 +71,7 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    successMessage.textContent = 'Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn.';
+                    successMessage.textContent = 'Mật khẩu mới đã được gửi đến email của bạn. Vui lòng kiểm tra email và đăng nhập lại.';
                     successMessage.style.display = 'block';
                     errorMessage.style.display = 'none';
                 } else {

@@ -21,14 +21,15 @@ const Payment = sequelize.define('Payment', {
     },
     currency: {
         type: DataTypes.STRING(10),
-        defaultValue: 'VND',
+        defaultValue: 'USD',
     },
     status: {
-        type: DataTypes.ENUM('pending', 'success', 'failed', 'cancelled'),
+        type: DataTypes.ENUM('pending', 'success', 'cancelled'),
         defaultValue: 'pending',
     },
     payment_method: {
         type: DataTypes.STRING(50),
+        defaultValue: 'cash',
     },
     transaction_id: {
         type: DataTypes.STRING(100),

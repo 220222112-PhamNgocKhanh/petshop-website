@@ -33,6 +33,8 @@ const paymentRoutes = (req, res, pathname, method) => {
                 paymentController.updatePaymentStatus(req, res, paymentId);
             });
         });
+    } else if (pathname === '/payment-service/payments/total-successful' && method === 'GET') {
+        paymentController.getTotalSuccessfulPayments(req, res);
     } else {
         // Route không tồn tại
         res.writeHead(404, { 'Content-Type': 'application/json' });

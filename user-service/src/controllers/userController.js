@@ -4,6 +4,40 @@ const User = require('../models/User');
 const parseRequestBody = require('../utils/parseRequestBody');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
+
+// Hàm gửi request đến notification service
+async function sendNotificationRequest(emailData) {
+    return new Promise((resolve, reject) => {
+        const options = {
+            hostname: 'localhost',
+            port: 3005,
+            path: '/send-email',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        const req = http.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            res.on('end', () => {
+                resolve(JSON.parse(data));
+            });
+        });
+
+        req.on('error', (error) => {
+            console.error('Error sending notification:', error);
+            reject(error);
+        });
+
+        req.write(JSON.stringify(emailData));
+        req.end();
+    });
+}
 
 // Xác thực token từ header Authorization
 exports.verifyToken = (req) => {
@@ -40,6 +74,20 @@ exports.register = (req, res) => {
                 password_hash: hashedPassword,
                 role: 'user'
             });
+
+            // Gửi email thông báo đăng ký thành công
+            try {
+                await sendNotificationRequest({
+                    to: email,
+                    eventType: 'accountCreated',
+                    data: {
+                        username: username
+                    }
+                });
+            } catch (emailError) {
+                console.error('Error sending registration email:', emailError);
+                // Không block luồng chính nếu gửi email thất bại
+            }
 
             res.writeHead(201, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ 
@@ -388,8 +436,25 @@ exports.resetPassword = (req, res) => {
             user.password_hash = await bcrypt.hash(new_password, 10);
             await user.save();
 
+            // Gửi email thông báo mật khẩu mới
+            try {
+                await sendNotificationRequest({
+                    to: user.email,
+                    eventType: 'passwordReset',
+                    data: {
+                        username: user.username,
+                        newPassword: new_password
+                    }
+                });
+            } catch (emailError) {
+                console.error('Error sending password reset email:', emailError);
+                // Không block luồng chính nếu gửi email thất bại
+            }
+
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Đặt lại mật khẩu thành công' }));
+            res.end(JSON.stringify({ 
+                message: 'Đặt lại mật khẩu thành công và đã gửi thông báo qua email' 
+            }));
         } catch (error) {
             console.error('Reset password error:', error);
             res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -463,9 +528,24 @@ exports.forgotPassword = (req, res) => {
             user.password_hash = await bcrypt.hash(newPassword, 10);
             await user.save();
 
+            // Gửi email thông báo mật khẩu mới
+            try {
+                await sendNotificationRequest({
+                    to: email,
+                    eventType: 'passwordReset',
+                    data: {
+                        username: user.username,
+                        newPassword: newPassword
+                    }
+                });
+            } catch (emailError) {
+                console.error('Error sending password reset email:', emailError);
+                // Không block luồng chính nếu gửi email thất bại
+            }
+
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ 
-                message: 'Mật khẩu mới đã được tạo', 
+                message: 'Mật khẩu mới đã được tạo và gửi qua email', 
                 new_password: newPassword 
             }));
         } catch (error) {

@@ -351,7 +351,7 @@
             try {
                 const token = localStorage.getItem('token');
                 const response = await fetch('http://localhost:3000/user-service/reset-password', {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`

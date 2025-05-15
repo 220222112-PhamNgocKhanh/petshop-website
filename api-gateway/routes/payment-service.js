@@ -13,6 +13,9 @@ const paymentServiceRoutes = (req, res, url, method) => {
     } else if (url.startsWith('/payment-service/payments/') && method === 'PUT') {
         // Cập nhật trạng thái thanh toán
         requestHandler(req, res, `http://localhost:8000${url}`);
+    } else if (url === '/payment-service/payments/total-successful' && method === 'GET') {
+        // Lấy tổng giá trị thanh toán thành công
+        requestHandler(req, res, 'http://localhost:8000/payment-service/payments/total-successful');
     } else {
         // Route không tồn tại
         res.writeHead(404, { 'Content-Type': 'application/json' });
