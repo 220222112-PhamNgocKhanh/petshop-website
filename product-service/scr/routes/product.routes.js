@@ -11,6 +11,10 @@ router.get('/searchbyname/:name', productController.getProductByName);
 router.get('/search/:categoryName', productController.getProductBycategory);
 router.get('/search-category/:categoryName/:keyword', productController.searchInCategory);
 
+// Upload routes - phải đặt TRƯỚC các route có parameter :id
+router.post('/upload', productController.processUpload, productController.uploadProductImage);
+router.put('/upload/:id', productController.processUpload, productController.updateProductWithImage);
+
 // 🧩 CRUD cơ bản
 router.post('/', productController.createProduct);
 router.get('/', productController.getProducts);

@@ -220,7 +220,15 @@ document.addEventListener("click", async (e) => {
       document.getElementById("productModal").style.display = "block";
       document.getElementById("addToCartBtn")?.addEventListener("click", () => {
         const quantity = parseInt(document.getElementById("quantity").value);
-        addToCart(data, quantity);
+        CartManager.addToCart(data, quantity);
+        // Đợi một chút để đảm bảo giỏ hàng đã được cập nhật
+        setTimeout(() => {
+          // Kích hoạt cập nhật UI thủ công nếu cần
+          if (typeof window.updateCartCount === "function") {
+            window.updateCartCount();
+          }
+        }, 100);
+        
       });
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu sản phẩm:", error);

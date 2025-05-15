@@ -51,6 +51,14 @@ const productServiceRoutes = (req, res, url, method) => {
         const keyword = parts[4];
         requestHandler(req, res, `http://localhost:6000/products/search-category/${category}/${keyword}`);
     }
+    else if(parts[0] === 'product-service' && parts[1] === 'products' && parts[2] === 'upload' && method === 'POST') {
+        requestHandler(req, res, `http://localhost:6000/products/upload`);
+        
+    }
+    else if(parts[0] === 'product-service' && parts[1] === 'products' && parts[2] === 'upload' && parts.length === 4 && method === 'PUT') {
+        const id = parts[3];
+        requestHandler(req, res, `http://localhost:6000/products/upload/${id}`);
+    }
 
 
     // Nếu không khớp bất kỳ route nào ở trên

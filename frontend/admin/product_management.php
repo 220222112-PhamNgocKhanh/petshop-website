@@ -288,14 +288,14 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">Thêm sản phẩm mới</h2>
-            <form id="productForm">
+            <form id="productForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="name">Tên sản phẩm</label>
                     <input type="text" id="name" name="name" required>
                 </div>
                 <div class="form-group">
                     <label for="price">Giá</label>
-                    <input type="number" id="price" name="price" step="0.01" min = "0"  required>
+                    <input type="number" id="price" name="price" step="0.01" min="0" required>
 
                 </div>
                 <div class="form-group">
@@ -308,14 +308,32 @@
                 </div>
                 <div class="form-group">
                     <label for="category">Danh mục</label>
-                    <textarea id="category" name="category" required></textarea>
-                    <!-- <label for="category">Danh mục</label>
                     <select id="category" name="category" required>
-                        <option value="">Chọn danh mục</option>
-                        <option value="food">Thức ăn</option>
-                        <option value="toys">Đồ chơi</option>
-                        <option value="accessories">Phụ kiện</option>
-                    </select> -->
+                        <option value="Dog Food">Dog Food</option>
+                        <option value="Cat Food">Cat Food</option>
+                        <option value="Bird Food">Bird Food</option>
+                        <option value="Fish Food">Fish Food</option>
+                        <option value="Small Pet Food">Small Pet Food</option>
+                        <option value="Large Pet Food">Large Pet Food</option>
+                        <option value="Odor Control">Odor Control</option>
+                        <option value="Liners">Liners</option>
+                        <option value="Scoops & Mats">Scoops & Mats</option>
+                        <option value="Collars">Collars</option>
+                        <option value="Harnesses">Harnesses</option>
+                        <option value="Leashes">Leashes</option>
+                        <option value="Multivitamins">Multivitamins</option>
+                        <option value="Dental Care">Dental Care</option>
+                        <option value="First Aid Kits">First Aid Kits</option>
+                        <option value="Eye & Ear Care">Eye & Ear Care</option>
+                        <option value="Hip & Joint Health">Hip & Joint Health</option>
+                        <option value="Brushes & Combs">Brushes & Combs</option>
+                        <option value="Deodorizers">Deodorizers</option>
+                        <option value="Cologne">Cologne</option>
+                        <option value="Ear & Eye Cleaners">Ear & Eye Cleaners</option>
+                        <option value="Nail Clippers">Nail Clippers</option>
+
+                    </select>
+                    
                 </div>
                 <div class="form-group">
                     <label for="image">Hình ảnh</label>
@@ -417,20 +435,25 @@
 
 
         function previewImage(event) {
-
             const file = event.target.files[0];
             const preview = document.getElementById('imagePreview');
+            
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     preview.src = e.target.result;
                     preview.style.display = 'block';
-
                 }
                 reader.readAsDataURL(file);
+                
+                // Lưu tên file gốc để sử dụng khi cập nhật hoặc tạo mới sản phẩm
                 document.getElementById('imageName').value = file.name;
-
-
+                
+                // Log thông tin để kiểm tra
+                console.log('File được chọn:', file.name);
+            } else {
+                preview.style.display = 'none';
+                document.getElementById('imageName').value = '';
             }
         }
 
@@ -480,75 +503,194 @@
         });
 
         async function updateProduct(productId) {
-            const form = document.getElementById('productForm');
-            const data = {
-                name: form.querySelector('#name').value,
-                price: parseFloat(form.querySelector('#price').value),
-                amount: parseInt(form.querySelector('#quantity').value),
-                description: form.querySelector('#description').value,
-                category: form.querySelector('#category').value,
-                image: form.querySelector('#imageName').value // nếu bạn dùng trường này cho đường dẫn ảnh
-            };
-
             try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3000/product-service/products/${productId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
+                const form = document.getElementById('productForm');
+                const fileInput = form.querySelector('#image');
+                const categorySelect = form.querySelector('#category');
+                const categoryValue = categorySelect ? categorySelect.value : null;
+                
+                console.log('Update form elements check:', {
+                    productId: productId,
+                    categoryElement: categorySelect,
+                    categoryValue: categoryValue,
+                    nameValue: form.querySelector('#name').value,
+                    priceValue: form.querySelector('#price').value,
+                    hasFile: fileInput.files.length > 0
                 });
-
-                const result = await response.json();
-                if (response.ok) {
-                    showMessage('Cập nhật sản phẩm thành công');
-                    closeModal();
-                    searchProducts();
-                } else {
-                    showMessage(result.message || 'Lỗi khi cập nhật sản phẩm', true);
+                
+                if (!categoryValue) {
+                    throw new Error('Danh mục sản phẩm không được để trống');
                 }
+                
+                const formData = new FormData();
+                
+                // Thêm thông tin sản phẩm vào FormData
+                formData.append('name', form.querySelector('#name').value);
+                formData.append('price', form.querySelector('#price').value);
+                formData.append('amount', form.querySelector('#quantity').value);
+                formData.append('description', form.querySelector('#description').value);
+                formData.append('category', categoryValue);
+                
+                // Nếu chọn file mới, thêm vào FormData
+                if (fileInput.files.length > 0) {
+                    formData.append('image', fileInput.files[0]);
+                } else {
+                    // Nếu không chọn file mới, giữ nguyên ảnh cũ (nếu có)
+                    const imageName = form.querySelector('#imageName').value;
+                    if (imageName) {
+                        formData.append('imageName', imageName);
+                    }
+                }
+                
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error('Không tìm thấy token xác thực');
+                }
+                
+                // Sử dụng endpoint upload nếu có file mới, ngược lại dùng endpoint update thông thường
+                const endpoint = fileInput.files.length > 0 
+                    ? `http://localhost:3000/product-service/products/upload/${productId}`
+                    : `http://localhost:3000/product-service/products/${productId}`;
+                
+                const headers = {
+                    'Authorization': `Bearer ${token}`
+                };
+                
+                // Nếu không có file, thêm Content-Type vào headers
+                if (fileInput.files.length === 0) {
+                    headers['Content-Type'] = 'application/json';
+                    // Chuyển formData thành JSON object
+                    const data = {
+                        name: form.querySelector('#name').value,
+                        price: parseFloat(form.querySelector('#price').value),
+                        amount: parseInt(form.querySelector('#quantity').value),
+                        description: form.querySelector('#description').value,
+                        category: categoryValue,
+                        image: form.querySelector('#imageName').value
+                    };
+                    
+                    // Gửi request update
+                    const response = await fetch(endpoint, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify(data)
+                    });
+                    
+                    await handleResponse(response);
+                } else {
+                    // Gửi request với FormData khi có file
+                    const response = await fetch(endpoint, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: formData
+                    });
+                    
+                    await handleResponse(response);
+                }
+                
+                // Thông báo thành công và làm mới dữ liệu
+                showMessage('Cập nhật sản phẩm thành công');
+                closeModal();
+                loadProducts();
+                currentEditingId = null;
+                form.reset();
             } catch (error) {
-                console.error('Error:', error);
-                showMessage('Lỗi khi cập nhật sản phẩm', true);
+                console.error('Error in updateProduct:', error);
+                showMessage('Lỗi khi cập nhật sản phẩm: ' + error.message, true);
             }
         }
-
+        
+        // Hàm xử lý response
+        async function handleResponse(response) {
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                // Nếu response không ok, đọc text và log lỗi
+                const errorText = await response.text();
+                console.error('Server response error:', errorText);
+                throw new Error(`Server returned ${response.status}: ${errorText}`);
+            }
+            
+            // Đọc dữ liệu JSON từ response
+            const result = await response.json();
+            console.log('Response data:', result);
+            return result;
+        }
 
         async function addProduct() {
-            const form = document.getElementById('productForm');
-            const data = {
-                name: form.querySelector('#name').value,
-                price: parseFloat(form.querySelector('#price').value),
-                amount: parseInt(form.querySelector('#quantity').value),
-                description: form.querySelector('#description').value,
-                category: form.querySelector('#category').value,
-                image: form.querySelector('#imageName').value // hoặc dùng file name nếu bạn có
-            };
-
             try {
+                const form = document.getElementById('productForm');
+                const fileInput = form.querySelector('#image');
+                const categorySelect = form.querySelector('#category');
+                const categoryValue = categorySelect ? categorySelect.value : null;
+                
+                console.log('Form elements check:', {
+                    categoryElement: categorySelect,
+                    categoryOptions: categorySelect ? Array.from(categorySelect.options).map(o => o.value) : [],
+                    selectedIndex: categorySelect ? categorySelect.selectedIndex : -1,
+                    categoryValue: categoryValue,
+                    nameValue: form.querySelector('#name').value,
+                    priceValue: form.querySelector('#price').value
+                });
+                
+                if (!categoryValue) {
+                    throw new Error('Danh mục sản phẩm không được để trống');
+                }
+                
+                const formData = new FormData();
+                
+                // Thêm thông tin sản phẩm vào FormData
+                formData.append('name', form.querySelector('#name').value);
+                formData.append('price', form.querySelector('#price').value);
+                formData.append('amount', form.querySelector('#quantity').value);
+                formData.append('description', form.querySelector('#description').value);
+                formData.append('category', categoryValue);
+                
+                // Thêm file nếu có
+                if (fileInput.files.length > 0) {
+                    formData.append('image', fileInput.files[0]);
+                }
+                
+                // Log formData
+                console.log('FormData entries:');
+                for (let pair of formData.entries()) {
+                    console.log(pair[0] + ': ' + (pair[0] === 'image' ? 'File: ' + pair[1].name : pair[1]));
+                }
+                
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://localhost:3000/product-service/products', {
+                if (!token) {
+                    throw new Error('Không tìm thấy token xác thực');
+                }
+                
+                // Gửi request để upload file và lưu thông tin sản phẩm
+                const response = await fetch('http://localhost:3000/product-service/products/upload', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                        'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify(data)
+                    body: formData
                 });
-
-                const result = await response.json();
-                if (response.ok) {
-                    showMessage('Thêm sản phẩm thành công');
-                    closeModal();
-                    loadProducts();
-                } else {
-                    showMessage(result.message || 'Lỗi khi thêm sản phẩm', true);
+                
+                // Kiểm tra status code
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    // Nếu response không ok, đọc text và log lỗi
+                    const errorText = await response.text();
+                    console.error('Server response error:', errorText);
+                    throw new Error(`Server returned ${response.status}: ${errorText}`);
                 }
+                
+                // Đọc dữ liệu JSON từ response
+                const result = await response.json();
+                console.log('Response data:', result);
+                
+                showMessage('Thêm sản phẩm thành công');
+                closeModal();
+                loadProducts();
             } catch (error) {
-                console.error('Error:', error);
-                showMessage('Lỗi khi thêm sản phẩm', true);
+                console.error('Error in addProduct:', error);
+                showMessage('Lỗi khi thêm sản phẩm: ' + error.message, true);
             }
         }
 
@@ -561,7 +703,7 @@
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                const form = document.getElementById('productForm').value;
+                // const form = document.getElementById('productForm').value;
                 const products = await response.json();
                 if (response.ok) {
                     const product = products.product;
@@ -640,6 +782,7 @@
             if (e.key === 'Enter') {
                 searchProducts();
             }
+
         });
     </script>
 </body>

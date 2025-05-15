@@ -63,9 +63,9 @@ document.querySelectorAll('.buy-btn').forEach(btn => {
    
     const selectedProduct = products.find(p => p.id == productId);
     
-    
-    if (selectedProduct) {
-     
+    console.log(selectedProduct.amount );
+    if (selectedProduct && selectedProduct.amount > 0) {
+      
       CartManager.addToCart(selectedProduct, 1);
       
       // Đợi một chút để đảm bảo giỏ hàng đã được cập nhật
@@ -76,6 +76,10 @@ document.querySelectorAll('.buy-btn').forEach(btn => {
           window.updateCartCount();
         }
       }, 100);
+    }
+    else{
+      alert('Sản phẩm đã hết hàng');
+      
     }
   });
 });

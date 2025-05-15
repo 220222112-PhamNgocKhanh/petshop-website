@@ -15,20 +15,13 @@ const CartManager = {
    * @param {Array} cart Danh sách sản phẩm trong giỏ hàng
    */
   saveCart(cart) {
-   
     localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Kích hoạt sự kiện "storage" để cập nhật UI ở các tab khác
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'cart'
-    }));
     
     // Kích hoạt sự kiện "cartUpdated" để cập nhật UI ở tab hiện tại
     window.dispatchEvent(new CustomEvent('cartUpdated'));
     
     // Gọi trực tiếp hàm cập nhật nếu có
     if (typeof window.updateCartCount === 'function') {
-    
       window.updateCartCount();
     }
   },
