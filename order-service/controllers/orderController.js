@@ -2,7 +2,7 @@ const axios = require('axios');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const { Cart, Product, Order, OrderItem } = require('../models');
+const {  Order, OrderItem } = require('../models');
 
 //1. Tạo đơn hàng
 exports.placeOrder = async (req, res) => {

@@ -3,7 +3,11 @@ const userController = require('../controllers/userController');
 const userRoutes = (req, res, pathname, method) => {
     if (pathname === '/user-service/register' && method === 'POST') {
         userController.register(req, res);
-    } else if (pathname === '/user-service/login' && method === 'POST') {
+    }
+    else if (pathname.startsWith('/user-service/user/') && method === 'GET') {
+        userController.getUserById(req, res);
+    }
+     else if (pathname === '/user-service/login' && method === 'POST') {
         userController.login(req, res);
     } else if (pathname === '/user-service/users' && method === 'GET') {
         userController.getUsers(req, res);

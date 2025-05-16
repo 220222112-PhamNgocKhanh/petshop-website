@@ -173,13 +173,13 @@ exports.getUsers = async (req, res) => {
 
 // Lấy user theo ID
 exports.getUserById = async (req, res) => {
-    const decoded = exports.verifyToken(req);
+    // const decoded = exports.verifyToken(req);
     const id = req.url.split('/').pop();
 
-    if (!decoded) {
-        res.writeHead(401, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ message: 'Vui lòng đăng nhập' }));
-    }
+    // if (!decoded) {
+    //     res.writeHead(401, { 'Content-Type': 'application/json' });
+    //     return res.end(JSON.stringify({ message: 'Vui lòng đăng nhập' }));
+    // }
 
     try {
         const user = await User.findByPk(id);
@@ -189,16 +189,18 @@ exports.getUserById = async (req, res) => {
         }
 
         // Kiểm tra nếu user là admin thì không cho phép xem
-        if (user.role === 'admin') {
-            res.writeHead(403, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ message: 'Access denied' }));
-        }
+        // if (user.role === 'admin') {
+        //     res.writeHead(403, { 'Content-Type': 'application/json' });
+        //     return res.end(JSON.stringify({ message: 'Access denied' }));
+        // }
 
         // Kiểm tra quyền truy cập
-        if (decoded.user_id !== Number(id) && decoded.role !== 'admin') {
-            res.writeHead(403, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ message: 'Permission denied' }));
-        }
+        // if (decoded.user_id !== Number(id) && decoded.role !== 'admin') {
+        //     res.writeHead(403, { 'Content-Type': 'application/json' });
+        //     return res.end(JSON.stringify({ message: 'Permission denied' }
+                
+        //     ));
+        // }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(user));
@@ -563,11 +565,11 @@ function generateRandomPassword(length = 8) {
 
 // Lấy user ID theo username
 exports.getUserIdByUsername = async (req, res) => {
-    const decoded = exports.verifyToken(req);
-    if (!exports.checkRole(decoded, 'admin')) {
-        res.writeHead(403, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ message: 'Bạn không có quyền thực hiện thao tác này' }));
-    }
+    // const decoded = exports.verifyToken(req);
+    // if (!exports.checkRole(decoded, 'admin')) {
+    //     res.writeHead(403, { 'Content-Type': 'application/json' });
+    //     return res.end(JSON.stringify({ message: 'Bạn không có quyền thực hiện thao tác này' }));
+    // }
 
     // Lấy username từ URL
     const username = req.url.split('/username/').pop();
