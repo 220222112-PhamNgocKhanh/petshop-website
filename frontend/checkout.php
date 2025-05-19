@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,33 +12,39 @@
             margin: 2rem auto;
             padding: 20px;
         }
+
         .order-summary {
             background-color: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
         }
+
         .user-info {
             background-color: #e9ecef;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
         }
+
         .cart-items {
             margin-bottom: 20px;
         }
+
         .cart-item {
             padding: 10px;
             border-bottom: 1px solid #dee2e6;
         }
+
         .cart-item:last-child {
             border-bottom: none;
         }
     </style>
 </head>
+
 <body>
     <div class="checkout-container">
         <h2 class="mb-4">Thông Tin Thanh Toán</h2>
-        
+
         <div class="user-info">
             <h4 id="welcomeMessage">Xin chào, </h4>
         </div>
@@ -91,16 +98,25 @@
                     <hr>
                     <div class="d-flex justify-content-between mb-2">
                         <span>Tạm tính:</span>
-                        <span id="subtotal">0đ</span>
+                        <span id="subtotal">0$</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span>Phí vận chuyển:</span>
-                        <span id="shipping">0đ</span>
+                        <span id="shipping">0$</span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-3">
                         <strong>Tổng cộng:</strong>
-                        <strong id="total">0đ</strong>
+                        <strong id="total">0$</strong>
+                    </div>
+                    <div class="payment-method mb-3">
+                        <h5>Phương thức thanh toán</h5>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="cod" checked>
+                            <label class="form-check-label" for="cod">
+                                Thanh toán khi nhận hàng (COD)
+                            </label>
+                        </div>
                     </div>
                     <button class="btn btn-primary w-100" onclick="placeOrder()">Đặt Hàng</button>
                 </div>
@@ -119,7 +135,7 @@
         function getUserId() {
             const token = getAuthToken();
             if (!token) return null;
-            
+
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 return payload.user_id;
@@ -192,8 +208,8 @@
                 }
 
                 const cartItems = await response.json();
-         
-                
+
+
                 // Lấy thông tin sản phẩm cho mỗi item trong giỏ hàng
                 const itemsWithProductInfo = await Promise.all(
                     cartItems.map(async (item) => {
@@ -206,7 +222,7 @@
                         };
                     })
                 );
-          
+
 
                 displayCartItemsList(itemsWithProductInfo);
                 displayCartItems(itemsWithProductInfo);
@@ -236,7 +252,7 @@
             cartItemsContainer.innerHTML = items.map(item => `
                 <div class="d-flex justify-content-between mb-2">
                     <span>${item.name} x ${item.quantity}</span>
-                    <span>${(item.price * item.quantity).toLocaleString('vi-VN')}đ</span>
+                    <span>${(item.price * item.quantity).toLocaleString('vi-VN')}$</span>
                 </div>
             `).join('');
         }
@@ -244,12 +260,12 @@
         // Tính tổng tiền
         function calculateTotals(items) {
             const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const shipping = 30000; // Phí vận chuyển 30,000đ
+            const shipping = 5; 
             const total = subtotal + shipping;
 
-            document.getElementById('subtotal').textContent = `${subtotal.toLocaleString('vi-VN')}đ`;
-            document.getElementById('shipping').textContent = `${shipping.toLocaleString('vi-VN')}đ`;
-            document.getElementById('total').textContent = `${total.toLocaleString('vi-VN')}đ`;
+            document.getElementById('subtotal').textContent = `${subtotal.toLocaleString('vi-VN')}$`;
+            document.getElementById('shipping').textContent = `${shipping.toLocaleString('vi-VN')}$`;
+            document.getElementById('total').textContent = `${total.toLocaleString('vi-VN')}$`;
         }
 
         // Đặt hàng
@@ -260,17 +276,47 @@
                 return;
             }
 
-            const orderData = {
-                customerInfo: {
-                    fullName: document.getElementById('fullName').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('phone').value,
-                    address: document.getElementById('address').value
-                }
-            };
+            const userId = getUserId();
+            if (!userId) {
+                alert('Vui lòng đăng nhập để đặt hàng');
+                window.location.href = 'login.php';
+                return;
+            }
 
             try {
-                const response = await fetch('http://localhost:3003/orders', {
+                // Lấy thông tin giỏ hàng
+                const cartResponse = await fetch(`http://localhost:3000/cart-service/cart/${userId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                });
+
+                if (!cartResponse.ok) {
+                    throw new Error('Không thể lấy thông tin giỏ hàng');
+                }
+
+                const cartItems = await cartResponse.json();
+                
+                // Lấy thông tin sản phẩm cho mỗi item
+                const itemsWithProductInfo = await Promise.all(
+                    cartItems.map(async (item) => {
+                        const productInfo = await getProductInfo(item.productId);
+                        return {
+                            product_id: item.productId,
+                            amount: item.quantity,
+                            price: productInfo ? productInfo.product.price : 0
+                        };
+                    })
+                );
+
+                const orderData = {
+                    user_id: userId,
+                    phone_number: document.getElementById('phone').value,
+                    shipping_address: document.getElementById('address').value,
+                    items: itemsWithProductInfo
+                };
+
+                const response = await fetch('http://localhost:3000/order-service/place', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -279,15 +325,17 @@
                     body: JSON.stringify(orderData)
                 });
 
-                if (response.ok) {
-                    alert('Đặt hàng thành công!');
-                    window.location.href = 'order-confirmation.php';
-                } else {
-                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Có lỗi xảy ra khi đặt hàng');
                 }
+
+                const result = await response.json();
+                alert('Đặt hàng thành công!');
+                window.location.href = 'order.php';
             } catch (error) {
                 console.error('Lỗi khi đặt hàng:', error);
-                alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                alert(error.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
             }
         }
 
@@ -298,4 +346,5 @@
         });
     </script>
 </body>
+
 </html>

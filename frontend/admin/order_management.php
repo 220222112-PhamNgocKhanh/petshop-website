@@ -65,6 +65,7 @@
         .order-table th {
             background-color: #f8f9fa;
             font-weight: bold;
+            color: #000;
         }
 
         .order-table tr:hover {
@@ -98,6 +99,16 @@
             color: #721c24;
         }
 
+        .payment-status-pending {
+            background: #ffeeba;
+            color: #856404;
+        }
+
+        .payment-status-paid {
+            background: #c3e6cb;
+            color: #155724;
+        }
+
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -121,14 +132,22 @@
         }
 
         .update-btn {
-            background: #28a745;
+            background: #17a2b8;
         }
 
         .update-btn:hover {
-            background: #218838;
+            background: #138496;
         }
 
         .confirm-btn {
+            background: #28a745;
+        }
+
+        .confirm-btn:hover {
+            background: #218838;
+        }
+
+        .confirm-payment-btn {
             background: #28a745;
             padding: 6px 12px;
             border: none;
@@ -137,8 +156,21 @@
             color: white;
         }
 
-        .confirm-btn:hover {
+        .confirm-payment-btn:hover {
             background: #218838;
+        }
+
+        .edit-payment-btn {
+            background: #17a2b8;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .edit-payment-btn:hover {
+            background: #138496;
         }
 
         /* Modal styles */
@@ -202,6 +234,21 @@
             background: #f8d7da;
             color: #721c24;
         }
+
+        .status-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .status-actions button {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-size: 12px;
+        }
     </style>
 </head>
 
@@ -216,7 +263,7 @@
 
             <div class="order-filters">
                 <div class="filter-group">
-                    <label>Trạng thái:</label>
+                    <label>Trạng thái đơn hàng:</label>
                     <select id="statusFilter">
                         <option value="">Tất cả</option>
                         <option value="pending">Chờ xử lý</option>
@@ -224,6 +271,14 @@
                         <option value="shipping">Đang vận chuyển</option>
                         <option value="delivered">Đã giao</option>
                         <option value="cancelled">Đã huỷ</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Trạng thái thanh toán:</label>
+                    <select id="paymentStatusFilter">
+                        <option value="">Tất cả</option>
+                        <option value="pending">Chờ thanh toán</option>
+                        <option value="paid">Đã thanh toán</option>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -249,7 +304,8 @@
                         <th>Khách hàng</th>
                         <th>Ngày cập nhật</th>
                         <th>Tổng tiền</th>
-                        <th>Trạng thái</th>
+                        <th>Trạng thái đơn hàng</th>
+                        <th>Trạng thái thanh toán</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
@@ -351,50 +407,76 @@
 
             for (const item of orders) {
                 const order = item.order || item;
-                
-                // Kiểm tra user_id có tồn tại không
+
                 if (!order.user_id) {
                     console.warn('Thiếu user_id trong đơn hàng:', order);
                     continue;
                 }
 
                 let user;
-                // Sử dụng cache để tránh fetch trùng
                 if (userCache[order.user_id]) {
                     user = userCache[order.user_id];
-                    
                 } else {
                     user = await fetchUserById(order.user_id);
                     userCache[order.user_id] = user;
-                    console.log('Cache miss for user:', user);
                 }
-                console.log('User fetched:', userCache);
-               
-                const userName = user?.username || 'Không rõ';
-                console.log('User name:', userName);
 
+                const userName = user?.username || 'Không rõ';
+                const paymentStatus = order.payment_status || 'pending';
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-            <td>${order.order_id}</td>
-            <td>${userName}</td>
-            <td>${new Date(order.updated_at).toLocaleDateString()}</td>
-            <td>${Number(order.total_price || 0).toLocaleString()} đ</td>
-            <td>${order.status}</td>
-            <td>
-                ${order.status === 'pending' ? `
-                <button class="confirm-btn" onclick="confirmOrder(${order.order_id})" title="Xác nhận đơn hàng">
-                    <i class="fas fa-check-circle"></i>
-                </button>` : ''}
-                <button class="update-btn" onclick="showUpdateStatus(${order.order_id})">
-                    <i class="fas fa-edit"></i>
-                </button>
-            </td>
-        `;
+                    <td>${order.order_id}</td>
+                    <td>${userName}</td>
+                    <td>${new Date(order.updated_at).toLocaleDateString()}</td>
+                    <td>${Number(order.total_price || 0).toLocaleString()} đ</td>
+                    <td>
+                        <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span>
+                        <div class="status-actions">
+                            ${order.status === 'pending' ? `
+                            <button class="confirm-btn" onclick="confirmOrder(${order.order_id})" title="Xác nhận đơn hàng">
+                                <i class="fas fa-check-circle"></i>
+                            </button>` : ''}
+                            <button class="update-btn" onclick="showUpdateStatus(${order.order_id})" title="Chỉnh sửa trạng thái">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td><span class="status-badge payment-status-${paymentStatus}">${getPaymentStatusText(paymentStatus)}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            ${paymentStatus === 'pending' ? `
+                            <button class="confirm-payment-btn" onclick="confirmPayment(${order.order_id})" title="Xác nhận thanh toán">
+                                <i class="fas fa-check-circle"></i>
+                            </button>` : ''}
+                            <button class="edit-payment-btn" onclick="showUpdatePaymentStatus(${order.order_id})" title="Chỉnh sửa trạng thái thanh toán">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
                 tableBody.appendChild(row);
             }
         }
 
+        function getStatusText(status) {
+            if (!status) return 'Không xác định';
+            const statusMap = {
+                pending: "Chờ xử lý",
+                processing: "Đang xử lý",
+                completed: "Hoàn thành",
+                canceled: "Đã hủy"
+            };
+            return statusMap[status.toLowerCase()] || status;
+        }
+
+        function getPaymentStatusText(status) {
+            const statusMap = {
+                pending: "Chờ thanh toán",
+                paid: "Đã thanh toán"
+            };
+            return statusMap[status] || status;
+        }
 
         async function confirmOrder(orderId) {
             try {
@@ -413,48 +495,6 @@
                 showMessage(result.message || 'Đơn hàng đã được xác nhận');
 
                 fetchAllOrders(); // Tải lại danh sách đơn hàng sau khi xác nhận thành công
-
-                // // Lấy thông tin đơn hàng từ order-service
-                // const orderResponse = await fetch(`http://localhost:3000/order-service/${orderId}`);
-                // if (!orderResponse.ok) {
-                //     throw new Error('Không thể lấy thông tin đơn hàng');
-                // }
-                // const order = await orderResponse.json();
-
-                // // Log phản hồi từ API order-service để kiểm tra
-                // console.log('Phản hồi từ order-service:', order);
-
-                // // Lấy email người dùng từ user-service bằng user_id
-                // const userResponse = await fetch(`http://localhost:3000/user-service/users/email/${order.user_id}`);
-                // if (!userResponse.ok) {
-                //     throw new Error('Không thể lấy thông tin email người dùng');
-                // }
-                // const user = await userResponse.json();
-
-                // // Log email của user để kiểm tra
-                // console.log('Email của user:', user.email);
-
-                // // Gửi email thông báo đến user
-                // const emailResponse = await fetch('http://localhost:3000/notification-service/send-email', {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/json'
-                //     },
-                //     body: JSON.stringify({
-                //         to: user.email, // Email của user
-                //         eventType: 'orderConfirmation',
-                //         data: {
-                //             orderId: orderId,
-                //             userName: order.user_name,
-                //             totalPrice: order.total_price
-                //         }
-                //     })
-                // });
-
-                // if (!emailResponse.ok) {
-                //     console.error('Không thể gửi email thông báo');
-                // }
-
             } catch (error) {
                 console.error('Lỗi khi xác nhận đơn hàng:', error);
                 showMessage('Không thể xác nhận đơn hàng. Vui lòng thử lại sau.', true);
@@ -463,7 +503,6 @@
 
         async function viewOrderDetails(orderId) {
             try {
-                console.log(`Fetching order details for orderId: ${orderId}`); // Log orderId
 
                 const response = await fetch(`http://localhost:3000/order-service/${orderId}`);
 
@@ -485,52 +524,7 @@
 
         document.addEventListener('DOMContentLoaded', fetchAllOrders);
 
-        async function loadOrders() {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    showMessage('Vui lòng đăng nhập lại', true);
-                    setTimeout(() => {
-                        window.location.href = '../login.php';
-                    }, 2000);
-                    return;
-                }
 
-                const status = document.getElementById('statusFilter').value;
-                const sort = document.getElementById('sortFilter').value;
-
-                const response = await fetch(`http://localhost:3000/order-service/orders?status=${status}&sort=${sort}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.status === 403) {
-                    showMessage('Bạn không có quyền truy cập trang này', true);
-                    setTimeout(() => {
-                        window.location.href = '../login.php';
-                    }, 2000);
-                    return;
-                }
-
-                const orders = await response.json();
-                renderOrders(orders);
-            } catch (error) {
-                console.error('Error:', error);
-                showMessage('Lỗi khi tải danh sách đơn hàng', true);
-            }
-        }
-
-        function getStatusText(status) {
-            if (!status) return 'Không xác định';
-            const statusMap = {
-                pending: "Chờ xử lý",
-                processing: "Đang xử lý",
-                completed: "Hoàn thành",
-                canceled: "Đã hủy"
-            };
-            return statusMap[status.toLowerCase()] || status;
-        }
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('vi-VN', {
@@ -539,54 +533,67 @@
             }).format(amount);
         }
 
-        async function viewOrder(orderId) {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3000/order-service/${orderId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const order = await response.json();
-                if (response.ok) {
-                    displayOrderDetails(order);
-                    document.getElementById('orderModal').style.display = 'block';
-                } else {
-                    showMessage(order.message || 'Lỗi khi tải thông tin đơn hàng', true);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showMessage('Lỗi khi tải thông tin đơn hàng', true);
-            }
+        async function getUserById(userId) {
+            const response = await fetch(`http://localhost:3000/user-service/user/${userId}`);
+            const user = await response.json();
+            return user;
         }
 
-        function displayOrderDetails(order) {
-            document.getElementById('orderNumber').textContent = order.order_id;
-            document.getElementById('orderDate').textContent = new Date(order.created_at).toLocaleDateString('vi-VN');
-            document.getElementById('orderStatus').textContent = getStatusText(order.status);
-            document.getElementById('orderTotal').textContent = formatCurrency(order.total_amount);
+        async function getProductInfo(productId) {
+            try {
+                const response = await fetch(`http://localhost:3000/product-service/products/${productId}`);
+                if (!response.ok) {
+                    throw new Error('Không thể lấy thông tin sản phẩm');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Lỗi khi lấy thông tin sản phẩm:', error);
+                return null;
+            }
+        }
+       
 
-            document.getElementById('customerName').textContent = order.customer_name;
-            document.getElementById('customerEmail').textContent = order.customer_email;
-            document.getElementById('customerAddress').textContent = order.shipping_address;
-            document.getElementById('customerPhone').textContent = order.phone_number;
+        async function displayOrderDetails(order) {
 
+            const user = await getUserById(order.order.user_id);
+
+            document.getElementById('orderNumber').textContent = order.order.order_id;
+            document.getElementById('orderDate').textContent = new Date(order.order.created_at).toLocaleDateString('vi-VN');
+            document.getElementById('orderStatus').textContent = getStatusText(order.order.status);
+            document.getElementById('orderTotal').textContent = formatCurrency(order.order.total_price);
+
+            // Hiển thị thông tin khách hàng nếu có
+            document.getElementById('customerName').textContent =  user.username || 'Không xác định';
+            document.getElementById('customerEmail').textContent =  user.email || 'Không xác định';
+            document.getElementById('customerAddress').textContent = order.order.shipping_address || 'Không xác định';
+            document.getElementById('customerPhone').textContent = order.order.phone_number || 'Không xác định';
+
+            // Hiển thị danh sách sản phẩm
             const productsList = document.getElementById('productsList');
-            productsList.innerHTML = '';
+        productsList.innerHTML = '';
 
-            order.products.forEach(product => {
+        if (order.items && Array.isArray(order.items)) {
+            for (let i = 0; i < order.items.length; i++) {
+                const product = await getProductInfo(order.items[i].product_id);
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${product.name}</td>
-                    <td>${product.quantity}</td>
-                    <td>${formatCurrency(product.price)}</td>
-                    <td>${formatCurrency(product.price * product.quantity)}</td>
+                    <td>${product.product.name || 'Không xác định'}</td>
+                    <td>${order.items[i].quantity || 0}</td>
+                    <td>${formatCurrency(product?.product?.price || 0)}</td>
+                    <td>${formatCurrency((product?.product?.price || 0) * (order.items[i].quantity || 0))}</td>
                 `;
                 productsList.appendChild(row);
-            });
+            }
+        } else {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td colspan="4">Không có sản phẩm</td>';
+            productsList.appendChild(row);
+        }
 
-            document.getElementById('updateStatus').value = order.status.toLowerCase();
+            // Đặt lại giá trị cho select trạng thái
+            if (order.status) {
+                document.getElementById('updateStatus').value = order.status.toLowerCase();
+            }
         }
 
         async function updateOrderStatus(orderId) {
@@ -715,6 +722,102 @@
                 alert(error.message || 'Không thể tìm kiếm đơn hàng. Vui lòng thử lại sau.');
             }
         }
+
+        async function confirmPayment(orderId) {
+            try {
+                const response = await fetch(`http://localhost:3000/order-service/${orderId}/payment/paid`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể xác nhận thanh toán');
+                }
+
+                const result = await response.json();
+                showMessage(result.message || 'Đã xác nhận thanh toán thành công');
+                fetchAllOrders();
+            } catch (error) {
+                console.error('Lỗi khi xác nhận thanh toán:', error);
+                showMessage('Không thể xác nhận thanh toán. Vui lòng thử lại sau.', true);
+            }
+        }
+
+        async function showUpdatePaymentStatus(orderId) {
+            viewOrderDetails(orderId);
+            const modal = document.getElementById('orderModal');
+            modal.style.display = 'block';
+
+            // Thêm select box cho trạng thái thanh toán vào modal
+            const paymentStatusSelect = document.createElement('select');
+            paymentStatusSelect.id = 'updatePaymentStatus';
+            paymentStatusSelect.innerHTML = `
+                <option value="pending">Chờ thanh toán</option>
+                <option value="paid">Đã thanh toán</option>
+            `;
+
+            const updateButton = document.createElement('button');
+            updateButton.className = 'update-btn';
+            updateButton.textContent = 'Cập nhật trạng thái thanh toán';
+            updateButton.onclick = () => updatePaymentStatus(orderId);
+
+            const paymentStatusContainer = document.createElement('div');
+            paymentStatusContainer.className = 'payment-status-update mb-3';
+            paymentStatusContainer.appendChild(paymentStatusSelect);
+            paymentStatusContainer.appendChild(updateButton);
+
+            const orderActions = document.querySelector('.order-actions');
+            orderActions.appendChild(paymentStatusContainer);
+        }
+
+        async function updatePaymentStatus(orderId) {
+            try {
+                const newStatus = document.getElementById('updatePaymentStatus').value;
+                const response = await fetch(`http://localhost:3000/order-service/${orderId}/payment/${newStatus}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể cập nhật trạng thái thanh toán');
+                }
+
+                const result = await response.json();
+                showMessage(result.message || 'Cập nhật trạng thái thanh toán thành công');
+                fetchAllOrders();
+                closeModal();
+            } catch (error) {
+                console.error('Lỗi khi cập nhật trạng thái thanh toán:', error);
+                showMessage('Không thể cập nhật trạng thái thanh toán. Vui lòng thử lại sau.', true);
+            }
+        }
+
+        // Thêm event listener cho bộ lọc trạng thái thanh toán
+        document.getElementById('paymentStatusFilter').addEventListener('change', async function() {
+            const paymentStatus = this.value;
+
+            if (paymentStatus === '') {
+                fetchAllOrders();
+            } else {
+                try {
+                    const response = await fetch(`http://localhost:3000/order-service/payment-status/${paymentStatus}`);
+
+                    if (!response.ok) {
+                        throw new Error('Không thể lọc đơn hàng theo trạng thái thanh toán');
+                    }
+
+                    const orders = await response.json();
+                    renderOrders(orders);
+                } catch (error) {
+                    console.error('Lỗi khi lọc đơn hàng theo trạng thái thanh toán:', error);
+                    alert('Không thể lọc đơn hàng. Vui lòng thử lại sau.');
+                }
+            }
+        });
     </script>
 </body>
 

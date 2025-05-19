@@ -180,13 +180,36 @@ const getProductBycategory = async (req, res) => {
 // Xoá sản phẩm
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
+
     try {
-        const [result] = await db.execute('DELETE FROM products WHERE id = ?', [id]);
-        if (result.affectedRows === 0) {
+        // 1. Lấy thông tin sản phẩm (đặc biệt là image và category)
+        const [productResult] = await db.execute('SELECT image, category FROM products WHERE id = ?', [id]);
+        if (productResult.length === 0) {
             return res.status(404).json({ message: 'Product not found' });
         }
-        res.status(200).json({ message: `Product ${id} deleted` });
+
+        const { image, category } = productResult[0];
+
+        // 2. Xây dựng đường dẫn tới file ảnh
+        const imagePath = path.join(__dirname, '../../../backend/image', category, image);
+
+        // 3. Kiểm tra và xoá file nếu tồn tại
+        if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+            console.log(`Deleted image file: ${imagePath}`);
+        } else {
+            console.log(`Image file not found: ${imagePath}`);
+        }
+
+        // 4. Xoá sản phẩm trong database
+        const [deleteResult] = await db.execute('DELETE FROM products WHERE id = ?', [id]);
+        if (deleteResult.affectedRows === 0) {
+            return res.status(404).json({ message: 'Product not found during deletion' });
+        }
+
+        res.status(200).json({ message: `Product ${id} and its image have been deleted` });
     } catch (error) {
+        console.error('Error deleting product and image:', error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -387,16 +410,6 @@ const updateProductWithImage = async (req, res) => {
     }
 };
 
-// Đếm tổng số sản phẩm
-const countTotalProducts = async (req, res) => {
-    try {
-        const [result] = await db.execute('SELECT COUNT(*) as total FROM products');
-        res.status(200).json({ total: result[0].total });
-    } catch (error) {
-        console.error('Error counting total products:', error);
-        res.status(500).json({ error: error.message });
-    }
-};
 
 // Xuất module
 module.exports = {
@@ -413,6 +426,5 @@ module.exports = {
     searchInCategory,
     processUpload,
     uploadProductImage,
-    updateProductWithImage,
-    countTotalProducts
+    updateProductWithImage
 };

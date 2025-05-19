@@ -333,7 +333,7 @@
                         <option value="Nail Clippers">Nail Clippers</option>
 
                     </select>
-                    
+
                 </div>
                 <div class="form-group">
                     <label for="image">Hình ảnh</label>
@@ -437,7 +437,7 @@
         function previewImage(event) {
             const file = event.target.files[0];
             const preview = document.getElementById('imagePreview');
-            
+
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
@@ -445,10 +445,10 @@
                     preview.style.display = 'block';
                 }
                 reader.readAsDataURL(file);
-                
+
                 // Lưu tên file gốc để sử dụng khi cập nhật hoặc tạo mới sản phẩm
                 document.getElementById('imageName').value = file.name;
-                
+
                 // Log thông tin để kiểm tra
                 console.log('File được chọn:', file.name);
             } else {
@@ -508,7 +508,7 @@
                 const fileInput = form.querySelector('#image');
                 const categorySelect = form.querySelector('#category');
                 const categoryValue = categorySelect ? categorySelect.value : null;
-                
+
                 console.log('Update form elements check:', {
                     productId: productId,
                     categoryElement: categorySelect,
@@ -517,20 +517,20 @@
                     priceValue: form.querySelector('#price').value,
                     hasFile: fileInput.files.length > 0
                 });
-                
+
                 if (!categoryValue) {
                     throw new Error('Danh mục sản phẩm không được để trống');
                 }
-                
+
                 const formData = new FormData();
-                
+
                 // Thêm thông tin sản phẩm vào FormData
                 formData.append('name', form.querySelector('#name').value);
                 formData.append('price', form.querySelector('#price').value);
                 formData.append('amount', form.querySelector('#quantity').value);
                 formData.append('description', form.querySelector('#description').value);
                 formData.append('category', categoryValue);
-                
+
                 // Nếu chọn file mới, thêm vào FormData
                 if (fileInput.files.length > 0) {
                     formData.append('image', fileInput.files[0]);
@@ -541,21 +541,21 @@
                         formData.append('imageName', imageName);
                     }
                 }
-                
+
                 const token = localStorage.getItem('token');
                 if (!token) {
                     throw new Error('Không tìm thấy token xác thực');
                 }
-                
+
                 // Sử dụng endpoint upload nếu có file mới, ngược lại dùng endpoint update thông thường
-                const endpoint = fileInput.files.length > 0 
+                const endpoint = fileInput.files.length > 0
                     ? `http://localhost:3000/product-service/products/upload/${productId}`
                     : `http://localhost:3000/product-service/products/${productId}`;
-                
+
                 const headers = {
                     'Authorization': `Bearer ${token}`
                 };
-                
+
                 // Nếu không có file, thêm Content-Type vào headers
                 if (fileInput.files.length === 0) {
                     headers['Content-Type'] = 'application/json';
@@ -568,14 +568,14 @@
                         category: categoryValue,
                         image: form.querySelector('#imageName').value
                     };
-                    
+
                     // Gửi request update
                     const response = await fetch(endpoint, {
                         method: 'PUT',
                         headers: headers,
                         body: JSON.stringify(data)
                     });
-                    
+
                     await handleResponse(response);
                 } else {
                     // Gửi request với FormData khi có file
@@ -584,10 +584,10 @@
                         headers: headers,
                         body: formData
                     });
-                    
+
                     await handleResponse(response);
                 }
-                
+
                 // Thông báo thành công và làm mới dữ liệu
                 showMessage('Cập nhật sản phẩm thành công');
                 closeModal();
@@ -599,18 +599,18 @@
                 showMessage('Lỗi khi cập nhật sản phẩm: ' + error.message, true);
             }
         }
-        
+
         // Hàm xử lý response
         async function handleResponse(response) {
             console.log('Response status:', response.status);
-            
+
             if (!response.ok) {
                 // Nếu response không ok, đọc text và log lỗi
                 const errorText = await response.text();
                 console.error('Server response error:', errorText);
                 throw new Error(`Server returned ${response.status}: ${errorText}`);
             }
-            
+
             // Đọc dữ liệu JSON từ response
             const result = await response.json();
             console.log('Response data:', result);
@@ -623,7 +623,7 @@
                 const fileInput = form.querySelector('#image');
                 const categorySelect = form.querySelector('#category');
                 const categoryValue = categorySelect ? categorySelect.value : null;
-                
+
                 console.log('Form elements check:', {
                     categoryElement: categorySelect,
                     categoryOptions: categorySelect ? Array.from(categorySelect.options).map(o => o.value) : [],
@@ -632,36 +632,36 @@
                     nameValue: form.querySelector('#name').value,
                     priceValue: form.querySelector('#price').value
                 });
-                
+
                 if (!categoryValue) {
                     throw new Error('Danh mục sản phẩm không được để trống');
                 }
-                
+
                 const formData = new FormData();
-                
+
                 // Thêm thông tin sản phẩm vào FormData
                 formData.append('name', form.querySelector('#name').value);
                 formData.append('price', form.querySelector('#price').value);
                 formData.append('amount', form.querySelector('#quantity').value);
                 formData.append('description', form.querySelector('#description').value);
                 formData.append('category', categoryValue);
-                
+
                 // Thêm file nếu có
                 if (fileInput.files.length > 0) {
                     formData.append('image', fileInput.files[0]);
                 }
-                
+
                 // Log formData
                 console.log('FormData entries:');
                 for (let pair of formData.entries()) {
                     console.log(pair[0] + ': ' + (pair[0] === 'image' ? 'File: ' + pair[1].name : pair[1]));
                 }
-                
+
                 const token = localStorage.getItem('token');
                 if (!token) {
                     throw new Error('Không tìm thấy token xác thực');
                 }
-                
+
                 // Gửi request để upload file và lưu thông tin sản phẩm
                 const response = await fetch('http://localhost:3000/product-service/products/upload', {
                     method: 'POST',
@@ -670,21 +670,21 @@
                     },
                     body: formData
                 });
-                
+
                 // Kiểm tra status code
                 console.log('Response status:', response.status);
-                
+
                 if (!response.ok) {
                     // Nếu response không ok, đọc text và log lỗi
                     const errorText = await response.text();
                     console.error('Server response error:', errorText);
                     throw new Error(`Server returned ${response.status}: ${errorText}`);
                 }
-                
+
                 // Đọc dữ liệu JSON từ response
                 const result = await response.json();
                 console.log('Response data:', result);
-                
+
                 showMessage('Thêm sản phẩm thành công');
                 closeModal();
                 loadProducts();
@@ -783,6 +783,13 @@
                 searchProducts();
             }
 
+        });
+        // Gọi loadProducts khi người dùng xóa hết nội dung trong ô tìm kiếm
+        document.getElementById('searchInput').addEventListener('input', function (e) {
+            const searchTerm = e.target.value.trim();
+            if (searchTerm === '') {
+                loadProducts();
+            }
         });
     </script>
 </body>

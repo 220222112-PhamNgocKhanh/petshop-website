@@ -4,7 +4,7 @@ const parseRequestBody = require('../utils/parseRequestBody');
 // Tạo thanh toán mới
 exports.createPayment = (req, res) => {
     parseRequestBody(req, res, async (body) => {
-        const { order_id, amount, payment_method, transaction_id } = body;
+        const { order_id, amount, payment_method } = body;
         const user_id = req.user?.user_id;
 
         if (!order_id || !amount || !payment_method || !user_id) {
@@ -19,7 +19,6 @@ exports.createPayment = (req, res) => {
                 amount,
                 currency: 'USD',
                 payment_method,
-                transaction_id,
                 status: 'pending',
             });
 

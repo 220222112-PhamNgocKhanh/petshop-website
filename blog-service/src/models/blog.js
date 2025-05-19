@@ -15,6 +15,11 @@ const Blog = sequelize.define('Blog', {
         type: DataTypes.TEXT,
         allowNull: false,
     },
+    thumbnail: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        defaultValue: '/images/default-thumbnail.jpg'
+    },
     created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,

@@ -22,17 +22,17 @@ module.exports = {
           DB_NAME: 'cart_db',
         },
       },
-      // {
-      //   name: 'order-service',
-      //   script: './order-service/index.js',
-      //   env: {
-      //     PORT: 4003,
-      //     DB_HOST: 'localhost',
-      //     DB_USER: 'root',
-      //     DB_PASSWORD: '',
-      //     DB_DATABASE: 'order_store',
-      //   },
-      // },
+      {
+        name: 'order-service',
+        script: './order-service/index.js',
+        env: {
+          PORT: 4003,
+          DB_HOST: 'localhost',
+          DB_USER: 'root',
+          DB_PASSWORD: '',
+          DB_DATABASE: 'order_service',
+        },
+      },
       {
         name: 'user-service',
         script: './user-service/index.js',

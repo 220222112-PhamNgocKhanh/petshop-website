@@ -38,13 +38,8 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Lấy ID từ URL
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get('id');
-
-        console.log('Current URL:', window.location.href); // Debug log
-        console.log('URL Params:', urlParams.toString()); // Debug log
-        console.log('Post ID from URL:', postId); // Debug log
 
         if (!postId) {
             showError('Không tìm thấy ID bài viết');
@@ -54,77 +49,14 @@
         loadBlogPost(postId);
     });
 
-    function loadBlogPost(postId) {
-        const blogDetail = document.getElementById('blogDetail');
-        const loading = document.getElementById('loading');
-        const error = document.getElementById('error');
-        const errorMessage = error.querySelector('p');
-
-        loading.style.display = 'block';
-        error.style.display = 'none';
-        blogDetail.innerHTML = '';
-
-        console.log('Loading post with ID:', postId); // Debug log
-
-        fetch(`http://localhost:3000/blog-service/posts/${postId}`)
-            .then(response => {
-                console.log('Response status:', response.status); // Debug log
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        console.log('Error response:', data); // Debug log
-                        throw new Error(data.message || 'Không tìm thấy bài viết');
-                    });
-                }
-                return response.json();
-            })
-            .then(post => {
-                console.log('Post data:', post); // Debug log
-                loading.style.display = 'none';
-                
-                if (!post) {
-                    throw new Error('Không tìm thấy bài viết');
-                }
-
-                const date = new Date(post.created_at).toLocaleDateString('vi-VN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-
-                // Xử lý nội dung HTML an toàn
-                const content = post.content ? post.content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') : '';
-
-                const postHtml = `
-                    <article class="blog-article">
-                        <div class="blog-header">
-                            <h1 class="blog-title">${escapeHtml(post.title)}</h1>
-                            <div class="blog-meta">
-                                <span class="blog-date">
-                                    <i class="far fa-calendar-alt"></i>
-                                    ${date}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="blog-image-container">
-                            <img src="${post.image || 'images/default-blog.jpg'}" 
-                                 alt="${escapeHtml(post.title)}" 
-                                 class="blog-image">
-                        </div>
-
-                        <div class="blog-content">
-                            ${content}
-                        </div>
-                    </article>
-                `;
-
-                blogDetail.innerHTML = postHtml;
-            })
-            .catch(err => {
-                loading.style.display = 'none';
-                showError(err.message || 'Có lỗi xảy ra khi tải bài viết. Vui lòng thử lại sau.');
-                console.error('Error loading blog post:', err);
-            });
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
     }
 
     function showError(message) {
@@ -134,13 +66,74 @@
         error.style.display = 'block';
     }
 
+    function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+    }
+
     function escapeHtml(unsafe) {
+        if (!unsafe) return '';
         return unsafe
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
+    }
+
+    async function loadBlogPost(postId) {
+        const blogDetail = document.getElementById('blogDetail');
+        showLoading(true);
+        document.getElementById('error').style.display = 'none';
+        blogDetail.innerHTML = '';
+
+        try {
+            const response = await fetch(`http://localhost:3000/blog-service/posts/${postId}`);
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || 'Không tìm thấy bài viết');
+            }
+
+            const post = await response.json();
+            showLoading(false);
+            
+            if (!post) {
+                throw new Error('Không tìm thấy bài viết');
+            }
+
+            const date = formatDate(post.created_at);
+            const thumbnailUrl = post.thumbnail ? `../blog-service/public${post.thumbnail}` : 'images/default-blog.jpg';
+
+            const postHtml = `
+                <article class="blog-article">
+                    <div class="blog-header">
+                        <h1 class="blog-title">${escapeHtml(post.title)}</h1>
+                        <div class="blog-meta">
+                            <span class="blog-date">
+                                <i class="far fa-calendar-alt"></i>
+                                ${date}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="blog-image-container">
+                        <img src="${thumbnailUrl}" 
+                             alt="${escapeHtml(post.title)}" 
+                             class="blog-image"
+                             onerror="this.src='images/default-blog.jpg'">
+                    </div>
+
+                    <div class="blog-content">
+                        ${post.content || ''}
+                    </div>
+                </article>
+            `;
+
+            blogDetail.innerHTML = postHtml;
+        } catch (error) {
+            showLoading(false);
+            showError(error.message || 'Có lỗi xảy ra khi tải bài viết. Vui lòng thử lại sau.');
+            console.error('Error loading blog post:', error);
+        }
     }
     </script>
 </body>

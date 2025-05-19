@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="sidebar.css">
-    <link rel="stylesheet" href="customer.css">
+    <link rel="stylesheet" href="style.css">
     <style>
         .search-container {
             background: white;
