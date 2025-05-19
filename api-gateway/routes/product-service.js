@@ -59,6 +59,11 @@ const productServiceRoutes = (req, res, url, method) => {
         const id = parts[3];
         requestHandler(req, res, `http://localhost:6000/products/upload/${id}`);
     }
+    // Route: GET /product-service/products/latest
+    else if (url === '/product-service/products/latest' && method === 'GET') {
+        requestHandler(req, res, 'http://localhost:6000/products/latest');
+    }
+
 
 
     // Nếu không khớp bất kỳ route nào ở trên

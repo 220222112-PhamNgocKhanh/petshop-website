@@ -25,12 +25,12 @@ module.exports = {
       {
         name: 'order-service',
         script: './order-service/index.js',
-        env: {
-          PORT: 6003,
+       env: {
+          PORT: 4003,
           DB_HOST: 'localhost',
           DB_USER: 'root',
           DB_PASSWORD: '082004',
-          DB_DATABASE: 'order_store',
+          DB_DATABASE: 'order_service',
         },
       },
       {
