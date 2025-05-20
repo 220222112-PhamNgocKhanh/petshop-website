@@ -3,6 +3,7 @@ const router = express.Router();
 const productController = require('../controllers/product.controller');
 
 // 📊 Thống kê & đặc biệt
+router.get('/count', productController.countTotalProducts);  // Thêm route đếm tổng số sản phẩm
 router.get('/count-by-category', productController.countByCategory);  // GET thay vì POST vì chỉ lấy dữ liệu
 router.get('/latest', productController.latestProduct);
 
@@ -21,5 +22,5 @@ router.get('/', productController.getProducts);
 router.get('/:id', productController.getProductById);
 router.put('/:id', productController.updateProduct);
 router.delete('/:id', productController.deleteProduct);
-
+router.put('/:id/decrease-quantity', productController.decreaseProductQuantity);
 module.exports = router;

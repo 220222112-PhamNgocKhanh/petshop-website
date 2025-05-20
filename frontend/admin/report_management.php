@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="sidebar.css">
     <style>
         .content {
-            margin-left: 260px; /* Phù hợp với chiều rộng của sidebar */
+            /* margin-left: 260px; Phù hợp với chiều rộng của sidebar */
             padding: 20px;
             transition: margin-left 0.3s ease;
         }

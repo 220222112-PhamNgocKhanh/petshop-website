@@ -8,11 +8,11 @@ const paymentServiceRoutes = (req, res, url, method) => {
         // Lấy danh sách thanh toán
         requestHandler(req, res, 'http://localhost:8000/payment-service/payments');
     } else if (url.startsWith('/payment-service/payments/') && method === 'GET') {
-        // Lấy thông tin thanh toán theo ID
-        requestHandler(req, res, `http://localhost:8000${url}`);
+        // Lấy thông tin thanh toán theo orderID
+        requestHandler(req, res, `http://localhost:8000/payment-service/payments/${url}`);
     } else if (url.startsWith('/payment-service/payments/') && method === 'PUT') {
         // Cập nhật trạng thái thanh toán
-        requestHandler(req, res, `http://localhost:8000${url}`);
+        requestHandler(req, res, `http://localhost:8000/payment-service/payments/${url}`);
     } else if (url === '/payment-service/payments/total-successful' && method === 'GET') {
         // Lấy tổng giá trị thanh toán thành công
         requestHandler(req, res, 'http://localhost:8000/payment-service/payments/total-successful');

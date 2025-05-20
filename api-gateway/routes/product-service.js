@@ -3,8 +3,13 @@ const requestHandler = require('../utils/requestHandler');
 const productServiceRoutes = (req, res, url, method) => {
     const parts = url.split('/').filter(Boolean);
 
+    // Route: GET /product-service/products/count
+    if (url === '/product-service/products/count' && method === 'GET') {
+        requestHandler(req, res, 'http://localhost:6000/products/count');
+    }
+
     // Route: GET /product-service/products
-    if (url === '/product-service/products' && method === 'GET') {
+    else if (url === '/product-service/products' && method === 'GET') {
         requestHandler(req, res, 'http://localhost:6000/products');
     }
 
@@ -63,8 +68,17 @@ const productServiceRoutes = (req, res, url, method) => {
     else if (url === '/product-service/products/latest' && method === 'GET') {
         requestHandler(req, res, 'http://localhost:6000/products/latest');
     }
-
-
+    // Route: PUT /product-service/products/:id/decrease-quantity
+    else if (
+        parts[0] === 'product-service' &&
+        parts[1] === 'products' &&
+        parts[3] === 'decrease-quantity' &&
+        parts.length === 4 &&
+        method === 'PUT'
+    ) {
+        const id = parts[2];
+        requestHandler(req, res, `http://localhost:6000/products/${id}/decrease-quantity`);
+    }
 
     // Nếu không khớp bất kỳ route nào ở trên
     else {

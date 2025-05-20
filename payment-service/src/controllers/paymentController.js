@@ -34,10 +34,10 @@ exports.createPayment = (req, res) => {
 
 // Lấy danh sách thanh toán (chỉ admin)
 exports.getPayments = async (req, res) => {
-    if (req.user.role !== 'admin') {
-        res.writeHead(403, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ message: 'Access denied' }));
-    }
+        // if (req.user.role !== 'admin') {
+        //     res.writeHead(403, { 'Content-Type': 'application/json' });
+        //     return res.end(JSON.stringify({ message: 'Access denied' }));
+        // }
 
     try {
         const payments = await Payment.findAll();
@@ -59,13 +59,13 @@ exports.getPaymentById = async (req, res, paymentId) => {
             return res.end(JSON.stringify({ message: 'Payment not found' }));
         }
 
-        const isAdmin = req.user.role === 'admin';
-        const isOwner = payment.user_id === req.user.user_id;
+        // const isAdmin = req.user.role === 'admin';
+        // const isOwner = payment.user_id === req.user.user_id;
 
-        if (!isAdmin && !isOwner) {
-            res.writeHead(403, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ message: 'Permission denied' }));
-        }
+        // if (!isAdmin && !isOwner) {
+        //     res.writeHead(403, { 'Content-Type': 'application/json' });
+        //     return res.end(JSON.stringify({ message: 'Permission denied' }));
+        // }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(payment));
@@ -76,17 +76,57 @@ exports.getPaymentById = async (req, res, paymentId) => {
     }
 };
 
+exports.getPaymentByOrderId = async (req, res, orderId) => {
+    try {
+        if (!orderId) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ message: 'Order ID is required' }));
+        }
+
+        const payment = await Payment.findOne({
+            where: {
+                order_id: orderId
+            }
+        });
+
+        if (!payment) {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ 
+                message: 'Payment not found for this order',
+                status: 'pending',
+                payment_method: 'cash'
+            }));
+        }
+
+        // Kiểm tra quyền truy cập
+        // const isAdmin = req.user.role === 'admin';
+        // const isOwner = payment.user_id === req.user.user_id;
+
+        // if (!isAdmin && !isOwner) {
+        //     res.writeHead(403, { 'Content-Type': 'application/json' });
+        //     return res.end(JSON.stringify({ message: 'Permission denied' }));
+        // }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(payment));
+    } catch (error) {
+        console.error('Get payment by order ID error:', error);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Internal server error' }));
+    }
+};
+
 // Cập nhật trạng thái (chỉ admin)
 exports.updatePaymentStatus = (req, res, paymentId) => {
-    if (req.user.role !== 'admin') {
-        res.writeHead(403, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ message: 'Access denied' }));
-    }
+    // if (req.user.role !== 'admin') {
+    //     res.writeHead(403, { 'Content-Type': 'application/json' });
+    //     return res.end(JSON.stringify({ message: 'Access denied' }));
+    // }
 
     parseRequestBody(req, res, async (body) => {
         const { status } = body;
 
-        if (!status || !['pending', 'success', 'failed', 'cancelled'].includes(status)) {
+        if (!status || !['pending', 'success','cancelled'].includes(status)) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ message: 'Invalid or missing status' }));
         }

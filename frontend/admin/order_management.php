@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="sidebar.css">
     <style>
         .content {
-            margin-left: 260px;
+            /* margin-left: 260px; */
             padding: 20px;
             transition: margin-left 0.3s ease;
         }
@@ -29,11 +29,27 @@
             margin-bottom: 20px;
         }
 
-        .order-filters {
-            display: flex;
-            gap: 15px;
+        .search-section {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
             margin-bottom: 20px;
-            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
         }
 
         .filter-group {
@@ -42,101 +58,178 @@
             gap: 10px;
         }
 
+        .filter-group label {
+            font-weight: 500;
+            color: #333;
+            white-space: nowrap;
+        }
+
         .filter-group select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            min-width: 150px;
+            padding: 8px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+
+        .filter-group select:focus {
+            border-color: #17a2b8;
+            box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.1);
+            outline: none;
+            background-color: #ffffff;
+        }
+
+        .search-input {
+            padding: 12px 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 300px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+
+        .search-input:focus {
+            border-color: #17a2b8;
+            box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.1);
+            outline: none;
+            background-color: #ffffff;
+        }
+
+        .search-btn {
+            padding: 12px 25px;
+            background: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-btn:hover {
+            background: #138496;
         }
 
         .order-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             margin-top: 20px;
-        }
-
-        .order-table th,
-        .order-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .order-table th {
             background-color: #f8f9fa;
-            font-weight: bold;
-            color: #000;
+            padding: 15px;
+            font-weight: 600;
+            color: #333;
+            text-align: left;
+        }
+
+        .order-table td {
+            padding: 15px;
+            color: #4a4a4a;
         }
 
         .order-table tr:hover {
-            background-color: #f5f5f5;
+            background-color: #f8f9fa;
         }
 
         .status-badge {
-            padding: 5px 10px;
-            border-radius: 15px;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 600;
+            display: inline-block;
+            text-align: center;
+            min-width: 100px;
         }
 
         .status-pending {
-            background: #ffeeba;
+            background: #fff3cd;
             color: #856404;
+            border-color: #ffeeba;
         }
 
         .status-processing {
-            background: #b8daff;
+            background: #cce5ff;
             color: #004085;
+            border-color: #b8daff;
         }
 
         .status-completed {
-            background: #c3e6cb;
+            background: #d4edda;
             color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .status-confirmed {
+            background: #e3f2fd;
+            color: #0d47a1;
+            border-color: #bbdefb;
+        }
+
+        .status-shipping {
+            background: #fff8e1;
+            color: #ff6f00;
+            border-color: #ffecb3;
+        }
+
+        .status-delivered {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border-color: #c8e6c9;
         }
 
         .status-cancelled {
-            background: #f5c6cb;
-            color: #721c24;
+            background: #ffebee;
+            color: #b71c1c;
+            border-color: #ffcdd2;
         }
 
         .payment-status-pending {
-            background: #ffeeba;
+            background: #fff3cd;
             color: #856404;
+            border-color: #ffeeba;
         }
 
-        .payment-status-paid {
-            background: #c3e6cb;
+        .payment-status-success {
+            background: #d4edda;
             color: #155724;
+            border-color: #c3e6cb;
         }
 
-        .action-buttons {
+        .payment-status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .status-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            margin-top: 8px;
         }
 
-        .view-btn,
-        .update-btn {
+        .status-actions button {
             padding: 6px 12px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             color: white;
-        }
-
-        .view-btn {
-            background: #17a2b8;
-        }
-
-        .view-btn:hover {
-            background: #138496;
-        }
-
-        .update-btn {
-            background: #17a2b8;
-        }
-
-        .update-btn:hover {
-            background: #138496;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            transition: all 0.3s ease;
         }
 
         .confirm-btn {
@@ -147,13 +240,16 @@
             background: #218838;
         }
 
+        .update-btn {
+            background: #17a2b8;
+        }
+
+        .update-btn:hover {
+            background: #138496;
+        }
+
         .confirm-payment-btn {
             background: #28a745;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            color: white;
         }
 
         .confirm-payment-btn:hover {
@@ -162,15 +258,18 @@
 
         .edit-payment-btn {
             background: #17a2b8;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            color: white;
         }
 
         .edit-payment-btn:hover {
             background: #138496;
+        }
+
+        .shipping-btn {
+            background: #ff9800;
+        }
+
+        .shipping-btn:hover {
+            background: #f57c00;
         }
 
         /* Modal styles */
@@ -235,19 +334,138 @@
             color: #721c24;
         }
 
-        .status-actions {
+        .order-actions {
+            margin-top: 20px;
             display: flex;
-            gap: 5px;
-            margin-top: 5px;
+            gap: 10px;
+            align-items: center;
         }
 
-        .status-actions button {
-            padding: 4px 8px;
+        .order-actions select {
+            padding: 8px 15px;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #f8f9fa;
+            min-width: 180px;
+            transition: all 0.3s ease;
+        }
+
+        .order-actions select:focus {
+            outline: none;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.1);
+        }
+
+        .order-actions button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #17a2b8;
             color: white;
-            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .order-actions button:hover {
+            background: #138496;
+        }
+
+        .payment-status-form {
+            padding: 20px;
+        }
+
+        .payment-status-form select {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #f8f9fa;
+            min-width: 180px;
+            transition: all 0.3s ease;
+        }
+
+        .payment-status-form select:focus {
+            outline: none;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.1);
+        }
+
+        .payment-status-form button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #17a2b8;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .payment-status-form button:hover {
+            background: #138496;
+        }
+
+        .products-list {
+            margin-bottom: 20px;
+        }
+
+        .total-price {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #eee;
+            text-align: right;
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .total-price span {
+            color: #17a2b8;
+            margin-left: 10px;
+        }
+
+        .delivered-btn {
+            background: #28a745;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .delivered-btn:hover {
+            background: #218838;
+        }
+
+        .cancel-btn {
+            background: #dc3545;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .cancel-btn:hover {
+            background: #c82333;
+        }
+
+        .cancel-btn:disabled {
+            background: #dc3545;
+            opacity: 0.65;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -261,37 +479,35 @@
                 <h1>Quản lý Đơn hàng</h1>
             </div>
 
-            <div class="order-filters">
-                <div class="filter-group">
-                    <label>Trạng thái đơn hàng:</label>
-                    <select id="statusFilter">
-                        <option value="">Tất cả</option>
-                        <option value="pending">Chờ xử lý</option>
-                        <option value="confirmed">Đã xác nhận</option>
-                        <option value="shipping">Đang vận chuyển</option>
-                        <option value="delivered">Đã giao</option>
-                        <option value="cancelled">Đã huỷ</option>
-                    </select>
+            <div class="search-section">
+                <div class="search-main">
+                    <input type="text" id="userNameSearch" class="search-input" placeholder="Nhập tên người dùng để tìm kiếm">
+                    <button onclick="searchOrdersByUserName()" class="search-btn">
+                        <i class="fas fa-search"></i>
+                        Tìm kiếm
+                    </button>
                 </div>
-                <div class="filter-group">
-                    <label>Trạng thái thanh toán:</label>
-                    <select id="paymentStatusFilter">
-                        <option value="">Tất cả</option>
-                        <option value="pending">Chờ thanh toán</option>
-                        <option value="paid">Đã thanh toán</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Sắp xếp:</label>
-                    <select id="sortFilter">
-                        <option value="newest">Mới nhất</option>
-                        <option value="oldest">Cũ nhất</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Tìm kiếm theo Tên User:</label>
-                    <input type="text" id="userNameSearch" placeholder="Nhập Tên User">
-                    <button onclick="searchOrdersByUserName()">Tìm kiếm</button>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Trạng thái đơn hàng:</label>
+                        <select id="statusFilter">
+                            <option value="">Tất cả</option>
+                            <option value="pending">Chờ xử lý</option>
+                            <option value="confirmed">Đã xác nhận</option>
+                            <option value="shipping">Đang vận chuyển</option>
+                            <option value="delivered">Đã giao</option>
+                            <option value="cancelled">Đã huỷ</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Trạng thái thanh toán:</label>
+                        <select id="paymentStatusFilter">
+                            <option value="">Tất cả</option>
+                            <option value="pending">Chờ thanh toán</option>
+                            <option value="success">Thanh toán thành công</option>
+                            <option value="cancelled">Đã hủy thanh toán</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -306,7 +522,6 @@
                         <th>Tổng tiền</th>
                         <th>Trạng thái đơn hàng</th>
                         <th>Trạng thái thanh toán</th>
-                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody id="orderTableBody">
@@ -327,7 +542,6 @@
                     <h3 class="section-title">Thông tin đơn hàng</h3>
                     <p>Ngày đặt: <span id="orderDate"></span></p>
                     <p>Trạng thái: <span id="orderStatus"></span></p>
-                    <p>Tổng tiền: <span id="orderTotal"></span></p>
                 </div>
 
                 <div class="customer-info">
@@ -345,7 +559,7 @@
                             <tr>
                                 <th>Sản phẩm</th>
                                 <th>Số lượng</th>
-                                <th>Đơn giá</th>
+                                <th>Giá</th>
                                 <th>Thành tiền</th>
                             </tr>
                         </thead>
@@ -356,14 +570,12 @@
                 </div>
 
                 <div class="order-actions">
-                    <select id="updateStatus">
-                        <option value="pending">Pending</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="shipping">Shipping</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
-                    <button onclick="updateOrderStatus()" class="update-btn">Cập nhật trạng thái</button>
+                    <button onclick="updateOrderStatus(${order.order_id}, 'delivered')" class="delivered-btn" id="deliveredBtn">
+                        <i class="fas fa-check-circle"></i> Đã nhận
+                    </button>
+                    <button onclick="updateOrderStatus(${order.order_id}, 'cancelled')" class="cancel-btn" id="cancelBtn">
+                        <i class="fas fa-times-circle"></i> Hủy đơn
+                    </button>
                 </div>
             </div>
         </div>
@@ -421,38 +633,50 @@
                     userCache[order.user_id] = user;
                 }
 
+                // Lấy thông tin thanh toán từ payment service
+                let paymentInfo;
+                try {
+                    const paymentResponse = await fetch(`http://localhost:3000/payment-service/payments/${order.order_id}`, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (paymentResponse.ok) {
+                        paymentInfo = await paymentResponse.json();
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi lấy thông tin thanh toán:', error);
+                }
+
                 const userName = user?.username || 'Không rõ';
-                const paymentStatus = order.payment_status || 'pending';
+                const paymentStatus = paymentInfo?.status || 'pending';
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${order.order_id}</td>
                     <td>${userName}</td>
                     <td>${new Date(order.updated_at).toLocaleDateString()}</td>
-                    <td>${Number(order.total_price || 0).toLocaleString()} đ</td>
+                    <td>${Number(order.total_price + 5 || 0).toLocaleString()} $</td>
                     <td>
                         <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span>
                         <div class="status-actions">
                             ${order.status === 'pending' ? `
                             <button class="confirm-btn" onclick="confirmOrder(${order.order_id})" title="Xác nhận đơn hàng">
-                                <i class="fas fa-check-circle"></i>
+                                <i class="fas fa-check-circle"></i> Xác nhận
+                            </button>` : ''}
+                            ${order.status === 'confirmed' ? `
+                            <button class="shipping-btn" onclick="updateOrderStatus(${order.order_id}, 'shipping')" title="Chuyển sang vận chuyển">
+                                <i class="fas fa-truck"></i> Vận chuyển
                             </button>` : ''}
                             <button class="update-btn" onclick="showUpdateStatus(${order.order_id})" title="Chỉnh sửa trạng thái">
-                                <i class="fas fa-edit"></i>
+                                <i class="fas fa-edit"></i> Chỉnh sửa
                             </button>
                         </div>
                     </td>
-                    <td><span class="status-badge payment-status-${paymentStatus}">${getPaymentStatusText(paymentStatus)}</span></td>
                     <td>
-                        <div class="action-buttons">
-                            ${paymentStatus === 'pending' ? `
-                            <button class="confirm-payment-btn" onclick="confirmPayment(${order.order_id})" title="Xác nhận thanh toán">
-                                <i class="fas fa-check-circle"></i>
-                            </button>` : ''}
-                            <button class="edit-payment-btn" onclick="showUpdatePaymentStatus(${order.order_id})" title="Chỉnh sửa trạng thái thanh toán">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
+                        <span class="status-badge payment-status-${paymentStatus}">${getPaymentStatusText(paymentStatus)}</span>
+                        <div>Phương thức: ${paymentInfo?.payment_method || 'Tiền mặt (COD)'}</div>
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -463,9 +687,10 @@
             if (!status) return 'Không xác định';
             const statusMap = {
                 pending: "Chờ xử lý",
-                processing: "Đang xử lý",
-                completed: "Hoàn thành",
-                canceled: "Đã hủy"
+                confirmed: "Đã xác nhận",
+                shipping: "Đang vận chuyển",
+                delivered: "Đã giao hàng",
+                cancelled: "Đã hủy"
             };
             return statusMap[status.toLowerCase()] || status;
         }
@@ -473,7 +698,8 @@
         function getPaymentStatusText(status) {
             const statusMap = {
                 pending: "Chờ thanh toán",
-                paid: "Đã thanh toán"
+                success: "Thanh toán thành công",
+                cancelled: "Đã hủy thanh toán"
             };
             return statusMap[status] || status;
         }
@@ -494,6 +720,26 @@
                 const result = await response.json();
                 showMessage(result.message || 'Đơn hàng đã được xác nhận');
 
+                // Lấy chi tiết đơn hàng để trừ số lượng sản phẩm
+                const orderDetailRes = await fetch(`http://localhost:3000/order-service/${orderId}`);
+                if (orderDetailRes.ok) {
+                    const orderDetail = await orderDetailRes.json();
+                    if (orderDetail.items && Array.isArray(orderDetail.items)) {
+                        for (const item of orderDetail.items) {
+                            // Gọi API trừ số lượng sản phẩm
+                            await fetch(`http://localhost:3000/product-service/products/${item.product_id}/decrease-quantity`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    quantity: item.quantity
+                                })
+                            });
+                        }
+                    }
+                }
+
                 fetchAllOrders(); // Tải lại danh sách đơn hàng sau khi xác nhận thành công
             } catch (error) {
                 console.error('Lỗi khi xác nhận đơn hàng:', error);
@@ -503,33 +749,30 @@
 
         async function viewOrderDetails(orderId) {
             try {
-
                 const response = await fetch(`http://localhost:3000/order-service/${orderId}`);
 
                 if (!response.ok) {
-                    console.error(`Failed to fetch order details. Status: ${response.status}`); // Log status code
+                    console.error(`Failed to fetch order details. Status: ${response.status}`);
                     throw new Error(`Không thể tải chi tiết đơn hàng. Mã lỗi: ${response.status}`);
                 }
 
                 const order = await response.json();
-                console.log('Order details fetched successfully:', order); // Log fetched order details
+                console.log('Order details fetched successfully:', order);
 
                 displayOrderDetails(order);
                 document.getElementById('orderModal').style.display = 'block';
             } catch (error) {
-                console.error('Lỗi khi tải chi tiết đơn hàng:', error); // Log error details
+                console.error('Lỗi khi tải chi tiết đơn hàng:', error);
                 alert('Không thể tải chi tiết đơn hàng. Vui lòng thử lại sau.');
             }
         }
 
         document.addEventListener('DOMContentLoaded', fetchAllOrders);
 
-
-
         function formatCurrency(amount) {
             return new Intl.NumberFormat('vi-VN', {
                 style: 'currency',
-                currency: 'VND'
+                currency: 'USD'
             }).format(amount);
         }
 
@@ -552,53 +795,98 @@
             }
         }
        
-
         async function displayOrderDetails(order) {
-
             const user = await getUserById(order.order.user_id);
 
             document.getElementById('orderNumber').textContent = order.order.order_id;
             document.getElementById('orderDate').textContent = new Date(order.order.created_at).toLocaleDateString('vi-VN');
             document.getElementById('orderStatus').textContent = getStatusText(order.order.status);
-            document.getElementById('orderTotal').textContent = formatCurrency(order.order.total_price);
 
             // Hiển thị thông tin khách hàng nếu có
-            document.getElementById('customerName').textContent =  user.username || 'Không xác định';
-            document.getElementById('customerEmail').textContent =  user.email || 'Không xác định';
+            document.getElementById('customerName').textContent = user.username || 'Không xác định';
+            document.getElementById('customerEmail').textContent = user.email || 'Không xác định';
             document.getElementById('customerAddress').textContent = order.order.shipping_address || 'Không xác định';
             document.getElementById('customerPhone').textContent = order.order.phone_number || 'Không xác định';
 
             // Hiển thị danh sách sản phẩm
             const productsList = document.getElementById('productsList');
-        productsList.innerHTML = '';
+            productsList.innerHTML = '';
 
-        if (order.items && Array.isArray(order.items)) {
-            for (let i = 0; i < order.items.length; i++) {
-                const product = await getProductInfo(order.items[i].product_id);
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${product.product.name || 'Không xác định'}</td>
-                    <td>${order.items[i].quantity || 0}</td>
-                    <td>${formatCurrency(product?.product?.price || 0)}</td>
-                    <td>${formatCurrency((product?.product?.price || 0) * (order.items[i].quantity || 0))}</td>
+            if (order.items && Array.isArray(order.items)) {
+                for (let i = 0; i < order.items.length; i++) {
+                    const product = await getProductInfo(order.items[i].product_id);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.product.name || 'Không xác định'}</td>
+                        <td>${order.items[i].quantity || 0}</td>
+                        <td>${formatCurrency(product?.product?.price || 0)}</td>
+                        <td>${formatCurrency((product?.product?.price || 0) * (order.items[i].quantity || 0))}</td>
+                    `;
+                    productsList.appendChild(row);
+                }
+                // Thêm dòng hiển thị phí ship
+                const shippingRow = document.createElement('tr');
+                shippingRow.innerHTML = `
+                    <td colspan="3" style="text-align: right;">Phí vận chuyển:</td>
+                    <td>${formatCurrency(5)}</td>
                 `;
+                productsList.appendChild(shippingRow);
+
+                // Thêm tổng tiền ở cuối bảng
+                const totalRow = document.createElement('tr');
+                totalRow.className = 'total-price';
+                totalRow.innerHTML = `
+                    <td colspan="3" style="text-align: right;"><h1>Tổng tiền:</h1></td>
+                    <td><span>${formatCurrency(order.order.total_price + 5)}</span></td>
+                `;
+                productsList.appendChild(totalRow);
+            } else {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="4">Không có sản phẩm</td>';
                 productsList.appendChild(row);
             }
-        } else {
-            const row = document.createElement('tr');
-            row.innerHTML = '<td colspan="4">Không có sản phẩm</td>';
-            productsList.appendChild(row);
-        }
 
-            // Đặt lại giá trị cho select trạng thái
-            if (order.status) {
-                document.getElementById('updateStatus').value = order.status.toLowerCase();
+            // Xử lý hiển thị nút dựa trên trạng thái đơn hàng
+            const orderActions = document.querySelector('.order-actions');
+            orderActions.innerHTML = `
+                <button onclick="updateOrderStatus(${order.order.order_id}, 'delivered')" class="delivered-btn" id="deliveredBtn">
+                    <i class="fas fa-check-circle"></i> Đã nhận
+                </button>
+                <button onclick="updateOrderStatus(${order.order.order_id}, 'cancelled')" class="cancel-btn" id="cancelBtn">
+                    <i class="fas fa-times-circle"></i> Hủy đơn
+                </button>
+            `;
+
+            const deliveredBtn = document.getElementById('deliveredBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+
+            if (order.order.status === 'cancelled') {
+                deliveredBtn.style.display = 'none';
+                cancelBtn.disabled = true;
+            } else {
+                deliveredBtn.style.display = 'flex';
+                cancelBtn.disabled = false;
             }
         }
 
-        async function updateOrderStatus(orderId) {
+        async function updateOrderStatus(orderId, directStatus = null) {
             try {
-                const newStatus = document.getElementById('updateStatus').value;
+                const newStatus = directStatus || document.getElementById('updateStatus').value;
+
+                // 1. Lấy thông tin đơn hàng hiện tại để biết trạng thái cũ và danh sách sản phẩm
+                const orderDetailRes = await fetch(`http://localhost:3000/order-service/${orderId}`);
+                if (!orderDetailRes.ok) {
+                    throw new Error('Không thể lấy chi tiết đơn hàng');
+                }
+                const orderDetail = await orderDetailRes.json();
+                const oldStatus = orderDetail.order.status;
+
+                // Kiểm tra trạng thái hiện tại có phù hợp để chuyển đổi không
+                if (directStatus === 'shipping' && oldStatus !== 'confirmed') {
+                    throw new Error('Chỉ có thể chuyển sang vận chuyển khi đơn hàng đã được xác nhận');
+                }
+
+                // 2. Gọi API cập nhật trạng thái
                 const response = await fetch(`http://localhost:3000/order-service/${orderId}/status/${newStatus}`, {
                     method: 'PUT',
                     headers: {
@@ -610,35 +898,82 @@
                     throw new Error('Không thể cập nhật trạng thái đơn hàng');
                 }
 
+                // 3. Tự động cập nhật trạng thái thanh toán dựa trên trạng thái đơn hàng
+                const paymentResult = await getPaymentInfo(orderId);
+                if (paymentResult.success && paymentResult.data) {
+                    const paymentId = paymentResult.data.id;
+                    let newPaymentStatus = paymentResult.data.status;
+
+                    // Logic cập nhật trạng thái thanh toán
+                    if ((oldStatus === 'confirmed' && (newStatus === 'shipping' || newStatus === 'delivered')) ||
+                        (oldStatus === 'pending' && (newStatus === 'shipping' || newStatus === 'delivered'))) {
+                        newPaymentStatus = 'success';
+                    } else if ((oldStatus === 'shipping' || oldStatus === 'delivered') && newStatus === 'cancelled') {
+                        newPaymentStatus = 'cancelled';
+                    }
+
+                    // Chỉ cập nhật nếu trạng thái thanh toán thay đổi
+                    if (newPaymentStatus !== paymentResult.data.status) {
+                        const paymentResponse = await fetch(`http://localhost:3000/payment-service/payments/${paymentId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                status: newPaymentStatus
+                            })
+                        });
+
+                        if (!paymentResponse.ok) {
+                            console.error('Không thể cập nhật trạng thái thanh toán');
+                        }
+                    }
+                }
+
+                // 4. Nếu chuyển từ trạng thái KHÁC "pending" về "cancelled" thì cộng lại số lượng sản phẩm
+                if (newStatus === 'cancelled' && oldStatus !== 'pending') {
+                    if (orderDetail.items && Array.isArray(orderDetail.items)) {
+                        for (const item of orderDetail.items) {
+                            // Lấy thông tin sản phẩm hiện tại
+                            const productRes = await fetch(`http://localhost:3000/product-service/products/${item.product_id}`);
+                            if (!productRes.ok) continue;
+                            const productData = await productRes.json();
+                            const currentAmount = productData.product.amount || 0;
+                            const newAmount = currentAmount + item.quantity;
+
+                            // Gọi API cập nhật lại số lượng sản phẩm
+                            await fetch(`http://localhost:3000/product-service/products/${item.product_id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    amount: newAmount
+                                })
+                            });
+                        }
+                    }
+                }
+
                 const result = await response.json();
                 showMessage(result.message || 'Cập nhật trạng thái thành công');
                 fetchAllOrders(); // Reload the order list after updating
             } catch (error) {
                 console.error('Lỗi khi cập nhật trạng thái đơn hàng:', error);
-                showMessage('Không thể cập nhật trạng thái đơn hàng. Vui lòng thử lại sau.', true);
+                showMessage(error.message || 'Không thể cập nhật trạng thái đơn hàng. Vui lòng thử lại sau.', true);
             }
         }
 
         function showUpdateStatus(orderId) {
             // Gọi hàm viewOrderDetails để tải thông tin chi tiết đơn hàng
             viewOrderDetails(orderId);
-
-            const modal = document.getElementById('orderModal');
-            modal.style.display = 'block';
-
-            const updateStatusSelect = document.getElementById('updateStatus');
-            updateStatusSelect.value = '';
-
-            // Đảm bảo nút cập nhật trạng thái nhận đúng orderId
-            const updateButton = modal.querySelector('.update-btn');
-            updateButton.onclick = function() {
-                updateOrderStatus(orderId);
-            };
         }
 
         function closeModal() {
             const modal = document.getElementById('orderModal');
-            modal.style.display = 'none';
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
 
         function showMessage(message, isError = false) {
@@ -723,13 +1058,51 @@
             }
         }
 
-        async function confirmPayment(orderId) {
+        async function getPaymentInfo(orderId) {
             try {
-                const response = await fetch(`http://localhost:3000/order-service/${orderId}/payment/paid`, {
-                    method: 'PUT',
+                const response = await fetch(`http://localhost:3000/payment-service/payments/${orderId}`, {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
                     }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const payment = await response.json();
+                return {
+                    success: true,
+                    data: payment
+                };
+            } catch (error) {
+                console.error('Lỗi khi lấy thông tin thanh toán:', error);
+                return {
+                    success: false,
+                    error: error.message || 'Không thể lấy thông tin thanh toán'
+                };
+            }
+        }
+
+        async function confirmPayment(orderId) {
+            try {
+                // Lấy thông tin payment trước
+                const paymentResult = await getPaymentInfo(orderId);
+                if (!paymentResult.success || !paymentResult.data) {
+                    throw new Error('Không tìm thấy thông tin thanh toán');
+                }
+
+                const paymentId = paymentResult.data.id;
+                
+                const response = await fetch(`http://localhost:3000/payment-service/payments/${paymentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: 'success'
+                    })
                 });
 
                 if (!response.ok) {
@@ -745,54 +1118,88 @@
             }
         }
 
-        async function showUpdatePaymentStatus(orderId) {
-            viewOrderDetails(orderId);
-            const modal = document.getElementById('orderModal');
+        function showUpdatePaymentStatus(orderId) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'paymentStatusModal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span>
+                    <h2>Chỉnh sửa thông tin thanh toán</h2>
+                    <div class="payment-status-form">
+                        <p>Mã đơn hàng: <strong>${orderId}</strong></p>
+                        <div class="form-group">
+                            <label>Trạng thái thanh toán:</label>
+                            <select id="updatePaymentStatus">
+                                <option value="pending">Chờ thanh toán</option>
+                                <option value="success">Thanh toán thành công</option>
+                                <option value="cancelled">Đã hủy thanh toán</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Phương thức thanh toán:</label>
+                            <select id="updatePaymentMethod">
+                                <option value="cash">Tiền mặt (COD)</option>
+                            </select>
+                        </div>
+                        <button onclick="updatePaymentStatus(${orderId})" class="update-btn">Cập nhật</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
             modal.style.display = 'block';
 
-            // Thêm select box cho trạng thái thanh toán vào modal
-            const paymentStatusSelect = document.createElement('select');
-            paymentStatusSelect.id = 'updatePaymentStatus';
-            paymentStatusSelect.innerHTML = `
-                <option value="pending">Chờ thanh toán</option>
-                <option value="paid">Đã thanh toán</option>
-            `;
+            // Thêm sự kiện đóng modal
+            const closeBtn = modal.querySelector('.close-btn');
+            closeBtn.onclick = function() {
+                modal.remove();
+            };
 
-            const updateButton = document.createElement('button');
-            updateButton.className = 'update-btn';
-            updateButton.textContent = 'Cập nhật trạng thái thanh toán';
-            updateButton.onclick = () => updatePaymentStatus(orderId);
-
-            const paymentStatusContainer = document.createElement('div');
-            paymentStatusContainer.className = 'payment-status-update mb-3';
-            paymentStatusContainer.appendChild(paymentStatusSelect);
-            paymentStatusContainer.appendChild(updateButton);
-
-            const orderActions = document.querySelector('.order-actions');
-            orderActions.appendChild(paymentStatusContainer);
+            // Đóng modal khi click bên ngoài
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.remove();
+                }
+            };
         }
 
         async function updatePaymentStatus(orderId) {
             try {
+                // Lấy thông tin payment trước
+                const paymentResult = await getPaymentInfo(orderId);
+                if (!paymentResult.success || !paymentResult.data) {
+                    throw new Error('Không tìm thấy thông tin thanh toán');
+                }
+
+                const paymentId = paymentResult.data.id;
                 const newStatus = document.getElementById('updatePaymentStatus').value;
-                const response = await fetch(`http://localhost:3000/order-service/${orderId}/payment/${newStatus}`, {
+                
+                const response = await fetch(`http://localhost:3000/payment-service/payments/${paymentId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({
+                        status: newStatus
+                    })
                 });
 
                 if (!response.ok) {
-                    throw new Error('Không thể cập nhật trạng thái thanh toán');
+                    throw new Error('Không thể cập nhật thông tin thanh toán');
                 }
 
                 const result = await response.json();
-                showMessage(result.message || 'Cập nhật trạng thái thanh toán thành công');
+                showMessage(result.message || 'Cập nhật thông tin thanh toán thành công');
                 fetchAllOrders();
-                closeModal();
+                
+                // Đóng modal payment status
+                const modal = document.getElementById('paymentStatusModal');
+                if (modal) {
+                    modal.remove();
+                }
             } catch (error) {
-                console.error('Lỗi khi cập nhật trạng thái thanh toán:', error);
-                showMessage('Không thể cập nhật trạng thái thanh toán. Vui lòng thử lại sau.', true);
+                console.error('Lỗi khi cập nhật thông tin thanh toán:', error);
+                showMessage('Không thể cập nhật thông tin thanh toán. Vui lòng thử lại sau.', true);
             }
         }
 
@@ -818,6 +1225,28 @@
                 }
             }
         });
+
+        // Thêm hàm lấy tổng số thanh toán thành công
+        async function getTotalSuccessfulPayments() {
+            try {
+                const response = await fetch('http://localhost:3000/payment-service/payments/total-successful', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể lấy tổng số thanh toán thành công');
+                }
+
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Lỗi khi lấy tổng số thanh toán thành công:', error);
+                return null;
+            }
+        }
     </script>
 </body>
 

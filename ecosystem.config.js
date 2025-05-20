@@ -72,6 +72,17 @@ module.exports = {
           NODE_ENV: 'production',
         },
       },
+      {
+        name: 'payment-service',
+        script: './payment-service/index.js',
+        env: {
+          PORT: 8000,
+          DB_HOST: 'localhost',
+          DB_USER: 'root',
+          DB_PASSWORD: '',
+          DB_DATABASE: 'payment_service',
+        },
+      },
     ],
   };
   

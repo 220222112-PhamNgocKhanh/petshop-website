@@ -12,27 +12,15 @@ const paymentRoutes = (req, res, pathname, method) => {
         });
     } else if (pathname === '/payment-service/payments' && method === 'GET') {
         // Lấy danh sách thanh toán (chỉ admin)
-        verifyToken(req, res, () => {
-            authorizeRole('admin')(req, res, () => {
-                paymentController.getPayments(req, res);
-            });
-        });
+        paymentController.getPayments(req, res);;
     } else if (pathname.startsWith('/payment-service/payments/') && method === 'GET') {
-        // Lấy thông tin thanh toán theo ID (chỉ user hoặc admin)
-        const paymentId = pathname.split('/').pop();
-        verifyToken(req, res, () => {
-            authorizeRole('user', 'admin')(req, res, () => {
-                paymentController.getPaymentById(req, res, paymentId);
-            });
-        });
+        // Lấy thông tin thanh toán theo OrderID (chỉ user hoặc admin)
+        const order_id = pathname.split('/').pop();
+        paymentController.getPaymentByOrderId(req, res, order_id);
     } else if (pathname.startsWith('/payment-service/payments/') && method === 'PUT') {
         // Cập nhật trạng thái thanh toán (chỉ admin)
         const paymentId = pathname.split('/').pop();
-        verifyToken(req, res, () => {
-            authorizeRole('admin')(req, res, () => {
-                paymentController.updatePaymentStatus(req, res, paymentId);
-            });
-        });
+        paymentController.updatePaymentStatus(req, res, paymentId);
     } else if (pathname === '/payment-service/payments/total-successful' && method === 'GET') {
         paymentController.getTotalSuccessfulPayments(req, res);
     } else {
@@ -40,6 +28,7 @@ const paymentRoutes = (req, res, pathname, method) => {
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'Payment service route not found' }));
     }
+    
 };
 
 module.exports = paymentRoutes;

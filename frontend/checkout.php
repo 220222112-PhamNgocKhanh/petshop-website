@@ -308,12 +308,15 @@
                         };
                     })
                 );
+                const total_price = itemsWithProductInfo.reduce((sum, item) => sum + (item.price * item.amount), 5);
 
                 const orderData = {
                     user_id: userId,
                     phone_number: document.getElementById('phone').value,
                     shipping_address: document.getElementById('address').value,
+                    contact_email: document.getElementById('email').value,
                     items: itemsWithProductInfo
+                    
                 };
 
                 const response = await fetch('http://localhost:3000/order-service/place', {
@@ -331,6 +334,28 @@
                 }
 
                 const result = await response.json();
+                
+                // Tạo payment sau khi đặt hàng thành công
+                const paymentData = {
+                    order_id: result.order_id,
+                    amount: total_price,
+                    payment_method: "cash"
+                };
+
+                const paymentResponse = await fetch('http://localhost:3000/payment-service/payments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    },
+                    body: JSON.stringify(paymentData)
+                });
+                console.log(paymentData);
+
+                if (!paymentResponse.ok) {
+                    throw new Error('Có lỗi xảy ra khi tạo payment');
+                }
+
                 alert('Đặt hàng thành công!');
                 window.location.href = 'order.php';
             } catch (error) {
