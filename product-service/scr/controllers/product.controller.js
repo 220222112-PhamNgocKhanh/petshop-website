@@ -102,7 +102,7 @@ const updateProduct = async (req, res) => {
 
 // Lấy danh sách sản phẩm
 const getProducts = async (req, res) => {
-    const { limit = 10, offset = 0, search = '', min_price, max_price, category } = req.query;
+    const { limit = 100000, offset = 0, search = '', min_price, max_price, category } = req.query;
     let query = 'SELECT * FROM products WHERE name LIKE ?';
     const params = [`%${search}%`];
 
@@ -449,6 +449,74 @@ const countTotalProducts = async (req, res) => {
     }
 };
 
+// Đếm tổng số sản phẩm theo khoảng thời gian
+const getNewProductStats = async (req, res) => {
+    try {
+        // Parse URL để lấy query parameters
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const timeRange = url.searchParams.get('timeRange') || 'month';
+        let startDate, endDate;
+        console.log(timeRange);
+
+        // Tính toán khoảng thời gian
+        switch(timeRange) {
+            case 'today':
+                startDate = new Date();
+                startDate.setHours(0, 0, 0, 0);
+                endDate = new Date();
+                break;
+            case 'week':
+                startDate = new Date();
+                startDate.setDate(startDate.getDate() - 7);
+                endDate = new Date();
+                break;
+            case 'month':
+                startDate = new Date();
+                startDate.setMonth(startDate.getMonth() - 1);
+                endDate = new Date();
+                break;
+            case 'year':
+                startDate = new Date();
+                startDate.setFullYear(startDate.getFullYear() - 1);
+                endDate = new Date();
+                break;
+            default:
+                startDate = new Date();
+                startDate.setMonth(startDate.getMonth() - 1);
+                endDate = new Date();
+        }
+
+        // Đếm tổng số sản phẩm mới trong khoảng thời gian
+        const [totalResult] = await db.execute(
+            'SELECT COUNT(*) as total FROM products WHERE created_at BETWEEN ? AND ?',
+            [startDate, endDate]
+        );
+
+        // Thống kê sản phẩm mới theo ngày
+        const [dailyResult] = await db.execute(
+            `SELECT 
+                DATE(created_at) as date,
+                COUNT(*) as count
+            FROM products 
+            WHERE created_at BETWEEN ? AND ?
+            GROUP BY DATE(created_at)
+            ORDER BY date ASC`,
+            [startDate, endDate]
+        );
+
+        res.status(200).json({
+            totalNewProducts: totalResult[0].total,
+            dailyNewProducts: dailyResult
+        });
+    } catch (error) {
+        console.error('Lỗi khi thống kê sản phẩm:', error);
+        res.status(500).json({ 
+            message: 'Lỗi khi thống kê sản phẩm', 
+            error: error.message 
+        });
+    }
+};
+
 // Xuất module
 module.exports = {
     validateProduct,
@@ -466,5 +534,6 @@ module.exports = {
     uploadProductImage,
     updateProductWithImage,
     decreaseProductQuantity,
-    countTotalProducts
+    countTotalProducts,
+    getNewProductStats
 };

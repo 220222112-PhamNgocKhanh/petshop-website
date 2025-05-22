@@ -467,6 +467,45 @@
             opacity: 0.65;
             cursor: not-allowed;
         }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 10px;
+        }
+
+        .pagination button {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background-color: white;
+            color: #333;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            border-color: #999;
+        }
+
+        .pagination button:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .pagination span {
+            padding: 8px 15px;
+            color: #666;
+        }
+
+        .order-container {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
@@ -582,6 +621,10 @@
     </div>
 
     <script>
+        let currentPage = 1;
+        const ordersPerPage = 20;
+        let allOrders = [];
+
         async function fetchAllOrders() {
             try {
                 const response = await fetch('http://localhost:3000/order-service/all');
@@ -590,8 +633,8 @@
                     throw new Error('Không thể tải danh sách đơn hàng');
                 }
 
-                const orders = await response.json();
-                renderOrders(orders);
+                allOrders = await response.json();
+                renderOrders(allOrders);
             } catch (error) {
                 console.error('Lỗi khi tải danh sách đơn hàng:', error);
                 alert('Không thể tải danh sách đơn hàng. Vui lòng thử lại sau.');
@@ -612,12 +655,24 @@
         }
 
         async function renderOrders(orders) {
+            // Sort orders by updated_at descending (newest first)
+            orders.sort((a, b) => {
+                const aOrder = a.order || a;
+                const bOrder = b.order || b;
+                return new Date(bOrder.updated_at) - new Date(aOrder.updated_at);
+            });
+
+            // Tính toán phân trang
+            const startIndex = (currentPage - 1) * ordersPerPage;
+            const endIndex = startIndex + ordersPerPage;
+            const paginatedOrders = orders.slice(startIndex, endIndex);
+
             const tableBody = document.getElementById('orderTableBody');
             tableBody.innerHTML = '';
 
             const userCache = {};
 
-            for (const item of orders) {
+            for (const item of paginatedOrders) {
                 const order = item.order || item;
 
                 if (!order.user_id) {
@@ -681,6 +736,9 @@
                 `;
                 tableBody.appendChild(row);
             }
+
+            // Tạo phân trang
+            createPagination(orders.length);
         }
 
         function getStatusText(status) {
@@ -767,7 +825,21 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', fetchAllOrders);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lấy tham số status từ URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const statusParam = urlParams.get('status');
+            
+            // Nếu có tham số status, set giá trị cho bộ lọc và lọc đơn hàng
+            if (statusParam) {
+                const statusFilter = document.getElementById('statusFilter');
+                statusFilter.value = statusParam;
+                // Kích hoạt sự kiện change để lọc đơn hàng
+                statusFilter.dispatchEvent(new Event('change'));
+            } else {
+                fetchAllOrders();
+            }
+        });
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('vi-VN', {
@@ -873,7 +945,7 @@
             try {
                 const newStatus = directStatus || document.getElementById('updateStatus').value;
 
-                // 1. Lấy thông tin đơn hàng hiện tại để biết trạng thái cũ và danh sách sản phẩm
+                // 1. Lấy thông tin đơn hàng hiện tại
                 const orderDetailRes = await fetch(`http://localhost:3000/order-service/${orderId}`);
                 if (!orderDetailRes.ok) {
                     throw new Error('Không thể lấy chi tiết đơn hàng');
@@ -881,12 +953,11 @@
                 const orderDetail = await orderDetailRes.json();
                 const oldStatus = orderDetail.order.status;
 
-                // Kiểm tra trạng thái hiện tại có phù hợp để chuyển đổi không
                 if (directStatus === 'shipping' && oldStatus !== 'confirmed') {
                     throw new Error('Chỉ có thể chuyển sang vận chuyển khi đơn hàng đã được xác nhận');
                 }
 
-                // 2. Gọi API cập nhật trạng thái
+                // 2. Cập nhật trạng thái
                 const response = await fetch(`http://localhost:3000/order-service/${orderId}/status/${newStatus}`, {
                     method: 'PUT',
                     headers: {
@@ -898,13 +969,12 @@
                     throw new Error('Không thể cập nhật trạng thái đơn hàng');
                 }
 
-                // 3. Tự động cập nhật trạng thái thanh toán dựa trên trạng thái đơn hàng
+                // 3. Cập nhật trạng thái thanh toán
                 const paymentResult = await getPaymentInfo(orderId);
                 if (paymentResult.success && paymentResult.data) {
                     const paymentId = paymentResult.data.id;
                     let newPaymentStatus = paymentResult.data.status;
 
-                    // Logic cập nhật trạng thái thanh toán
                     if ((oldStatus === 'confirmed' && (newStatus === 'shipping' || newStatus === 'delivered')) ||
                         (oldStatus === 'pending' && (newStatus === 'shipping' || newStatus === 'delivered'))) {
                         newPaymentStatus = 'success';
@@ -912,7 +982,6 @@
                         newPaymentStatus = 'cancelled';
                     }
 
-                    // Chỉ cập nhật nếu trạng thái thanh toán thay đổi
                     if (newPaymentStatus !== paymentResult.data.status) {
                         const paymentResponse = await fetch(`http://localhost:3000/payment-service/payments/${paymentId}`, {
                             method: 'PUT',
@@ -930,18 +999,16 @@
                     }
                 }
 
-                // 4. Nếu chuyển từ trạng thái KHÁC "pending" về "cancelled" thì cộng lại số lượng sản phẩm
+                // 4. Xử lý số lượng sản phẩm nếu hủy đơn
                 if (newStatus === 'cancelled' && oldStatus !== 'pending') {
                     if (orderDetail.items && Array.isArray(orderDetail.items)) {
                         for (const item of orderDetail.items) {
-                            // Lấy thông tin sản phẩm hiện tại
                             const productRes = await fetch(`http://localhost:3000/product-service/products/${item.product_id}`);
                             if (!productRes.ok) continue;
                             const productData = await productRes.json();
                             const currentAmount = productData.product.amount || 0;
                             const newAmount = currentAmount + item.quantity;
 
-                            // Gọi API cập nhật lại số lượng sản phẩm
                             await fetch(`http://localhost:3000/product-service/products/${item.product_id}`, {
                                 method: 'PUT',
                                 headers: {
@@ -957,7 +1024,8 @@
 
                 const result = await response.json();
                 showMessage(result.message || 'Cập nhật trạng thái thành công');
-                fetchAllOrders(); // Reload the order list after updating
+                closeModal(); // Đóng modal sau khi cập nhật thành công
+                fetchAllOrders();
             } catch (error) {
                 console.error('Lỗi khi cập nhật trạng thái đơn hàng:', error);
                 showMessage(error.message || 'Không thể cập nhật trạng thái đơn hàng. Vui lòng thử lại sau.', true);
@@ -1019,42 +1087,52 @@
         });
 
         async function searchOrdersByUserName() {
-            const userName = document.getElementById('userNameSearch').value.trim();
-
-            if (!userName) {
-                // Nếu không nhập Tên User, trả về danh sách tất cả đơn hàng
-                fetchAllOrders();
-                return;
-            }
+            const userName = document.getElementById('userNameSearch').value.trim().toLowerCase();
 
             try {
-                // Gửi yêu cầu để lấy user_id từ tên user
-                const userResponse = await fetch(`http://localhost:3000/user-service/users/username/${userName}`);
-
-                if (!userResponse.ok) {
-                    throw new Error('Không thể tìm thấy user với tên đã nhập');
+                const response = await fetch('http://localhost:3000/order-service/all');
+                if (!response.ok) {
+                    throw new Error('Không thể tải danh sách đơn hàng');
                 }
 
-                const user = await userResponse.json();
+                const orders = await response.json();
+                const userCache = {};
+                const filteredOrders = [];
 
-                if (!user || !user.user_id) {
-                    throw new Error('User ID không hợp lệ hoặc không tồn tại');
+                for (const item of orders) {
+                    const order = item.order || item;
+                    if (!order.user_id) continue;
+
+                    let user;
+                    if (userCache[order.user_id]) {
+                        user = userCache[order.user_id];
+                    } else {
+                        const userResponse = await fetch(`http://localhost:3000/user-service/user/${order.user_id}`);
+                        if (userResponse.ok) {
+                            user = await userResponse.json();
+                            userCache[order.user_id] = user;
+                        }
+                    }
+
+                    if (user && (user.username.toLowerCase().includes(userName) || 
+                                user.email.toLowerCase().includes(userName))) {
+                        filteredOrders.push(item);
+                    }
                 }
 
-                const userId = user.user_id; // Sử dụng thuộc tính user_id trả về từ API
-
-                // Sử dụng user_id để lấy danh sách đơn hàng
-                const orderResponse = await fetch(`http://localhost:3000/order-service/user/${userId}`);
-
-                if (!orderResponse.ok) {
-                    throw new Error('Không thể tìm kiếm đơn hàng theo User ID');
+                if (filteredOrders.length === 0) {
+                    showMessage('Không tìm thấy đơn hàng phù hợp', true);
+                    return;
                 }
 
-                const orders = await orderResponse.json();
-                renderOrders(orders); // Hiển thị danh sách đơn hàng được tìm kiếm
+                allOrders = filteredOrders;
+                currentPage = 1; // Reset về trang đầu tiên khi tìm kiếm
+                renderOrders(allOrders);
+                showMessage(`Tìm thấy ${filteredOrders.length} đơn hàng phù hợp`, false);
+
             } catch (error) {
-                console.error('Lỗi khi tìm kiếm đơn hàng theo Tên User:', error);
-                alert(error.message || 'Không thể tìm kiếm đơn hàng. Vui lòng thử lại sau.');
+                console.error('Lỗi khi tìm kiếm đơn hàng:', error);
+                showMessage('Không thể tìm kiếm đơn hàng. Vui lòng thử lại sau.', true);
             }
         }
 
@@ -1165,7 +1243,6 @@
 
         async function updatePaymentStatus(orderId) {
             try {
-                // Lấy thông tin payment trước
                 const paymentResult = await getPaymentInfo(orderId);
                 if (!paymentResult.success || !paymentResult.data) {
                     throw new Error('Không tìm thấy thông tin thanh toán');
@@ -1246,6 +1323,44 @@
                 console.error('Lỗi khi lấy tổng số thanh toán thành công:', error);
                 return null;
             }
+        }
+
+        function createPagination(totalOrders) {
+            const totalPages = Math.ceil(totalOrders / ordersPerPage);
+            console.log('Debug pagination:', {
+                totalOrders,
+                ordersPerPage,
+                totalPages,
+                currentPage
+            });
+            
+            const paginationContainer = document.createElement('div');
+            paginationContainer.className = 'pagination';
+            paginationContainer.innerHTML = `
+                <button onclick="changePage(1)" ${currentPage <= 1 ? 'disabled' : ''}>Đầu</button>
+                <button onclick="changePage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>Trước</button>
+                <span>Trang ${currentPage} / ${totalPages}</span>
+                <button onclick="changePage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>Sau</button>
+                <button onclick="changePage(${totalPages})" ${currentPage >= totalPages ? 'disabled' : ''}>Cuối</button>
+            `;
+
+            // Xóa phân trang cũ nếu có
+            const oldPagination = document.querySelector('.pagination');
+            if (oldPagination) {
+                oldPagination.remove();
+            }
+
+            // Thêm phân trang mới
+            document.querySelector('.order-container').appendChild(paginationContainer);
+        }
+
+        function changePage(newPage) {
+            const totalPages = Math.ceil(allOrders.length / ordersPerPage);
+            if (newPage < 1) newPage = 1;
+            if (newPage > totalPages) newPage = totalPages;
+            
+            currentPage = newPage;
+            renderOrders(allOrders);
         }
     </script>
 </body>

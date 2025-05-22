@@ -36,8 +36,15 @@ const orderServiceRoutes = (req, res, url, method) => {
     } else if (/^\/order-service\/status\/[^\/]+$/.test(pathname) && method === 'GET') {
         requestHandler(req, res, `http://localhost:4003${pathname}`, method);
     
-    // Không khớp route
-    } else {
+    // 8. Đếm tổng số đơn hàng pending
+    } else if (pathname === '/order-service/count/pending' && method === 'GET') {
+        requestHandler(req, res, 'http://localhost:4003/order-service/count/pending', method);
+    
+    // 9. Đếm số đơn hàng theo thời gian (today, week, month, year)
+    } else if (req.url.startsWith('/order-service/stats/count') && method === 'GET') {
+        requestHandler(req, res, 'http://localhost:4003' + req.url);
+    }
+    else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'Order service route not found' }));
     }

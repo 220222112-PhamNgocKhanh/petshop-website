@@ -31,6 +31,8 @@ const userRoutes = (req, res, pathname, method) => {
         userController.getUserByEmail(req, res);
     } else if (pathname.startsWith('/user-service/users/username/') && method === 'GET') {
         userController.getUserIdByUsername(req, res);
+    } else if (pathname === '/user-service/stats/new-users' && method === 'GET') {
+        userController.getNewUserStats(req, res);
     } else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'User service route not found' }));

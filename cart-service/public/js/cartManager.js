@@ -167,7 +167,6 @@ const CartManager = {
     
     return false;
   },
-
   /**
    * Đồng bộ giỏ hàng từ API với localStorage
    */
@@ -179,8 +178,10 @@ const CartManager = {
     try {
       // Lấy giỏ hàng từ API
       const apiCartItems = await CartAPI.getCart();
- 
+      
+      // Nếu không có sản phẩm trên server, xóa giỏ hàng localStorage
       if (!apiCartItems || apiCartItems.length === 0) {
+        this.saveCart([]);
         return;
       }
       
@@ -203,10 +204,9 @@ const CartManager = {
       // Lọc ra các sản phẩm hợp lệ
       const validProducts = Object.values(productsMap);
       
-      // Cập nhật localStorage
-      if (validProducts.length > 0) {
-        this.saveCart(validProducts);
-      }
+      // Cập nhật localStorage - luôn ghi đè với dữ liệu từ server
+      // Ngay cả khi không có sản phẩm nào hợp lệ, vẫn cần ghi đè để xóa dữ liệu cũ
+      this.saveCart(validProducts);
     } catch (error) {
       console.error('Lỗi khi đồng bộ giỏ hàng từ API:', error);
     }
@@ -233,14 +233,18 @@ const CartManager = {
       console.warn("Không tìm thấy element cart-count để cập nhật");
     }
   },
-
   /**
    * Khởi tạo CartManager
    */
-  init() {
+  async init() {
     // Đồng bộ giỏ hàng từ API khi người dùng đăng nhập
     if (CartAPI.isAuthenticated()) {
-      this.syncCartFromAPI();
+      try {
+        await this.syncCartFromAPI();
+        console.log('Đã đồng bộ giỏ hàng từ server khi khởi tạo');
+      } catch (error) {
+        console.error('Lỗi khi đồng bộ giỏ hàng lúc khởi tạo:', error);
+      }
     }
     
     // Cập nhật số lượng trên header
@@ -250,6 +254,13 @@ const CartManager = {
     window.addEventListener('storage', (event) => {
       if (event.key === 'cart') {
         this.updateHeaderCartCount();
+      }
+    });
+    
+    // Lắng nghe sự kiện đăng nhập/đăng xuất để đồng bộ giỏ hàng
+    window.addEventListener('auth_changed', async () => {
+      if (CartAPI.isAuthenticated()) {
+        await this.syncCartFromAPI();
       }
     });
   }

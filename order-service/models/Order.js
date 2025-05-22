@@ -28,11 +28,13 @@ module.exports = (sequelize, DataTypes) => {
         created_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW,
+            timezone: '+07:00',
         },
         updated_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW,
             onUpdate: DataTypes.NOW, // Sequelize tự động cập nhật khi có thay đổi
+            timezone: '+07:00',
         }
     }, {
         tableName: 'orders',

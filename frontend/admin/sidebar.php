@@ -57,12 +57,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </a>
             </li>
             
-            <li class="<?php echo ($current_page == 'report_management.php') ? 'active' : ''; ?>">
-                <a href="report_management.php">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Thống kê & Báo cáo</span>
-                </a>
-            </li>
         </ul>
     </nav>
 

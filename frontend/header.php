@@ -1,12 +1,19 @@
+<?php
+// Lấy tên trang hiện tại
+$current_page = basename($_SERVER['PHP_SELF']);
+?>
 <div id="header">
-    <a href="index.php" id="logo"><img src="images/logo.jpg"  width="310" height="114" alt="Pet Shop"></a>
+    <a href="index.php" id="logo"><img src="images/logo.jpg" alt="Pet Shop"></a>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <img src="images/menu.png" alt="Menu">
+    </button>
     <ul class="navigation">
-        <li><a href="index.php">Home</a></li>
-        <li><a href="petmart.php">PetMart</a></li>
-        <li><a href="about.php">About us</a></li>
-        <li><a href="blog.php">Blog</a></li>
-        <li><a href="contact.php">Contact us</a></li>
-        <div id="userSection"></div> <!-- Phần này sẽ được cập nhật bằng JavaScript -->
+        <li><a href="index.php" class="<?php echo $current_page == 'index.php' ? 'active' : ''; ?>">Home</a></li>
+        <li><a href="petmart.php" class="<?php echo $current_page == 'petmart.php' ? 'active' : ''; ?>">PetMart</a></li>
+        <li><a href="about.php" class="<?php echo $current_page == 'about.php' ? 'active' : ''; ?>">About us</a></li>
+        <li><a href="blog.php" class="<?php echo $current_page == 'blog.php' ? 'active' : ''; ?>">Blog</a></li>
+        <li><a href="contact.php" class="<?php echo $current_page == 'contact.php' ? 'active' : ''; ?>">Contact us</a></li>
+        <li id="userSection"></li>
     </ul>
 </div>
 
@@ -17,13 +24,12 @@
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
         const userSection = document.getElementById('userSection');
-        const token = localStorage.getItem('token'); // Kiểm tra token trong localStorage
+        const token = localStorage.getItem('token');
 
         if (token) {
-            // Nếu đã đăng nhập, hiển thị menu thả xuống
             userSection.innerHTML = `
                 <div class="user-dropdown">
-                    <a href="#" id="userIcon"><img src="images/login.png" height="25" width="25" onclick="toggleDropdown(event)"></a>
+                    <a href="#" id="userIcon"><img src="images/login.png" height="25" width="25" alt="User" onclick="toggleDropdown(event)"></a>
                     <div id="userDropdown" class="dropdown-content">
                         <a href="account.php"><i class="fa fa-user"></i> Account</a>
                         <a href="cart.php" class="cart-link"><i class="fa fa-shopping-cart"></i> Shopping cart <span id="cart-count" class="cart-count">0</span></a>
@@ -34,58 +40,55 @@
             `;
             await updateCartCount();
 
-            // Xử lý sự kiện Log out
             const logoutButton = document.getElementById('logoutButton');
             logoutButton.addEventListener('click', (event) => {
                 event.preventDefault();
-                // Xóa token và giỏ hàng khỏi localStorage
                 localStorage.removeItem('cart');
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 alert('You have been logged out.');
-                // Chuyển hướng đến trang đăng nhập
                 window.location.href = 'login.php';
             });
         } else {
-            // Nếu chưa đăng nhập, chỉ hiển thị biểu tượng Login 
             userSection.innerHTML = `
-                <a href="login.php"><img src="images/login.png" height="25" width="25" alt="Login"></a>
+                <a href="login.php" class="login-link"><img src="images/login.png" height="25" width="25" alt="Login"></a>
             `;
         }
     });
 
-    // Cập nhật số lượng sản phẩm trong giỏ hàng từ API
-    async function updateCartCount() {
+    // Toggle mobile menu
+    function toggleMobileMenu() {
+        const navigation = document.querySelector('.navigation');
+        navigation.classList.toggle('show');
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const navigation = document.querySelector('.navigation');
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
         
+        if (!navigation.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+            navigation.classList.remove('show');
+        }
+    });
+
+    // Cập nhật số lượng sản phẩm trong giỏ hàng
+    async function updateCartCount() {
         try {
             const cartCount = document.getElementById('cart-count');
-            
-            
-            if (!cartCount) {
-                console.warn("Không tìm thấy element cart-count");
-                return;
-            }
+            if (!cartCount) return;
             
             let totalItems = 0;
-            
-            // Lấy từ localStorage trước để đảm bảo UI cập nhật nhanh
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             cart.forEach(item => {
                 totalItems += item.quantity || 1;
             });
             
-            
-            // Cập nhật UI trước
             cartCount.textContent = totalItems;
             cartCount.style.display = totalItems > 0 ? 'inline-block' : 'none';
             
-            // Sau đó kiểm tra API nếu cần
             if (typeof window.CartAPI !== 'undefined' && window.CartAPI && typeof window.CartAPI.isAuthenticated === 'function' && window.CartAPI.isAuthenticated()) {
-                // Lấy số lượng từ API để so sánh
                 const apiTotal = await window.CartAPI.getCartCount();
-             
-                
-                // Nếu có sự khác biệt, cập nhật lại UI
                 if (apiTotal !== totalItems) {
                     cartCount.textContent = apiTotal;
                     cartCount.style.display = apiTotal > 0 ? 'inline-block' : 'none';
@@ -99,17 +102,17 @@
     // Hiển thị/ẩn menu thả xuống
     function toggleDropdown(event) {
         event.preventDefault();
-        document.getElementById("userDropdown").classList.toggle("show");
+        const dropdown = document.getElementById("userDropdown");
+        dropdown.classList.toggle("show");
     }
 
     // Đóng menu thả xuống khi click ra ngoài
     window.onclick = function(event) {
         if (!event.target.matches('#userIcon img')) {
-            var dropdowns = document.getElementsByClassName("dropdown-content");
-            for (var i = 0; i < dropdowns.length; i++) {
-                var openDropdown = dropdowns[i];
-                if (openDropdown.classList.contains('show')) {
-                    openDropdown.classList.remove('show');
+            const dropdowns = document.getElementsByClassName("dropdown-content");
+            for (let dropdown of dropdowns) {
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
                 }
             }
         }
@@ -120,13 +123,13 @@
         await updateCartCount();
     });
     
-    // Lắng nghe sự kiện thay đổi từ localStorage (cho tab khác)
+    // Lắng nghe sự kiện thay đổi từ localStorage
     window.addEventListener('storage', async function(event) {
         if (event.key === 'cart') {
             await updateCartCount();
         }
     });
 
-    // Đưa hàm updateCartCount lên global scope để các module khác có thể gọi
+    // Đưa hàm updateCartCount lên global scope
     window.updateCartCount = updateCartCount;
 </script>

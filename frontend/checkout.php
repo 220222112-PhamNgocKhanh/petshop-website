@@ -357,6 +357,27 @@
                 }
 
                 alert('Đặt hàng thành công!');
+                try {
+                    const cartRes = await fetch(`http://localhost:3000/cart-service/cart/${userId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`
+                        }
+                    });
+                    if (cartRes.ok) {
+                        const cartItems = await cartRes.json();
+                        // Xoá từng sản phẩm
+                        await Promise.all(cartItems.map(item =>
+                            fetch(`http://localhost:3000/cart-service/cart/${userId}/${item.productId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Authorization': `Bearer ${getAuthToken()}`
+                                }
+                            })
+                        ));
+                    }
+                } catch (e) {
+                    console.error('Lỗi khi xoá giỏ hàng:', e);
+                }
                 window.location.href = 'order.php';
             } catch (error) {
                 console.error('Lỗi khi đặt hàng:', error);

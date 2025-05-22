@@ -23,4 +23,10 @@ router.put('/:id/cancel', orderController.cancelOrder);
 // 7. Lấy danh sách đơn hàng theo trạng thái
 router.get('/status/:status', orderController.getOrdersByStatus);
 
+// 8. Đếm tổng số đơn hàng pending
+router.get('/count/pending', orderController.countPendingOrders);
+
+// 9. Đếm số đơn hàng theo thời gian (today, week, month, year)
+router.get('/stats/count', orderController.countOrdersByTime);
+
 module.exports = router;

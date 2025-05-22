@@ -1,5 +1,24 @@
 
 function showCategory(categoryName) {
+  console.log(`Showing category: ${categoryName}`);
+  
+  // Cập nhật dropdown category nếu có
+  if (document.getElementById('categorySelect')) {
+    const categorySelect = document.getElementById('categorySelect');
+    // Tìm option chính xác nếu có
+    const exactOption = Array.from(categorySelect.options).find(
+      option => option.value === categoryName
+    );
+    
+    if (exactOption) {
+      console.log(`Setting dropdown to: ${categoryName}`);
+      categorySelect.value = categoryName;
+    } else {
+      console.log(`Category ${categoryName} not found in dropdown, setting to 'all'`);
+      categorySelect.value = 'all';
+    }
+  }
+  
   fetch(`http://localhost:3000/product-service/products/search/${encodeURIComponent(categoryName)}`)
     .then(response => {
       if (!response.ok) {

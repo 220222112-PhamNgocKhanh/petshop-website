@@ -52,6 +52,9 @@ const userServiceRoutes = (req, res, url, method) => {
         // Lấy thông tin người dùng theo username
         requestHandler(req, res, 'http://localhost:4000' + req.url);
     }
+    else if (req.url.startsWith('/user-service/stats/new-users') && method === 'GET') {
+        requestHandler(req, res, 'http://localhost:4000' + req.url);
+    }
     else {
         // Route không tồn tại
         res.writeHead(404, { 'Content-Type': 'application/json' });

@@ -1,10 +1,12 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/user');
 const parseRequestBody = require('../utils/parseRequestBody');
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const { Op } = require('sequelize');
+const sequelize = require('../utils/db');
 
 // Hàm gửi request đến notification service
 async function sendNotificationRequest(emailData) {
@@ -623,6 +625,82 @@ exports.getUserCount = async (req, res) => {
         console.error('Error in getUserCount:', error);
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'Internal server error' }));
+    }
+};
+
+// Thống kê người dùng mới theo thời gian
+exports.getNewUserStats = async (req, res) => {
+    try {
+        // Parse URL để lấy query parameters
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const timeRange = url.searchParams.get('timeRange') || 'month';
+        let startDate, endDate;
+        console.log(timeRange);
+
+        // Tính toán khoảng thời gian
+        switch(timeRange) {
+            case 'today':
+                startDate = new Date();
+                startDate.setHours(0, 0, 0, 0);
+                endDate = new Date();
+                break;
+            case 'week':
+                startDate = new Date();
+                startDate.setDate(startDate.getDate() - 7);
+                endDate = new Date();
+                break;
+            case 'month':
+                startDate = new Date();
+                startDate.setMonth(startDate.getMonth() - 1);
+                endDate = new Date();
+                break;
+            case 'year':
+                startDate = new Date();
+                startDate.setFullYear(startDate.getFullYear() - 1);
+                endDate = new Date();
+                break;
+            default:
+                startDate = new Date();
+                startDate.setMonth(startDate.getMonth() - 1);
+                endDate = new Date();
+        }
+
+        // Đếm số người dùng mới
+        const newUsers = await User.count({
+            where: {
+                created_at: {
+                    [Op.between]: [startDate, endDate]
+                }
+            }
+        });
+
+        // Thống kê người dùng mới theo ngày
+        const dailyNewUsers = await User.findAll({
+            attributes: [
+                [sequelize.fn('DATE', sequelize.col('created_at')), 'date'],
+                [sequelize.fn('COUNT', sequelize.col('user_id')), 'count']
+            ],
+            where: {
+                created_at: {
+                    [Op.between]: [startDate, endDate]
+                }
+            },
+            group: [sequelize.fn('DATE', sequelize.col('created_at'))],
+            order: [[sequelize.fn('DATE', sequelize.col('created_at')), 'ASC']]
+        });
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+            totalNewUsers: newUsers,
+            dailyNewUsers: dailyNewUsers
+        }));
+    } catch (err) {
+        console.error('Lỗi khi thống kê người dùng:', err);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ 
+            message: 'Lỗi khi thống kê người dùng', 
+            error: err.message 
+        }));
     }
 };
 

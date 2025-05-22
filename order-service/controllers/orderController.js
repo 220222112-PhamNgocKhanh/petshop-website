@@ -3,6 +3,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const { Cart, Product, Order, OrderItem } = require('../models');
+const { Op } = require('sequelize');
+const sequelize = require('sequelize');
 
 //1. Tạo đơn hàng
 exports.placeOrder = async (req, res) => {
@@ -216,5 +218,115 @@ exports.getOrdersByStatus = async (req, res) => {
         res.status(500).json({ message: 'Lỗi khi lấy danh sách đơn hàng', error: err.message });
     }
 };
+
+// 8. Đếm tổng số đơn hàng có trạng thái pending
+exports.countPendingOrders = async (req, res) => {
+    try {
+        const count = await Order.count({
+            where: { status: 'pending' }
+        });
+
+        res.json({ total: count });
+    } catch (err) {
+        console.error('Lỗi khi đếm số đơn hàng pending:', err);
+        res.status(500).json({ 
+            message: 'Lỗi khi đếm số đơn hàng pending', 
+            error: err.message 
+        });
+    }
+};
+
+// 9. Đếm số đơn hàng theo thời gian
+exports.countOrdersByTime = async (req, res) => {
+    try {
+        const { period } = req.query; // 'today', 'week', 'month', 'year'
+
+        if (!period || !['today', 'week', 'month', 'year'].includes(period)) {
+            return res.status(400).json({ 
+                message: 'Vui lòng cung cấp khoảng thời gian hợp lệ (today, week, month, year)' 
+            });
+        }
+
+        const now = new Date();
+        let startDate, endDate;
+
+        // Tính toán khoảng thời gian dựa trên period
+        switch (period) {
+            case 'today':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+                break;
+            case 'week':
+                // Lấy ngày đầu tiên của tuần (Chủ nhật)
+                const day = now.getDay();
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6 - day), 23, 59, 59);
+                break;
+            case 'month':
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+                break;
+            case 'year':
+                startDate = new Date(now.getFullYear(), 0, 1);
+                endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+                break;
+        }
+
+        // Đếm tổng số đơn hàng trong khoảng thời gian
+        const totalCount = await Order.count({
+            where: {
+                created_at: {
+                    [Op.between]: [startDate, endDate]
+                }
+            }
+        });
+
+        // Lấy thông tin chi tiết về trạng thái đơn hàng
+        const statusCounts = await Order.findAll({
+            attributes: [
+                'status',
+                [sequelize.fn('COUNT', sequelize.col('order_id')), 'count']
+            ],
+            where: {
+                created_at: {
+                    [Op.between]: [startDate, endDate]
+                }
+            },
+            group: ['status']
+        });
+
+        // Tính tổng doanh thu trong khoảng thời gian
+        const revenue = await Order.sum('total_price', {
+            where: {
+                created_at: {
+                    [Op.between]: [startDate, endDate]
+                },
+                status: {
+                    [Op.in]: ['shipping', 'delivered'] // Chỉ tính đơn hàng đang giao và đã giao thành công
+                }
+            }
+        });
+
+        res.json({
+            period,
+            total: totalCount,
+            revenue: revenue || 0,
+            statusBreakdown: statusCounts,
+            timeRange: {
+                start: startDate,
+                end: endDate
+            }
+        });
+
+    } catch (err) {
+        console.error('Lỗi khi đếm số đơn hàng theo thời gian:', err);
+        res.status(500).json({ 
+            message: 'Lỗi khi đếm số đơn hàng theo thời gian', 
+            error: err.message 
+        });
+    }
+};
+
+
 
 

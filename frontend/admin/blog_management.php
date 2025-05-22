@@ -212,6 +212,45 @@
             background: #f8d7da;
             color: #721c24;
         }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 10px;
+        }
+
+        .pagination button {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background-color: white;
+            color: #333;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            border-color: #999;
+        }
+
+        .pagination button:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .pagination span {
+            padding: 8px 15px;
+            color: #666;
+        }
+
+        .blog-container {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -270,6 +309,10 @@
     </div>
 
     <script>
+        let currentPage = 1;
+        const blogsPerPage = 20;
+        let allBlogs = [];
+
         document.addEventListener('DOMContentLoaded', function() {
             loadBlogs();
         });
@@ -299,9 +342,9 @@
                     return;
                 }
 
-                const blogs = await response.json();
-                if (Array.isArray(blogs)) {
-                    displayBlogs(blogs);
+                allBlogs = await response.json();
+                if (Array.isArray(allBlogs)) {
+                    displayBlogs(allBlogs);
                 } else {
                     throw new Error('Dữ liệu không hợp lệ');
                 }
@@ -315,7 +358,13 @@
             const tableBody = document.getElementById('blogTable');
             tableBody.innerHTML = '';
 
-            blogs.forEach(blog => {
+            // Tính toán phân trang
+            const startIndex = (currentPage - 1) * blogsPerPage;
+            const endIndex = startIndex + blogsPerPage;
+            const paginatedBlogs = blogs.slice(startIndex, endIndex);
+
+            // Hiển thị blog cho trang hiện tại
+            paginatedBlogs.forEach(blog => {
                 const row = document.createElement('tr');
                 const createdDate = new Date(blog.created_at).toLocaleDateString('vi-VN', {
                     year: 'numeric',
@@ -345,6 +394,36 @@
                 `;
                 tableBody.appendChild(row);
             });
+
+            // Tạo phân trang
+            createPagination(blogs.length);
+        }
+
+        function createPagination(totalBlogs) {
+            const totalPages = Math.ceil(totalBlogs / blogsPerPage);
+            const paginationContainer = document.createElement('div');
+            paginationContainer.className = 'pagination';
+            paginationContainer.innerHTML = `
+                <button onclick="changePage(1)" ${currentPage === 1 ? 'disabled' : ''}>Đầu</button>
+                <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Trước</button>
+                <span>Trang ${currentPage} / ${totalPages}</span>
+                <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Sau</button>
+                <button onclick="changePage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>Cuối</button>
+            `;
+
+            // Xóa phân trang cũ nếu có
+            const oldPagination = document.querySelector('.pagination');
+            if (oldPagination) {
+                oldPagination.remove();
+            }
+
+            // Thêm phân trang mới
+            document.querySelector('.blog-container').appendChild(paginationContainer);
+        }
+
+        function changePage(newPage) {
+            currentPage = newPage;
+            displayBlogs(allBlogs);
         }
 
         let currentBlogId = null;

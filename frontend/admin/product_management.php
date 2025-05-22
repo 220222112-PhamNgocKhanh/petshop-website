@@ -76,6 +76,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            table-layout: fixed;
         }
 
         .product-table th,
@@ -85,8 +86,38 @@
             border-bottom: 1px solid #ddd;
         }
 
-        .product-table th {
+        /* Định nghĩa kích thước cố định cho các cột */
+        .product-table th:nth-child(1),
+        .product-table td:nth-child(1) {
+            width: 80px;
+        }
 
+        .product-table th:nth-child(2),
+        .product-table td:nth-child(2) {
+            width: 350px;
+        }
+
+        .product-table th:nth-child(3),
+        .product-table td:nth-child(3) {
+            width: 100px;
+        }
+
+        .product-table th:nth-child(4),
+        .product-table td:nth-child(4) {
+            width: 80px;
+        }
+
+        .product-table th:nth-child(5),
+        .product-table td:nth-child(5) {
+            width: 120px;
+        }
+
+        .product-table th:nth-child(6),
+        .product-table td:nth-child(6) {
+            width: 100px;
+        }
+
+        .product-table th {
             font-weight: bold;
         }
 
@@ -217,8 +248,11 @@
         }
 
         .stock-status {
+            display: inline-block;
+            width: 90px;
+            text-align: center;
             padding: 4px 8px;
-            border-radius: 12px;
+            border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
         }
@@ -236,6 +270,45 @@
         .out-of-stock {
             background: #f5c6cb;
             color: #721c24;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 10px;
+        }
+
+        .pagination button {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background-color: white;
+            color: #333;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            border-color: #999;
+        }
+
+        .pagination button:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .pagination span {
+            padding: 8px 15px;
+            color: #666;
+        }
+
+        .product-container {
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -273,7 +346,6 @@
                         <th>Số lượng</th>
                         <th>Trạng thái</th>
                         <th class="text-center">Hành động</th>
-
                     </tr>
                 </thead>
                 <tbody id="productTable">
@@ -296,7 +368,6 @@
                 <div class="form-group">
                     <label for="price">Giá</label>
                     <input type="number" id="price" name="price" step="0.01" min="0" required>
-
                 </div>
                 <div class="form-group">
                     <label for="quantity">Số lượng</label>
@@ -331,9 +402,7 @@
                         <option value="Cologne">Cologne</option>
                         <option value="Ear & Eye Cleaners">Ear & Eye Cleaners</option>
                         <option value="Nail Clippers">Nail Clippers</option>
-
                     </select>
-
                 </div>
                 <div class="form-group">
                     <label for="image">Hình ảnh</label>
@@ -347,6 +416,10 @@
     </div>
 
     <script>
+        let currentPage = 1;
+        const productsPerPage = 20;
+        let allProducts = [];
+
         document.addEventListener('DOMContentLoaded', function () {
             loadProducts();
         });
@@ -376,9 +449,9 @@
                     return;
                 }
 
-                const products = await response.json();
-
-                displayProducts(products.products);
+                const result = await response.json();
+                allProducts = result.products;
+                displayProducts(allProducts);
             } catch (error) {
                 console.error('Error:', error);
                 showMessage('Lỗi khi tải danh sách sản phẩm', true);
@@ -389,8 +462,12 @@
             const tableBody = document.getElementById('productTable');
             tableBody.innerHTML = '';
 
-            products.forEach(product => {
+            // Tính toán phân trang
+            const startIndex = (currentPage - 1) * productsPerPage;
+            const endIndex = startIndex + productsPerPage;
+            const paginatedProducts = products.slice(startIndex, endIndex);
 
+            paginatedProducts.forEach(product => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><img src="../../backend/image/${product.category}/${product.image || '../images/default-product.jpg'}" alt="${product.name}" class="product-image"></td>
@@ -398,23 +475,64 @@
                     <td>${formatCurrency(product.price)}</td>
                     <td>${product.amount}</td>
                     <td><span class="stock-status ${getStockStatusClass(product.amount)}">${getStockStatusText(product.amount)}</span></td>
-                        <td class="text-center align-middle">
-        <button class="btn btn-primary btn-sm me-2" data-bs-toggle="tooltip" title="Chỉnh sửa" onclick="editProduct(${product.id})">
-            <i class="fas fa-edit"></i>
-        </button>
-        <button class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Xóa" onclick="deleteProduct(${product.id})">
-            <i class="fas fa-trash"></i>
-        </button>
-    </td>
-
+                    <td class="text-center align-middle">
+                        <button class="btn btn-primary btn-sm me-2" data-bs-toggle="tooltip" title="Chỉnh sửa" onclick="editProduct(${product.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Xóa" onclick="deleteProduct(${product.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
                 `;
                 tableBody.appendChild(row);
             });
+
+            // Tạo phân trang
+            createPagination(products.length);
+
+            // Khởi tạo lại tooltips
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             tooltipTriggerList.forEach(function (tooltipTriggerEl) {
                 new bootstrap.Tooltip(tooltipTriggerEl)
             })
+        }
 
+        function createPagination(totalProducts) {
+            const totalPages = Math.ceil(totalProducts / productsPerPage);
+            console.log('Debug pagination:', {
+                totalProducts,
+                productsPerPage,
+                totalPages,
+                currentPage
+            });
+            
+            const paginationContainer = document.createElement('div');
+            paginationContainer.className = 'pagination';
+            paginationContainer.innerHTML = `
+                <button onclick="changePage(1)" ${currentPage <= 1 ? 'disabled' : ''}>Đầu</button>
+                <button onclick="changePage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>Trước</button>
+                <span>Trang ${currentPage} / ${totalPages}</span>
+                <button onclick="changePage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>Sau</button>
+                <button onclick="changePage(${totalPages})" ${currentPage >= totalPages ? 'disabled' : ''}>Cuối</button>
+            `;
+
+            // Xóa phân trang cũ nếu có
+            const oldPagination = document.querySelector('.pagination');
+            if (oldPagination) {
+                oldPagination.remove();
+            }
+
+            // Thêm phân trang mới
+            document.querySelector('.product-container').appendChild(paginationContainer);
+        }
+
+        function changePage(newPage) {
+            const totalPages = Math.ceil(allProducts.length / productsPerPage);
+            if (newPage < 1) newPage = 1;
+            if (newPage > totalPages) newPage = totalPages;
+            
+            currentPage = newPage;
+            displayProducts(allProducts);
         }
 
         function getStockStatusClass(quantity) {
@@ -478,10 +596,11 @@
                     }
                 });
 
-                const products = await response.json();
-                console.log(products);
+                const result = await response.json();
                 if (response.ok) {
-                    displayProducts(products.products);
+                    allProducts = result.products;
+                    currentPage = 1; // Reset về trang đầu tiên khi tìm kiếm
+                    displayProducts(allProducts);
                 } else {
                     showMessage('Không tìm thấy sản phẩm', true);
                 }

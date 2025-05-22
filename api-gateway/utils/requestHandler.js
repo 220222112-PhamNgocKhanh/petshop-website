@@ -6,10 +6,11 @@ const requestHandler = (req, res, serviceUrl) => {
     const options = {
         hostname: serviceUrlObj.hostname,
         port: serviceUrlObj.port,
-        path: serviceUrlObj.pathname,
+        path: serviceUrlObj.pathname + serviceUrlObj.search, // ✅ giữ cả query string
         method: req.method,
         headers: req.headers,
     };
+    
 
     const proxy = http.request(options, (serviceRes) => {
         let data = '';

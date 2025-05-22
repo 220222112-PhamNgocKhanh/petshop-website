@@ -5,6 +5,7 @@ const productController = require('../controllers/product.controller');
 // 📊 Thống kê & đặc biệt
 router.get('/count', productController.countTotalProducts);  // Thêm route đếm tổng số sản phẩm
 router.get('/count-by-category', productController.countByCategory);  // GET thay vì POST vì chỉ lấy dữ liệu
+router.get('/new-stats', productController.getNewProductStats);  // Thống kê sản phẩm mới theo thời gian
 router.get('/latest', productController.latestProduct);
 
 // 🔍 Tìm kiếm

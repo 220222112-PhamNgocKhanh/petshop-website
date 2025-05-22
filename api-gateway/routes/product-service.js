@@ -8,6 +8,12 @@ const productServiceRoutes = (req, res, url, method) => {
         requestHandler(req, res, 'http://localhost:6000/products/count');
     }
 
+    // Route: GET /product-service/products/new-stats
+    else if (url.startsWith('/product-service/products/new-stats') && method === 'GET') {
+        const queryString = url.split('?')[1] || '';
+        requestHandler(req, res, `http://localhost:6000/products/new-stats${queryString ? '?' + queryString : ''}`);
+    }
+
     // Route: GET /product-service/products
     else if (url === '/product-service/products' && method === 'GET') {
         requestHandler(req, res, 'http://localhost:6000/products');

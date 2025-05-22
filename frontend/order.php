@@ -6,450 +6,9 @@
   <meta charset="iso-8859-1">
   <link href="css/style.css" rel="stylesheet" type="text/css">
   <link href="css/header.css" rel="stylesheet" type="text/css">
+  <link href="css/order.css" rel="stylesheet" type="text/css">
   <!--[if IE 6]><link href="css/ie6.css" rel="stylesheet" type="text/css"><![endif]-->
   <!--[if IE 7]><link href="css/ie7.css" rel="stylesheet" type="text/css"><![endif]-->
-  <style>
-    .orders-container {
-      padding: 20px;
-      background: #fff;
-      border-radius: 5px;
-      margin-bottom: 20px;
-    }
-
-    .order-tabs {
-      display: flex;
-      border-bottom: 1px solid #ddd;
-      margin-bottom: 20px;
-    }
-
-    .order-tab {
-      padding: 10px 20px;
-      cursor: pointer;
-      border: 1px solid transparent;
-      border-bottom: none;
-      margin-right: 5px;
-      border-radius: 5px 5px 0 0;
-    }
-
-    .order-tab.active {
-      background: #5c9d7e;
-      color: white;
-      border-color: #5c9d7e;
-    }
-
-    .order-item {
-      border: 1px solid #eee;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      overflow: hidden;
-    }
-
-
-    /* Header */
-    .order-header {
-      background: #f9f9f9;
-      padding: 15px;
-      display: flex;
-      justify-content: space-between;
-      border-bottom: 1px solid #eee;
-    }
-
-    .order-number {
-      font-weight: bold;
-    }
-
-    .order-datetime {
-      text-align: center;
-      font-size: 0.9em;
-      color: #555;
-    }
-
-    .order-date,
-    .order-time {
-      display: block;
-      line-height: 1.2;
-    }
-
-    .order-status {
-      padding: 5px 10px;
-      border-radius: 15px;
-      color: #fff;
-      text-transform: capitalize;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .order-status.pending {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .order-status.confirmed {
-      background: #cce5ff;
-      color: #004085;
-    }
-
-    .order-status.shipping {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .order-status.delivered {
-      background: #5c9d7e;
-      color: white;
-    }
-
-    .order-status.cancelled {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    /* Info grid */
-    .order-info-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    .info-section h4 {
-      margin: 0 0 4px;
-      font-size: 0.95em;
-      color: #333;
-    }
-
-    .info-section p {
-      margin: 0;
-      font-size: 0.9em;
-      color: #666;
-    }
-
-    /* Products list */
-    .products-section {
-      margin-bottom: 16px;
-    }
-
-    .products-section h4 {
-      margin-bottom: 8px;
-    }
-
-    .product-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .product-item img {
-      width: 48px;
-      height: 48px;
-      object-fit: cover;
-      border-radius: 4px;
-      margin-right: 12px;
-    }
-
-    .product-detail {
-      flex: 1;
-    }
-
-    .product-name {
-      display: block;
-      font-weight: 500;
-    }
-
-    .product-qty {
-      display: block;
-      font-size: 0.85em;
-      color: #777;
-    }
-
-    .product-price {
-      font-weight: bold;
-    }
-
-    /* Footer */
-    .order-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-top: 1px solid #eee;
-      padding-top: 12px;
-    }
-
-    .order-total {
-      font-size: 1.1em;
-      color: #c9302c;
-    }
-
-    .order-actions button {
-      margin-left: 0;
-    }
-
-    .order-actions .cancel-btn {
-      background: #fff;
-      color: #c9302c;
-      border: 1.5px solid #c9302c;
-      font-weight: 600;
-      box-shadow: none;
-      padding: 7px 18px;
-      font-size: 1em;
-      border-radius: 5px;
-      transition: background 0.2s, color 0.2s, border 0.2s;
-      margin-left: 0;
-      display: inline-block;
-      min-width: 110px;
-    }
-
-    .order-actions .cancel-btn:hover,
-    .order-actions .cancel-btn:focus {
-      background: #f8d7da;
-      color: #a71d2a;
-      border-color: #a71d2a;
-    }
-
-    /* Xoá style cho btn-primary, btn-outline nếu không còn dùng */
-    .btn-primary,
-    .btn-outline {
-      display: none !important;
-    }
-
-    /* --- Modern Order Card Styles --- */
-    .order-card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(60, 72, 88, 0.08);
-      margin-bottom: 32px;
-      overflow: hidden;
-      transition: box-shadow 0.2s;
-      border: 1px solid #f0f0f0;
-    }
-
-    .order-card:hover {
-      box-shadow: 0 4px 24px rgba(60, 72, 88, 0.16);
-      border-color: #5c9d7e33;
-    }
-
-    .order-header {
-      background: linear-gradient(90deg, #e8f5e9 0%, #f1f8e9 100%);
-      padding: 18px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    .order-number {
-      font-weight: bold;
-      font-size: 1.1em;
-      color: #5c9d7e;
-      letter-spacing: 1px;
-    }
-
-    .order-datetime {
-      text-align: center;
-      font-size: 0.95em;
-      color: #888;
-    }
-
-    .order-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: capitalize;
-      box-shadow: 0 1px 4px #0001;
-      border: none;
-      min-width: 110px;
-      justify-content: center;
-    }
-
-    .order-status.pending {
-      background: #fff3cd;
-      color: #b8860b;
-    }
-
-    .order-status.confirmed {
-      background: #cce5ff;
-      color: #0056b3;
-    }
-
-    .order-status.shipping {
-      background: #d4edda;
-      color: #218838;
-    }
-
-    .order-status.delivered {
-      background: #5c9d7e;
-      color: #fff;
-    }
-
-    .order-status.cancelled {
-      background: #f8d7da;
-      color: #c9302c;
-    }
-
-    .order-status i {
-      font-size: 1.1em;
-    }
-
-    .order-info-grid {
-      display: flex;
-      gap: 32px;
-      padding: 18px 24px 0 24px;
-      background: #fafbfc;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    .info-section h4 {
-      margin: 0 0 4px;
-      font-size: 1em;
-      color: #333;
-      font-weight: 600;
-    }
-
-    .info-section p {
-      margin: 0;
-      font-size: 0.97em;
-      color: #666;
-    }
-
-    .products-section {
-      padding: 18px 24px 0 24px;
-    }
-
-    .products-section h4 {
-      margin-bottom: 10px;
-      font-size: 1.05em;
-      color: #444;
-    }
-
-    .product-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      background: #f7f7f7;
-      border-radius: 6px;
-      padding: 8px 12px;
-      transition: background 0.2s;
-    }
-
-    .product-item:hover {
-      background: #e8f5e9;
-    }
-
-    .product-item img {
-      width: 54px;
-      height: 54px;
-      object-fit: cover;
-      border-radius: 6px;
-      margin-right: 16px;
-      border: 1px solid #e0e0e0;
-      background: #fff;
-    }
-
-    .product-detail {
-      flex: 1;
-    }
-
-    .product-name {
-      font-weight: 600;
-      color: #333;
-      font-size: 1em;
-    }
-
-    .product-qty {
-      font-size: 0.92em;
-      color: #888;
-    }
-
-    .product-price {
-      font-weight: bold;
-      color: #c9302c;
-      font-size: 1.05em;
-      margin-left: 12px;
-    }
-
-    .order-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-top: 1px solid #f0f0f0;
-      padding: 16px 24px;
-      background: #fafbfc;
-    }
-
-    .order-total {
-      font-size: 1.15em;
-      color: #c9302c;
-      font-weight: 700;
-    }
-
-    .order-actions button {
-      margin-left: 0;
-    }
-
-    .order-actions .cancel-btn {
-      background: #fff;
-      color: #c9302c;
-      border: 1.5px solid #c9302c;
-      font-weight: 600;
-      box-shadow: none;
-      padding: 7px 18px;
-      font-size: 1em;
-      border-radius: 5px;
-      transition: background 0.2s, color 0.2s, border 0.2s;
-      margin-left: 0;
-      display: inline-block;
-      min-width: 110px;
-    }
-
-    .order-actions .cancel-btn:hover,
-    .order-actions .cancel-btn:focus {
-      background: #f8d7da;
-      color: #a71d2a;
-      border-color: #a71d2a;
-    }
-
-    /* Thanh kéo riêng cho phần đơn hàng */
-    #orders-container {
-      max-height: 720px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: #5c9d7e #f0f0f0;
-      padding-right: 4px;
-    }
-
-    #orders-container::-webkit-scrollbar {
-      width: 8px;
-      background: #f0f0f0;
-      border-radius: 8px;
-    }
-
-    #orders-container::-webkit-scrollbar-thumb {
-      background: #5c9d7e55;
-      border-radius: 8px;
-    }
-
-    @media (max-width: 900px) {
-      #orders-container {
-        max-height: 340px;
-      }
-
-      .order-info-grid {
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .order-header,
-      .order-footer,
-      .products-section {
-        padding-left: 12px;
-        padding-right: 12px;
-      }
-    }
-  </style>
 </head>
 
 <body>
@@ -515,9 +74,8 @@
         <div id="section">
           <div>
             <div>
-              <h2>Đánh giá sản phẩm đã mua</h2>
+              <h2>Purchased Products</h2>
               <div id="review-reminder" style="padding: 10px 0;">
-                <p>Danh sách các sản phẩm bạn đã mua. Nhấn "Mua lại" để đặt hàng lại sản phẩm yêu thích!</p>
                 <ul id="review-products-list" style="list-style: none; padding: 0; margin: 0;"></ul>
               </div>
             </div>
@@ -604,6 +162,18 @@
         return product.product;
       }
 
+      async function fetchPaymentDetails(orderId) {
+        try {
+          const res = await fetch(`http://localhost:3000/payment-service/payments/${orderId}`);
+          if (!res.ok) return null;
+          const data = await res.json();
+          return data;
+        } catch (e) {
+          console.error('Error fetching payment details:', e);
+          return null;
+        }
+      }
+
       async function fetchAndRender(status) {
         const url = `http://localhost:3000/order-service/user/${currentUserId}`;
         let data = [];
@@ -611,9 +181,12 @@
           const res = await fetch(url);
           data = await res.json();
         } catch (e) {
-          listContainer.innerHTML = '<p>Không thể tải đơn hàng</p>';
+          listContainer.innerHTML = '<p>Could not load orders</p>';
           return;
         }
+
+        // Sort orders by updated_at descending (newest first)
+        data.sort((a, b) => new Date(b.order.updated_at) - new Date(a.order.updated_at));
 
         const filtered = status ? data.filter(e => e.order.status === status) : data;
         await renderList(filtered);
@@ -634,7 +207,6 @@
           // Fetch product info cho từng item
           const itemsWithDetails = await Promise.all(items.map(async it => {
             const product = await fetchProduct(it.product_id);
-            console.log('Fetched product:', product);
             return {
               ...it,
               product_name: product.name,
@@ -642,6 +214,10 @@
               category: product.category
             };
           }));
+
+          // Fetch payment details
+          const paymentDetails = await fetchPaymentDetails(o.order_id);
+          const paymentMethod = paymentDetails ? paymentDetails.payment_method : '–';
 
           const dt = new Date(o.updated_at);
           const date = dt.toLocaleDateString(undefined, {
@@ -685,7 +261,7 @@
               </div>
               <div class="info-section">
                 <h4><i class="fa fa-credit-card" style="margin-right:4px;color:#5c9d7e;"></i>Payment Method</h4>
-                <p>${o.payment_method || '–'}</p>
+                <p>${paymentMethod}</p>
               </div>
               <div class="info-section">
                 <h4><i class="fa fa-user" style="margin-right:4px;color:#5c9d7e;"></i>Contact</h4>
@@ -876,29 +452,38 @@
         // Lấy tất cả đơn hàng
         const res = await fetch(`http://localhost:3000/order-service/user/${currentUserId}`);
         const orders = await res.json();
+
         // Chỉ lấy sản phẩm từ đơn hàng đã giao
         const products = [];
-        orders.filter(entry => entry.order.status === 'delivered').forEach(entry => {
-          entry.items.forEach(it => {
-            console.log('Fetched product:', it);
-            products.push({
-              product_id: it.id,
-              name: it.name || 'Sản phẩm',
-              image: it.image || 'placeholder.jpg',
-              category: it.category || ''
-            });
-            console.log('Product:', products);
-          });
-        });
+        const productIds = new Set();
+        for (const entry of orders.filter(entry => entry.order.status === 'delivered')) {
+          for (const it of entry.items) {
+            // Tránh trùng sản phẩm
+            const pid = it.id || it.product_id;
+            if (!pid || productIds.has(pid)) continue;
+            productIds.add(pid);
+            try {
+              const pres = await fetch(`http://localhost:3000/product-service/products/${pid}`);
+              if (!pres.ok) continue;
+              const pdata = await pres.json();
+              const p = pdata.product || {};
+              products.push({
+                product_id: pid,
+                name: p.name || 'Sản phẩm',
+                image: p.image || 'placeholder.jpg',
+                category: p.category || ''
+              });
+            } catch (e) { continue; }
+          }
+        }
         // Hiển thị tối đa 6 sản phẩm gần nhất
         const list = document.getElementById('review-products-list');
         if (!list) return;
         list.innerHTML = '';
         if (products.length === 0) {
-          list.innerHTML = '<li>Không có sản phẩm nào đã mua.</li>';
+          list.innerHTML = '<li>No purchased products found.</li>';
         } else {
           products.slice(0,6).forEach(p => {
-            console.log('Product:', p);
             const li = document.createElement('li');
             li.style.display = 'flex';
             li.style.alignItems = 'center';
@@ -906,7 +491,6 @@
             li.innerHTML = `
               <img src="../backend/image/${p.category}/${p.image}" alt="${p.name}" style="width:38px;height:38px;object-fit:cover;border-radius:5px;margin-right:10px;border:1px solid #eee;background:#fff;">
               <span style="flex:1;">${p.name}</span>
-              <a href="petmart.php?id=${p.product_id}" style="margin-left:8px;color:#5c9d7e;font-weight:600;text-decoration:underline;font-size:0.97em;">Mua lại</a>
             `;
             list.appendChild(li);
           });

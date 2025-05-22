@@ -117,6 +117,45 @@
             display: flex;
             gap: 5px;
         }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 10px;
+        }
+
+        .pagination button {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background-color: white;
+            color: #333;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            border-color: #999;
+        }
+
+        .pagination button:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .pagination span {
+            padding: 8px 15px;
+            color: #666;
+        }
+
+        .table-container {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
@@ -155,6 +194,10 @@
             loadUsers();
         });
 
+        let currentPage = 1;
+        const customersPerPage = 20;
+        let allUsers = [];
+
         async function loadUsers() {
             try {
                 const token = localStorage.getItem('token');
@@ -180,8 +223,8 @@
                     return;
                 }
 
-                const users = await response.json();
-                displayUsers(users);
+                allUsers = await response.json();
+                displayUsers(allUsers);
             } catch (error) {
                 console.error('Error:', error);
                 showMessage('Lỗi khi tải danh sách người dùng', true);
@@ -192,7 +235,13 @@
             const tableBody = document.getElementById('customerTable');
             tableBody.innerHTML = '';
 
-            users.forEach(user => {
+            // Tính toán phân trang
+            const startIndex = (currentPage - 1) * customersPerPage;
+            const endIndex = startIndex + customersPerPage;
+            const paginatedUsers = users.slice(startIndex, endIndex);
+
+            // Hiển thị người dùng cho trang hiện tại
+            paginatedUsers.forEach(user => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.username}</td>
@@ -219,10 +268,40 @@
                 `;
                 tableBody.appendChild(row);
             });
+
+            // Tạo phân trang
+            createPagination(users.length);
+        }
+
+        function createPagination(totalUsers) {
+            const totalPages = Math.ceil(totalUsers / customersPerPage);
+            const paginationContainer = document.createElement('div');
+            paginationContainer.className = 'pagination';
+            paginationContainer.innerHTML = `
+                <button onclick="changePage(1)" ${currentPage === 1 ? 'disabled' : ''}>Đầu</button>
+                <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Trước</button>
+                <span>Trang ${currentPage} / ${totalPages}</span>
+                <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Sau</button>
+                <button onclick="changePage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>Cuối</button>
+            `;
+
+            // Xóa phân trang cũ nếu có
+            const oldPagination = document.querySelector('.pagination');
+            if (oldPagination) {
+                oldPagination.remove();
+            }
+
+            // Thêm phân trang mới
+            document.querySelector('.table-container').appendChild(paginationContainer);
+        }
+
+        function changePage(newPage) {
+            currentPage = newPage;
+            displayUsers(allUsers);
         }
 
         async function searchUser() {
-            const email = document.getElementById('searchEmail').value.trim();
+            const email = document.getElementById('searchEmail').value.trim().toLowerCase();
             if (!email) {
                 showMessage('Vui lòng nhập email người dùng', true);
                 return;
@@ -230,19 +309,31 @@
 
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3000/user-service/users/email/${email}`, {
+                const response = await fetch('http://localhost:3000/user-service/users', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
-                const result = await response.json();
-                if (response.ok) {
-                    displayUsers([result]);
-                    showMessage('Tìm thấy người dùng', false);
-                } else {
-                    showMessage(result.message || 'Không tìm thấy người dùng', true);
+                if (!response.ok) {
+                    throw new Error('Không thể tải danh sách người dùng');
                 }
+
+                const users = await response.json();
+                // Lọc người dùng dựa trên email
+                allUsers = users.filter(user => 
+                    user.email.toLowerCase().includes(email) || 
+                    user.username.toLowerCase().includes(email)
+                );
+
+                if (allUsers.length === 0) {
+                    showMessage('Không tìm thấy người dùng phù hợp', true);
+                    return;
+                }
+
+                currentPage = 1; // Reset về trang đầu tiên khi tìm kiếm
+                displayUsers(allUsers);
+                showMessage(`Tìm thấy ${allUsers.length} người dùng phù hợp`, false);
             } catch (error) {
                 console.error('Error:', error);
                 showMessage('Lỗi khi tìm kiếm người dùng', true);
@@ -350,15 +441,14 @@
 
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://localhost:3000/user-service/reset-password', {
+                const response = await fetch('http://localhost:3000/user-service/forgot-password', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
-                        username: username,
-                        new_password: 'password123'
+                        email: email
                     })
                 });
 

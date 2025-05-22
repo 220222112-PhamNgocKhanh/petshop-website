@@ -32,11 +32,13 @@ const User = sequelize.define('User', {
     created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
+        timezone: '+07:00',
     },
     updated_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
         onUpdate: DataTypes.NOW,
+        timezone: '+07:00',
     }
 }, {
     tableName: 'users',

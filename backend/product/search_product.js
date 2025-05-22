@@ -12,14 +12,14 @@ function searchProduct(keyword) {
 }
 
 // Trong showLatestProducts
-function showLatestProducts() {
-  fetch('http://localhost:3000/product-service/products/latest')
+function showProducts() {
+  fetch('http://localhost:3000/product-service/products')
     .then(res => res.json())
     .then(data => {
-      renderProducts(data.products, 'Sản phẩm mới nhất');
+      renderProducts(data.products, 'Danh sách sản phẩm');
     })
     .catch(err => {
-      console.error('Không thể tải sản phẩm mới nhất:', err);
+      console.error('Không thể tải Danh sách sản phẩm:', err);
     });
 }
 
@@ -79,7 +79,7 @@ function handleSearch() {
     // Không có từ khóa và không có danh mục, hiển thị sản phẩm mới nhất
     localStorage.removeItem('searchKeyword');
     localStorage.removeItem('selectedCategory');
-    showLatestProducts();
+    showProducts();
   }
 }
 
@@ -142,32 +142,110 @@ window.addEventListener('DOMContentLoaded', async () => {
   const navType = performance.getEntriesByType("navigation")[0].type;
   const savedCategory = localStorage.getItem('selectedCategory');
   const savedKeyword = localStorage.getItem('searchKeyword');
+  const forceSelectCategory = localStorage.getItem('forceSelectCategory');
   const allCategoryLinks = document.querySelectorAll('.category-list li a, .product-categories ul li ul li a');
+    // Kiểm tra xem có tham số URL không
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlCategory = urlParams.get('category');
+  const resetParam = urlParams.get('reset');
   
-  if (navType === 'reload') {
-    console.log("🔁 Reload detected");
+  // Nếu có tham số reset, xóa tất cả thông tin trong localStorage
+  if (resetParam === 'true') {
+    console.log("🧹 Reset parameter detected, clearing localStorage data");
+    localStorage.removeItem('selectedCategory');
+    localStorage.removeItem('searchKeyword');
+    localStorage.removeItem('forceSelectCategory');
+  }
+  // Nếu có tham số category trong URL, ưu tiên sử dụng nó
+  else if (urlCategory) {
+    console.log("📌 URL category parameter detected:", urlCategory);
+    // Xóa danh mục đã lưu và các tùy chọn khác trong localStorage
+    localStorage.removeItem('selectedCategory');
+    localStorage.removeItem('searchKeyword');
+    localStorage.removeItem('forceSelectCategory');
+  } else {
+    // Xóa cờ forceSelectCategory sau khi đã sử dụng
+    if (forceSelectCategory) {
+      localStorage.removeItem('forceSelectCategory');
+    }
+  }
+  
+  // Xử lý cả trường hợp reload và truy cập từ trang khác có savedCategory
+  if (urlCategory || navType === 'reload' || savedCategory) {
+    if (urlCategory) {
+      console.log("🔗 Using URL category parameter:", urlCategory);
+    } else if (navType === 'reload') {
+      console.log("🔁 Reload detected");
+    } else {
+      console.log("🔄 Navigation with saved category detected");
+    }
+    
+    // Ưu tiên sử dụng tham số URL nếu có
+    const categoryToUse = urlCategory || savedCategory;
     
     // Khôi phục giá trị cho dropdown danh mục và ô tìm kiếm
-    if (savedCategory && categorySelect) {
+    if (categoryToUse && categorySelect) {
       // Tìm option chính xác nếu có
       const exactOption = Array.from(categorySelect.options).find(
-        option => option.value === savedCategory
+        option => option.value === categoryToUse
       );
       
       if (exactOption) {
-        categorySelect.value = savedCategory;
+        categorySelect.value = categoryToUse;
       } else {
         categorySelect.value = 'all';
       }
     }
-    
-    if (searchInput && savedKeyword) {
-      searchInput.value = savedKeyword;
+      // Kiểm tra tham số id (nếu có)
+    const productId = urlParams.get('id');
+    if (productId) {
+      console.log("🆔 Product ID parameter detected:", productId);
+      // Nếu có ID sản phẩm, hiển thị sản phẩm đó thay vì danh sách
+      // Không thay đổi localStorage
+      if (typeof showProductDetail === 'function') {
+        showProductDetail(productId);
+        return; // Thoát khỏi hàm vì chúng ta chỉ hiển thị chi tiết sản phẩm
+      }
     }
     
-    // Xử lý hiển thị dựa trên thông tin đã lưu
-    if (savedKeyword && savedCategory && savedCategory !== 'all') {
-      // Tìm kiếm với từ khóa trong danh mục đã chọn
+    // Chuyển đổi tham số URL category thành tên danh mục nếu cần
+    let categoryToShow = urlCategory;
+    if (categoryToShow) {
+      // Ánh xạ các giá trị đặc biệt từ URL thành tên danh mục
+      const categoryMapping = {
+        'dog-food': 'Dog Food',
+        'cat-food': 'Cat Food',
+        'toys': 'Collars',  // Ví dụ
+        'accessories': 'Odor Control',
+        'health': 'Multivitamins',
+      };
+      
+      if (categoryMapping[categoryToShow]) {
+        categoryToShow = categoryMapping[categoryToShow];
+      }
+    }
+    
+    if (searchInput && savedKeyword && !urlCategory) {
+      searchInput.value = savedKeyword;
+    } else if (searchInput) {
+      searchInput.value = '';
+    }
+    
+    // Xử lý hiển thị dựa trên thông tin đã lưu hoặc tham số URL
+    if (categoryToShow) {
+      // Hiển thị danh mục từ URL
+      showCategory(categoryToShow);
+      
+      // Cập nhật giao diện
+      allCategoryLinks.forEach(link => link.classList.remove('category-active'));
+      const activeLink = Array.from(allCategoryLinks).find(
+        link => link.getAttribute('data-category') === categoryToShow
+      );
+      if (activeLink) {
+        activeLink.classList.add('category-active');
+      }
+    } else if (savedKeyword && savedCategory && savedCategory !== 'all') {
+      // Tìm kiếm với từ khóa trong danh mục đã lưu
       searchInCategory(savedKeyword, savedCategory);
       
       // Cập nhật giao diện
@@ -182,7 +260,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       // Chỉ tìm kiếm với từ khóa
       searchProduct(savedKeyword);
     } else if (savedCategory && savedCategory !== 'all') {
-      // Chỉ hiển thị danh mục
+      // Chỉ hiển thị danh mục đã lưu
       showCategory(savedCategory);
       
       // Cập nhật giao diện
@@ -194,10 +272,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         activeLink.classList.add('category-active');
       }
     } else {
-      // Hiển thị sản phẩm mới nhất
+      // Hiển thị tất cả sản phẩm
       if (searchInput) searchInput.value = '';
       if (categorySelect) categorySelect.value = 'all';
-      showLatestProducts();
+      showProducts();
     }
   } else {
     // Truy cập mới
@@ -206,7 +284,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (searchInput) searchInput.value = '';
     if (categorySelect) categorySelect.value = 'all';
     allCategoryLinks.forEach(link => link.classList.remove('category-active'));
-    showLatestProducts();
+    showProducts();
     
     localStorage.removeItem('selectedCategory');
     localStorage.removeItem('searchKeyword');

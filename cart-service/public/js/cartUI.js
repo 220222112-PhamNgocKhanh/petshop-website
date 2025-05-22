@@ -65,21 +65,19 @@ const CartUI = {
     if (!cartSummary) {
       console.error('Không tìm thấy element cart-summary');
     }
-    
-    // Lấy giỏ hàng từ localStorage
-    let cartItems = CartManager.getCart();
-    console.log('Cart items:', cartItems);
-    
-    // Nếu người dùng đã đăng nhập, đồng bộ với server
+      // Nếu người dùng đã đăng nhập, đồng bộ với server trước
     if (CartAPI.isAuthenticated()) {
       try {
         await CartManager.syncCartFromAPI();
-        cartItems = CartManager.getCart();
-        console.log('Cart items after sync:', cartItems);
+        console.log('Đã đồng bộ giỏ hàng với server');
       } catch (error) {
         console.error('Lỗi khi đồng bộ giỏ hàng:', error);
       }
     }
+    
+    // Lấy giỏ hàng từ localStorage sau khi đã đồng bộ
+    let cartItems = CartManager.getCart();
+    console.log('Cart items:', cartItems);
     
     // Hiển thị UI tương ứng
     if (!cartItems || cartItems.length === 0) {
@@ -178,7 +176,6 @@ const CartUI = {
     
     // Cập nhật tổng tiền
     this.updateCartSummary(subtotal);
-    console.log('Đã cập nhật tổng tiền:', subtotal);
   },
   
   /**

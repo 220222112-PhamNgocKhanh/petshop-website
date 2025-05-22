@@ -37,12 +37,14 @@ const Payment = sequelize.define('Payment', {
     },
     created_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        defaultValue: DataTypes.NOW,   
+        // timezone: '+07:00',
     },
     updated_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
         onUpdate: DataTypes.NOW,
+        // timezone: '+07:00',
     },
 }, {
     tableName: 'payments',
