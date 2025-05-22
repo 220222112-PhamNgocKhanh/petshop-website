@@ -359,7 +359,7 @@ const uploadProductImage = async (req, res) => {
     }
 };
 
-// Upload ảnh và cập nhật sản phẩm
+
 // Upload ảnh và cập nhật sản phẩm
 const updateProductWithImage = async (req, res) => {
     try {
@@ -411,6 +411,44 @@ const updateProductWithImage = async (req, res) => {
 };
 
 
+// Giảm số lượng sản phẩm
+const decreaseProductQuantity = async (req, res) => {
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    if (!quantity || isNaN(quantity) || quantity <= 0) {
+        return res.status(400).json({ message: 'Số lượng cần trừ không hợp lệ' });
+    }
+
+    try {
+        // Lấy số lượng hiện tại
+        const [productRows] = await db.execute('SELECT amount FROM products WHERE id = ?', [id]);
+        if (productRows.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+        }
+        const currentAmount = productRows[0].amount;
+        if (currentAmount < quantity) {
+            return res.status(400).json({ message: 'Số lượng sản phẩm không đủ' });
+        }
+
+        // Trừ số lượng
+        await db.execute('UPDATE products SET amount = amount - ? WHERE id = ?', [quantity, id]);
+        res.status(200).json({ message: 'Đã cập nhật số lượng sản phẩm' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Đếm tổng số sản phẩm
+const countTotalProducts = async (req, res) => {
+    try {
+        const [result] = await db.execute('SELECT COUNT(*) as total FROM products');
+        res.status(200).json({ total: result[0].total });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Xuất module
 module.exports = {
     validateProduct,
@@ -426,5 +464,7 @@ module.exports = {
     searchInCategory,
     processUpload,
     uploadProductImage,
-    updateProductWithImage
+    updateProductWithImage,
+    decreaseProductQuantity,
+    countTotalProducts
 };

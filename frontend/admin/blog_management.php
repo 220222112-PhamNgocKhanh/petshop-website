@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="sidebar.css">
+    <link rel="stylesheet" href="style.css">
     <style>
         .content {
-            margin-left: 260px;
+            /* margin-left: 260px; */
             padding: 20px;
             transition: margin-left 0.3s ease;
         }
@@ -19,6 +20,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
 
         .blog-header {
@@ -32,49 +34,64 @@
             background: #28a745;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            font-size: 14px;
+            margin-top: 10px;
         }
 
         .add-blog-btn:hover {
             background: #218838;
         }
 
-        .blog-table {
+        /* .blog-table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
         }
+        
 
         .blog-table th, .blog-table td {
-            padding: 12px;
+            padding: 12px 16px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #e9ecef;
+            color: #222;
+            background: #fff;
         }
 
         .blog-table th {
             background-color: #f8f9fa;
             font-weight: bold;
+            color: #000;
+            border-top: 1px solid #e9ecef;
         }
+
+        .blog-table tr:last-child td {
+            border-bottom: none;
+        } */
 
         .blog-table tr:hover {
             background-color: #f5f5f5;
         }
 
         .blog-image {
-            width: 100px;
-            height: 60px;
+            width: 80px;
+            height: 50px;
             object-fit: cover;
             border-radius: 4px;
+            border: 1px solid #e9ecef;
+            background: #fafbfc;
         }
 
         .action-buttons {
             display: flex;
             gap: 10px;
+            justify-content: center;
         }
 
         .edit-btn, .delete-btn {
@@ -83,6 +100,7 @@
             border-radius: 4px;
             cursor: pointer;
             color: white;
+            font-size: 14px;
         }
 
         .edit-btn {
@@ -115,20 +133,27 @@
 
         .modal-content {
             background: white;
-            width: 80%;
-            max-width: 800px;
-            margin: 50px auto;
+            width: 60%;
+            max-width: 600px;
+            margin: 30px auto;
             padding: 20px;
             border-radius: 8px;
             position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .close-btn {
             position: absolute;
-            right: 20px;
-            top: 20px;
-            font-size: 24px;
+            right: 15px;
+            top: 15px;
+            font-size: 20px;
             cursor: pointer;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #333;
         }
 
         .form-group {
@@ -139,6 +164,7 @@
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
+            color: #333;
         }
 
         .form-group input[type="text"],
@@ -147,11 +173,27 @@
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 14px;
         }
 
         .form-group textarea {
-            height: 200px;
+            height: 150px;
             resize: vertical;
+        }
+
+        .thumbnail-preview {
+            max-width: 150px;
+            max-height: 100px;
+            margin-top: 10px;
+            border-radius: 4px;
+            display: none;
+            object-fit: cover;
+        }
+
+        #modalTitle {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.5em;
         }
 
         #message {
@@ -193,7 +235,6 @@
                         <th>Hình ảnh</th>
                         <th>Tiêu đề</th>
                         <th>Ngày đăng</th>
-                        <th>Trạng thái</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
@@ -219,8 +260,9 @@
                     <textarea id="content" name="content" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="image">Hình ảnh</label>
-                    <input type="file" id="image" name="image" accept="image/*">
+                    <label for="thumbnail">Hình ảnh đại diện</label>
+                    <input type="file" id="thumbnail" name="thumbnail" accept="image/*" onchange="previewImage(this)">
+                    <img id="thumbnailPreview" class="thumbnail-preview" src="" alt="Preview">
                 </div>
                 <button type="submit" class="add-blog-btn">Lưu bài viết</button>
             </form>
@@ -243,7 +285,7 @@
                     return;
                 }
 
-                const response = await fetch('http://localhost:3000/blog-service/blogs', {
+                const response = await fetch('http://localhost:3000/blog-service/posts', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -258,10 +300,14 @@
                 }
 
                 const blogs = await response.json();
-                displayBlogs(blogs);
+                if (Array.isArray(blogs)) {
+                    displayBlogs(blogs);
+                } else {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('Lỗi khi tải danh sách blog', true);
+                showMessage('Lỗi khi tải danh sách blog: ' + error.message, true);
             }
         }
 
@@ -271,16 +317,28 @@
 
             blogs.forEach(blog => {
                 const row = document.createElement('tr');
+                const createdDate = new Date(blog.created_at).toLocaleDateString('vi-VN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
                 row.innerHTML = `
-                    <td><img src="${blog.image_url || '../images/default-blog.jpg'}" alt="${blog.title}" class="blog-image"></td>
+                    <td>
+                        <img src="../../blog-service/public${blog.thumbnail}" 
+                             alt="${blog.title}" 
+                             class="blog-image"
+                             onerror="this.src='../images/default-blog.jpg'">
+                    </td>
                     <td>${blog.title}</td>
-                    <td>${new Date(blog.created_at).toLocaleDateString('vi-VN')}</td>
-                    <td>${blog.status ? 'Đã đăng' : 'Nháp'}</td>
+                    <td>${createdDate}</td>
                     <td class="action-buttons">
-                        <button class="edit-btn" onclick="editBlog(${blog.id})">
+                        <button class="edit-btn" onclick="editBlog(${blog.post_id})">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="delete-btn" onclick="deleteBlog(${blog.id})">
+                        <button class="delete-btn" onclick="deleteBlog(${blog.post_id})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -289,28 +347,146 @@
             });
         }
 
+        let currentBlogId = null;
+
         function openModal(blogId = null) {
+            currentBlogId = blogId;
             document.getElementById('blogModal').style.display = 'block';
             document.getElementById('modalTitle').textContent = blogId ? 'Sửa bài viết' : 'Thêm bài viết mới';
-            // Reset form
             document.getElementById('blogForm').reset();
+            document.getElementById('thumbnailPreview').style.display = 'none';
+            
+            if (blogId) {
+                loadBlogData(blogId);
+            }
+        }
+
+        async function loadBlogData(blogId) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:3000/blog-service/posts/${blogId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể tải thông tin bài viết');
+                }
+
+                const blog = await response.json();
+                document.getElementById('title').value = blog.title || '';
+                document.getElementById('content').value = blog.content || '';
+                
+                // Hiển thị hình ảnh hiện tại
+                const thumbnailPreview = document.getElementById('thumbnailPreview');
+                thumbnailPreview.src = `../../blog-service/public${blog.thumbnail}`;
+                thumbnailPreview.style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Lỗi khi tải thông tin bài viết: ' + error.message, true);
+            }
+        }
+
+        function previewImage(input) {
+            const preview = document.getElementById('thumbnailPreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
         function closeModal() {
             document.getElementById('blogModal').style.display = 'none';
+            currentBlogId = null;
         }
 
         async function saveBlog(event) {
             event.preventDefault();
-            // Thêm code xử lý lưu blog
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showMessage('Vui lòng đăng nhập lại', true);
+                return;
+            }
+
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const thumbnailFile = document.getElementById('thumbnail').files[0];
+
+            if (!title || !content) {
+                showMessage('Vui lòng điền đầy đủ tiêu đề và nội dung', true);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('content', content);
+            if (thumbnailFile) {
+                formData.append('thumbnail', thumbnailFile);
+            }
+
+            try {
+                const url = currentBlogId ? 
+                    `http://localhost:3000/blog-service/posts/${currentBlogId}` :
+                    'http://localhost:3000/blog-service/posts';
+
+                const method = currentBlogId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Lỗi khi lưu bài viết');
+                }
+
+                showMessage(currentBlogId ? 'Cập nhật bài viết thành công' : 'Thêm bài viết thành công');
+                closeModal();
+                loadBlogs();
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Lỗi khi lưu bài viết: ' + error.message, true);
+            }
         }
 
         async function editBlog(blogId) {
-            // Thêm code xử lý sửa blog
+            openModal(blogId);
         }
 
         async function deleteBlog(blogId) {
-            // Thêm code xử lý xóa blog
+            if (!confirm('Bạn có chắc muốn xóa bài viết này?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:3000/blog-service/posts/${blogId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Không thể xóa bài viết');
+                }
+
+                showMessage('Xóa bài viết thành công');
+                loadBlogs();
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Lỗi khi xóa bài viết: ' + error.message, true);
+            }
         }
 
         function showMessage(message, isError = false) {

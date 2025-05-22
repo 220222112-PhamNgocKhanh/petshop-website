@@ -264,7 +264,7 @@
           <!-- Profile Tab -->
           <div class="tab-content active" id="profile-tab">
             <div class="profile-header">
-              <img id="profile-image" class="profile-image" src="../user-service/avatars/default.jpg" alt="Profile Picture">
+              <img id="profile-image" class="profile-image" src="images/default_user.jpg" alt="Profile Picture">
               <div class="profile-info">
                 <h3>Loading...</h3>
               </div>
@@ -532,69 +532,12 @@
         </div>
       </div>
 
-      <div id="sidebar">
-        <div id="section">
-          <div>
-            <div>
-              <h2>Account Options</h2>
-              <ul>
-                <li><a href="orders.php">My Orders <span></span></a></li>
-                <li><a href="wishlist.php">My Wishlist <span></span></a></li>
-                <li><a href="reviews.php">My Reviews <span></span></a></li>
-                <li><a href="subscriptions.php">Subscriptions <span></span></a></li>
-                <li><a href="support.php">Support Tickets <span></span></a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div id="section">
-          <div>
-            <div>
-              <h2>Need Help?</h2>
-              <p>Our customer service team is ready to assist you with any questions about your account.</p>
-              <a href="contact.php" class="btn" style="display: block; width: auto; text-align: center; margin-top: 15px; text-decoration: none;">Contact Support</a>
-            </div>
-          </div>
-        </div>
-      </div>
+      
     </div>
 
-    <div class="featured">
-      <ul>
-        <li><a href="#"><img src="images/organic-and-chemical-free.jpg" width="300" height="90" alt=""></a></li>
-        <li><a href="#"><img src="images/good-food.jpg" width="300" height="90" alt=""></a></li>
-        <li class="last"><a href="#"><img src="images/pet-grooming.jpg" width="300" height="90" alt=""></a></li>
-      </ul>
-    </div>
-  </div>
+    
 
-  <div id="footer">
-    <div class="section">
-      <ul>
-        <li> <img src="images/friendly-pets.jpg" width="240" height="186" alt="">
-          <h2><a href="#">Friendly Pets</a></h2>
-          <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diam nonummy nib. <a class="more" href="#">Read More</a> </p>
-        </li>
-        <li> <img src="images/pet-lover2.jpg" width="240" height="186" alt="">
-          <h2><a href="#">How dangerous are they</a></h2>
-          <p> Lorem ipsum dolor sit amet, cons ectetuer adepis cing, sed diam euis. <a class="more" href="#">Read More</a> </p>
-        </li>
-        <li> <img src="images/healthy-dog.jpg" width="240" height="186" alt="">
-          <h2><a href="#">Keep them healthy</a></h2>
-          <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diam nonu mmy. <a class="more" href="#">Read More</a> </p>
-        </li>
-        <li>
-          <h2><a href="#">Love...love...love...pets</a></h2>
-          <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diameusim. <a class="more" href="#">Read More</a> </p>
-          <img src="images/pet-lover.jpg" width="240" height="186" alt="">
-        </li>
-      </ul>
-    </div>
-    <div id="footnote">
-      <div class="section">Copyright &copy; 2012 <a href="#">Company Name</a> All rights reserved | Website Template By <a target="_blank" href="http://www.freewebsitetemplates.com/">freewebsitetemplates.com</a></div>
-    </div>
-  </div>
+  
 
   <script>
     // JavaScript để xử lý chức năng tab

@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require('sequelize');
 
 // ⚠️ Nhớ cấu hình kết nối CSDL đúng với XAMPP của bạn
-const sequelize = new Sequelize('order_service', 'root', '', {
+const sequelize = new Sequelize('order_service', 'root', '082004', {
   host: 'localhost',
   dialect: 'mysql'
 });

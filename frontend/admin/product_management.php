@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="sidebar.css">
     <style>
         .content {
-            margin-left: 260px;
+            /* margin-left: 260px; */
             padding: 20px;
             transition: margin-left 0.3s ease;
         }

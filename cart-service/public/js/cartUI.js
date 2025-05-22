@@ -65,21 +65,19 @@ const CartUI = {
     if (!cartSummary) {
       console.error('Không tìm thấy element cart-summary');
     }
-    
-    // Lấy giỏ hàng từ localStorage
-    let cartItems = CartManager.getCart();
-    console.log('Cart items:', cartItems);
-    
-    // Nếu người dùng đã đăng nhập, đồng bộ với server
+      // Nếu người dùng đã đăng nhập, đồng bộ với server trước
     if (CartAPI.isAuthenticated()) {
       try {
         await CartManager.syncCartFromAPI();
-        cartItems = CartManager.getCart();
-        console.log('Cart items after sync:', cartItems);
+        console.log('Đã đồng bộ giỏ hàng với server');
       } catch (error) {
         console.error('Lỗi khi đồng bộ giỏ hàng:', error);
       }
     }
+    
+    // Lấy giỏ hàng từ localStorage sau khi đã đồng bộ
+    let cartItems = CartManager.getCart();
+    console.log('Cart items:', cartItems);
     
     // Hiển thị UI tương ứng
     if (!cartItems || cartItems.length === 0) {
@@ -153,15 +151,12 @@ const CartUI = {
           if (quantityInput.value > 1) {
             quantityInput.value = parseInt(quantityInput.value) - 1;
             this.updateQuantity(product.id, parseInt(quantityInput.value));
-            window.updateCartCount();
           }
         });
         
         plusBtn.addEventListener('click', () => {
           quantityInput.value = parseInt(quantityInput.value) + 1;
           this.updateQuantity(product.id, parseInt(quantityInput.value));
-          console.log('Số lượng sau khi tăng:', quantityInput.value);
-         
         });
         
         quantityInput.addEventListener('change', () => {
@@ -169,7 +164,6 @@ const CartUI = {
           if (newValue < 1) quantityInput.value = 1;
           if (newValue > 99) quantityInput.value = 99;
           this.updateQuantity(product.id, parseInt(quantityInput.value));
-         
         });
         
         removeBtn.addEventListener('click', () => {
@@ -182,7 +176,6 @@ const CartUI = {
     
     // Cập nhật tổng tiền
     this.updateCartSummary(subtotal);
-    console.log('Đã cập nhật tổng tiền:', subtotal);
   },
   
   /**
@@ -195,7 +188,6 @@ const CartUI = {
     const success = await CartManager.updateCartItem(productId, quantity);
     
     if (success) {
-      window.updateCartCount();
       // Cập nhật UI
       const row = document.querySelector(`.cart-item[data-id="${productId}"]`);
       if (row) {

@@ -1,14 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors');
-require('dotenv').config(); // Add dotenv
 const sequelize = require('./utils/db'); // Sequelize connection
 const orderRoutes = require('./routes/orderRoutes'); // Các route xử lý yêu cầu
 const Order = require('./models/Order'); // Import models để sync
 const OrderItem = require('./models/OrderItem');
 
 const app = express();
-const PORT = process.env.PORT || 4003; // Use environment variable with fallback
+const PORT = 4003; // Port của order service
+
+const cors = require("cors");
+
 
 app.use(cors());
 

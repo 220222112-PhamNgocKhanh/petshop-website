@@ -9,13 +9,13 @@ exports.placeOrder = async (req, res) => {
     try {
         const { user_id, phone_number, shipping_address, items } = req.body;
 
-        if (!user_id || !items || items.length === 0) {
+        if (!user_id || !phone_number || !shipping_address || !items || items.length === 0) {
             return res.status(400).json({ message: 'Thiếu thông tin cần thiết để tạo đơn hàng' });
         }
 
         // 1. Xác minh thông tin người dùng từ user-service
         try {
-            const userResponse = await axios.get(`http://localhost:4000/user-service/user/${user_id}`, { family: 4 });
+            const userResponse = await axios.get(`http://localhost:4000/user-service/user/${user_id}`);
             if (userResponse.status !== 200) {
                 return res.status(400).json({ message: 'Người dùng không hợp lệ' });
             }
@@ -24,25 +24,13 @@ exports.placeOrder = async (req, res) => {
             return res.status(500).json({ message: 'Không thể kết nối đến user-service', error: error.message });
         }
 
-        // 2. Xác minh thông tin sản phẩm từ product-service
+        // 2. Tính tổng tiền và xác minh sản phẩm
         let total_price = 0;
         for (const item of items) {
-            try {
-                const productResponse = await axios.get(`http://localhost:6000/product-service/${item.product_id}`);
-                if (productResponse.status !== 200) {
-                    return res.status(400).json({ message: `Sản phẩm không hợp lệ: ${item.product_id}` });
-                }
-
-                const product = productResponse.data;
-                if (product.quantity < item.amount) {
-                    return res.status(400).json({ message: `Sản phẩm '${product.product_name}' không đủ hàng` });
-                }
-
-                total_price += item.amount * product.price;
-            } catch (error) {
-                console.error(`Lỗi khi kết nối đến product-service cho sản phẩm ${item.product_id}:`, error.message);
-                return res.status(500).json({ message: `Không thể kết nối đến product-service cho sản phẩm ${item.product_id}`, error: error.message });
+            if (!item.product_id || !item.amount || !item.price) {
+                return res.status(400).json({ message: 'Thông tin sản phẩm không hợp lệ' });
             }
+            total_price += item.amount * item.price;
         }
 
         // 3. Tạo đơn hàng trong cơ sở dữ liệu
@@ -55,23 +43,21 @@ exports.placeOrder = async (req, res) => {
         });
 
         // 4. Tạo các mục đơn hàng
-        for (const item of items) {
-            await OrderItem.create({
-                order_id: order.order_id,
-                product_id: item.product_id,
-                quantity: item.amount,
-                price: item.price
-            });
+        const orderItems = items.map(item => ({
+            order_id: order.order_id,
+            product_id: item.product_id,
+            quantity: item.amount,
+            price: item.price
+        }));
 
-            // Gửi yêu cầu cập nhật tồn kho sản phẩm đến product-service
-            try {
-                await axios.put(`http://localhost:6000/product-service/${item.product_id}/decrement`, {
-                    amount: item.amount
-                });
-            } catch (error) {
-                console.error(`Lỗi khi cập nhật tồn kho sản phẩm ${item.product_id}:`, error.message);
-                return res.status(500).json({ message: `Không thể cập nhật tồn kho sản phẩm ${item.product_id}`, error: error.message });
-            }
+        await OrderItem.bulkCreate(orderItems);
+
+        // 5. Xóa giỏ hàng sau khi đặt hàng thành công
+        try {
+            await axios.delete(`http://localhost:3002/cart-service/${user_id}`);
+        } catch (error) {
+            console.error('Lỗi khi xóa giỏ hàng:', error.message);
+            // Không trả về lỗi vì đơn hàng đã được tạo thành công
         }
 
         res.status(201).json({
@@ -87,6 +73,7 @@ exports.placeOrder = async (req, res) => {
         });
     }
 };
+
 
 
 
@@ -122,6 +109,8 @@ exports.getOrdersByUser = async (req, res) => {
         res.status(500).json({ message: 'Lỗi truy vấn đơn hàng', error: err.message });
     }
 };
+
+
 
 // 3. Lấy chi tiết đơn hàng
 exports.getOrderDetail = async (req, res) => {

@@ -1,129 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
+
 <head>
-    <title>Pet Shop | Register</title>
-    <meta charset="iso-8859-1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký | Pet Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="css/login.css" rel="stylesheet" type="text/css">
     <link href="css/style.css" rel="stylesheet" type="text/css">
     <link href="css/header.css" rel="stylesheet" type="text/css">
     <link href="css/custom.css" rel="stylesheet" type="text/css">
-    <link href="css/register.css" rel="stylesheet" type="text/css"> <!-- Liên kết file register.css -->
 </head>
+
 <body>
-<?php include 'header.php'; ?>
-    <div id="body">
-        <div id="content">
-            <div class="content">
-                <h2>Register</h2>
-                <div>
-                    <p>Create a new account to join the Pet Shop community!</p>
-                </div>
-                <form id="register-form" class="register-form">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
-                    
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                    
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                    
-                    <label for="confirm-password">Confirm Password:</label>
-                    <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password" required>
-                    
-                    <button type="submit">Register</button>
-                    <p>Already have an account? <a href="login.php">Login here</a></p>
-                </form>
+    <?php include 'header.php'; ?>
+
+    <main>
+        <div class="login-container">
+            <div class="login-header">
+                <h2>Đăng ký</h2>
+                <p>Tạo tài khoản mới để tham gia cộng đồng Pet Shop!</p>
             </div>
-            <div id="sidebar">
-                <div class="connect">
-                    <h2>Follow Us</h2>
-                    <ul>
-                        <li><a class="facebook" href="#">Facebook</a></li>
-                        <li><a class="subscribe" href="#">Subscribe</a></li>
-                        <li><a class="twitter" href="#">Twitter</a></li>
-                        <li><a class="flicker" href="#">Flicker</a></li>
-                    </ul>
+
+            <form id="register-form" class="login-form">
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Nhập tên đăng nhập của bạn"
+                            required>
+                    </div>
                 </div>
-            </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Nhập email của bạn"
+                            required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Nhập mật khẩu của bạn"
+                            required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-password">Xác nhận mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input
+                            type="password"
+                            id="confirm-password"
+                            name="confirm-password"
+                            placeholder="Nhập lại mật khẩu của bạn"
+                            required>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-button">
+                    <i class="fas fa-user-plus"></i> Đăng ký
+                </button>
+
+                <div id="error-message" class="error-message"></div>
+
+                <div class="login-links">
+                    <p>
+                        Đã có tài khoản? <a href="login.php">Đăng nhập ngay</a>
+                    </p>
+                </div>
+            </form>
         </div>
-        <div class="featured">
-            <ul>
-                <li><a href="#"><img src="images/organic-and-chemical-free.jpg" width="300" height="90" alt=""></a></li>
-                <li><a href="#"><img src="images/good-food.jpg" width="300" height="90" alt=""></a></li>
-                <li class="last"><a href="#"><img src="images/pet-grooming.jpg" width="300" height="90" alt=""></a></li>
-            </ul>
-        </div>
-    </div>
-    <div id="footer">
-        <div class="section">
-            <ul>
-                <li> 
-                    <img src="images/friendly-pets.jpg" width="240" height="186" alt="">
-                    <h2><a href="#">Friendly Pets</a></h2>
-                    <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diam nonummy nib. <a class="more" href="#">Read More</a> </p>
-                </li>
-                <li> 
-                    <img src="images/pet-lover2.jpg" width="240" height="186" alt="">
-                    <h2><a href="#">How dangerous are they</a></h2>
-                    <p> Lorem ipsum dolor sit amet, cons ectetuer adepis cing, sed diam euis. <a class="more" href="#">Read More</a> </p>
-                </li>
-                <li> 
-                    <img src="images/healthy-dog.jpg" width="240" height="186" alt="">
-                    <h2><a href="#">Keep them healthy</a></h2>
-                    <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diam nonu mmy. <a class="more" href="#">Read More</a> </p>
-                </li>
-                <li>
-                    <h2><a href="#">Love...love...love...pets</a></h2>
-                    <p> Lorem ipsum dolor sit amet, consectetuer adepiscing elit, sed diameusim. <a class="more" href="#">Read More</a> </p>
-                    <img src="images/pet-lover.jpg" width="240" height="186" alt=""> 
-                </li>
-            </ul>
-        </div>
-        <div id="footnote">
-            <div class="section">Copyright © 2012 <a href="#">Company Name</a> All rights reserved | Website Template By <a target="_blank" href="http://www.freewebsitetemplates.com/">freewebsitetemplates.com</a></div>
-        </div>
-    </div>
+    </main>
+
     <script>
-    document.getElementById('register-form').addEventListener('submit', async function (e) {
-        e.preventDefault(); // Ngăn form gửi dữ liệu theo cách mặc định
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        // Lấy dữ liệu từ form
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirm-password').value;
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const errorMessage = document.getElementById('error-message');
 
-        // Kiểm tra mật khẩu và xác nhận mật khẩu
-        if (password !== confirmPassword) {
-            alert('Passwords do not match!');
-            return;
-        }
-
-        try {
-            // Gửi dữ liệu đến API backend
-            const response = await fetch('http://localhost:4000/user-service/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, email, password }),
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                alert('Registration successful!');
-                console.log(result); // Xem thông tin trả về từ server
-                // Chuyển hướng đến trang đăng nhập
-                window.location.href = 'login.php';
-            } else {
-                alert(result.message || 'Registration failed!');
+            // Kiểm tra mật khẩu trùng khớp
+            if (password !== confirmPassword) {
+                errorMessage.textContent = 'Mật khẩu không khớp!';
+                errorMessage.style.display = 'block';
+                return;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred while registering.');
-        }
-    });
-</script>
+
+            try {
+                const response = await fetch('http://localhost:3000/user-service/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Đăng ký thành công!');
+                    window.location.href = 'login.php';
+                } else {
+                    errorMessage.textContent = data.message || 'Đăng ký thất bại';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.textContent = 'Có lỗi xảy ra, vui lòng thử lại';
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
 </body>
+
 </html>

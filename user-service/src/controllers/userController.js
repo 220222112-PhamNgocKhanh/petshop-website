@@ -1,9 +1,43 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const User = require('../models/User');
 const parseRequestBody = require('../utils/parseRequestBody');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
+
+// Hàm gửi request đến notification service
+async function sendNotificationRequest(emailData) {
+    return new Promise((resolve, reject) => {
+        const options = {
+            hostname: 'localhost',
+            port: 3005,
+            path: '/send-email',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        const req = http.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            res.on('end', () => {
+                resolve(JSON.parse(data));
+            });
+        });
+
+        req.on('error', (error) => {
+            console.error('Error sending notification:', error);
+            reject(error);
+        });
+
+        req.write(JSON.stringify(emailData));
+        req.end();
+    });
+}
 
 // Xác thực token từ header Authorization
 exports.verifyToken = (req) => {
@@ -40,6 +74,20 @@ exports.register = (req, res) => {
                 password_hash: hashedPassword,
                 role: 'user'
             });
+
+            // Gửi email thông báo đăng ký thành công
+            try {
+                await sendNotificationRequest({
+                    to: email,
+                    eventType: 'accountCreated',
+                    data: {
+                        username: username
+                    }
+                });
+            } catch (emailError) {
+                console.error('Error sending registration email:', emailError);
+                // Không block luồng chính nếu gửi email thất bại
+            }
 
             res.writeHead(201, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ 
@@ -110,7 +158,11 @@ exports.getUsers = async (req, res) => {
     }
 
     try {
-        const users = await User.findAll();
+        const users = await User.findAll({
+            where: {
+                role: 'user' // Chỉ lấy người dùng có role là user
+            }
+        });
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(users));
     } catch (error) {
@@ -121,13 +173,13 @@ exports.getUsers = async (req, res) => {
 
 // Lấy user theo ID
 exports.getUserById = async (req, res) => {
-    const decoded = exports.verifyToken(req);
+    // const decoded = exports.verifyToken(req);
     const id = req.url.split('/').pop();
 
-    if (!decoded || (decoded.user_id !== Number(id) && decoded.role !== 'admin')) {
-        res.writeHead(403, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ message: 'Permission denied' }));
-    }
+    // if (!decoded) {
+    //     res.writeHead(401, { 'Content-Type': 'application/json' });
+    //     return res.end(JSON.stringify({ message: 'Vui lòng đăng nhập' }));
+    // }
 
     try {
         const user = await User.findByPk(id);
@@ -135,6 +187,20 @@ exports.getUserById = async (req, res) => {
             res.writeHead(404, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ message: 'User not found' }));
         }
+
+        // Kiểm tra nếu user là admin thì không cho phép xem
+        // if (user.role === 'admin') {
+        //     res.writeHead(403, { 'Content-Type': 'application/json' });
+        //     return res.end(JSON.stringify({ message: 'Access denied' }));
+        // }
+
+        // Kiểm tra quyền truy cập
+        // if (decoded.user_id !== Number(id) && decoded.role !== 'admin') {
+        //     res.writeHead(403, { 'Content-Type': 'application/json' });
+        //     return res.end(JSON.stringify({ message: 'Permission denied' }
+                
+        //     ));
+        // }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(user));
@@ -146,21 +212,12 @@ exports.getUserById = async (req, res) => {
 // Lấy user theo email
 exports.getUserByEmail = async (req, res) => {
     const decoded = exports.verifyToken(req);
-    // Lấy email từ URL
     const email = req.url.split('/email/').pop();
 
     if (!decoded) {
         res.writeHead(401, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ 
             message: 'Vui lòng đăng nhập để thực hiện thao tác này'
-        }));
-    }
-
-    // Kiểm tra quyền: admin có thể tìm tất cả, user thường chỉ tìm được email của mình
-    if (decoded.role !== 'admin' && decoded.email !== email) {
-        res.writeHead(403, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ 
-            message: 'Bạn không có quyền truy cập thông tin này'
         }));
     }
 
@@ -176,9 +233,23 @@ exports.getUserByEmail = async (req, res) => {
             }));
         }
 
+        // Kiểm tra nếu user là admin thì không cho phép xem
+        if (user.role === 'admin') {
+            res.writeHead(403, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ message: 'Access denied' }));
+        }
+
+        // Kiểm tra quyền truy cập
+        if (decoded.role !== 'admin' && decoded.email !== email) {
+            res.writeHead(403, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ 
+                message: 'Bạn không có quyền truy cập thông tin này'
+            }));
+        }
+
         // Loại bỏ thông tin nhạy cảm trước khi gửi
         const userResponse = {
-            id: user.id,
+            user_id: user.user_id,
             email: user.email,
             username: user.username,
             address: user.address,
@@ -367,8 +438,25 @@ exports.resetPassword = (req, res) => {
             user.password_hash = await bcrypt.hash(new_password, 10);
             await user.save();
 
+            // Gửi email thông báo mật khẩu mới
+            try {
+                await sendNotificationRequest({
+                    to: user.email,
+                    eventType: 'passwordReset',
+                    data: {
+                        username: user.username,
+                        newPassword: new_password
+                    }
+                });
+            } catch (emailError) {
+                console.error('Error sending password reset email:', emailError);
+                // Không block luồng chính nếu gửi email thất bại
+            }
+
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Đặt lại mật khẩu thành công' }));
+            res.end(JSON.stringify({ 
+                message: 'Đặt lại mật khẩu thành công và đã gửi thông báo qua email' 
+            }));
         } catch (error) {
             console.error('Reset password error:', error);
             res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -442,9 +530,24 @@ exports.forgotPassword = (req, res) => {
             user.password_hash = await bcrypt.hash(newPassword, 10);
             await user.save();
 
+            // Gửi email thông báo mật khẩu mới
+            try {
+                await sendNotificationRequest({
+                    to: email,
+                    eventType: 'passwordReset',
+                    data: {
+                        username: user.username,
+                        newPassword: newPassword
+                    }
+                });
+            } catch (emailError) {
+                console.error('Error sending password reset email:', emailError);
+                // Không block luồng chính nếu gửi email thất bại
+            }
+
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ 
-                message: 'Mật khẩu mới đã được tạo', 
+                message: 'Mật khẩu mới đã được tạo và gửi qua email', 
                 new_password: newPassword 
             }));
         } catch (error) {
@@ -462,11 +565,11 @@ function generateRandomPassword(length = 8) {
 
 // Lấy user ID theo username
 exports.getUserIdByUsername = async (req, res) => {
-    const decoded = exports.verifyToken(req);
-    if (!exports.checkRole(decoded, 'admin')) {
-        res.writeHead(403, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ message: 'Bạn không có quyền thực hiện thao tác này' }));
-    }
+    // const decoded = exports.verifyToken(req);
+    // if (!exports.checkRole(decoded, 'admin')) {
+    //     res.writeHead(403, { 'Content-Type': 'application/json' });
+    //     return res.end(JSON.stringify({ message: 'Bạn không có quyền thực hiện thao tác này' }));
+    // }
 
     // Lấy username từ URL
     const username = req.url.split('/username/').pop();
@@ -496,6 +599,30 @@ exports.getUserIdByUsername = async (req, res) => {
             message: 'Đã xảy ra lỗi khi tìm kiếm user_id',
             error: error.message 
         }));
+    }
+};
+
+// Lấy số lượng người dùng (không tính admin)
+exports.getUserCount = async (req, res) => {
+    const decoded = exports.verifyToken(req);
+    if (!exports.checkRole(decoded, 'admin')) {
+        res.writeHead(403, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ message: 'Access denied' }));
+    }
+
+    try {
+        const count = await User.count({
+            where: {
+                role: 'user'
+            }
+        });
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ count }));
+    } catch (error) {
+        console.error('Error in getUserCount:', error);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Internal server error' }));
     }
 };
 
