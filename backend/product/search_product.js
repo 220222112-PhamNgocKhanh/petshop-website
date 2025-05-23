@@ -45,8 +45,20 @@ function handleSearch() {
   console.log('Selected category:', selectedCategory);
   const keyword = searchInput.value.trim();
   console.log('Keyword:', keyword);
-  const allCategoryLinks = document.querySelectorAll('.category-list li a');
-  allCategoryLinks.forEach(link => link.classList.remove('category-active'));
+  const allCategoryLinks = document.querySelectorAll('.category-list li a, .product-categories ul li ul li a');
+allCategoryLinks.forEach(link => link.classList.remove('category-active'));
+
+// Thêm active cho danh mục phù hợp
+allCategoryLinks.forEach(categoryLink => {
+  const linkCategory = categoryLink.getAttribute('data-category');
+  if (linkCategory && (
+      linkCategory.toLowerCase() === selectedCategory.toLowerCase() || 
+      linkCategory.includes(selectedCategory) || 
+      selectedCategory.includes(linkCategory)
+  )) {
+    categoryLink.classList.add('category-active');
+  }
+});
   
   // Nếu có từ khóa tìm kiếm
   if (keyword && selectedCategory == 'all') {

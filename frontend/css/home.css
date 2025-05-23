@@ -668,6 +668,8 @@
 
 .spotlight-card.small .spotlight-image {
     height: 240px;
+    width: 100%;
+    display: flex;
 }
 
 .spotlight-image img {
@@ -681,30 +683,37 @@
     transform: scale(1.1);
 }
 
+/* Thay đổi phần spotlight-overlay để chữ hiển thị rõ hơn */
 .spotlight-overlay {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
     padding: 20px;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%);
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 80%, rgba(0,0,0,0.4) 100%);
     color: white;
     transition: all 0.4s;
+    width: 100%;
+    z-index: 5;
 }
 
 .spotlight-card:hover .spotlight-overlay {
-    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.2) 100%);
-}
-
-.spotlight-overlay h3 {
-    font-size: 1.8em;
-    margin: 0 0 10px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 80%, rgba(0,0,0,0.5) 100%);
 }
 
 .spotlight-card.small .spotlight-overlay h3 {
-    font-size: 1.4em;
-    margin-bottom: 5px;
+    font-size: 1em;
+    margin-bottom: 10px;
+    padding: 5px 0;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+    letter-spacing: 0.5px; /* Thêm khoảng cách giữa các chữ cái */
+}
+
+
+/* Điều chỉnh padding cho overlay để có nhiều không gian hơn cho chữ */
+.spotlight-card.small .spotlight-overlay {
+    padding: 25px 15px;
 }
 
 .spotlight-overlay p {

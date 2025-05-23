@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 
 // Kết nối đến cơ sở dữ liệu MySQL
-const sequelize = new Sequelize('payment_service', 'root', '', {
+const sequelize = new Sequelize('payment_service', 'root', '082004', {
     host: 'localhost',
     dialect: 'mysql',
     timezone: '+07:00', // Thiết lập múi giờ cho Việt Nam

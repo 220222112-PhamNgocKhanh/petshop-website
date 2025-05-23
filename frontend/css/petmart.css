@@ -119,7 +119,17 @@ body {
 .products-header h1 {
   font-family: 'Bungee Spice', sans-serif;
   font-weight: 900;
-  font-size: 40px;
+  font-size: 32px; /* Giảm kích thước font */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Giới hạn 2 dòng */
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+  height: auto; /* Cho phép tự động điều chỉnh chiều cao */
+  max-height: 85px; /* Giới hạn chiều cao tối đa */
+  word-wrap: break-word; /* Cho phép ngắt từ */
+  word-break: break-word; /* Ngắt từ để không tràn khỏi container */
 }
 
 /* .main-products {
@@ -145,7 +155,7 @@ align-items: start;
   width: calc(33.333% - 20px);
   max-width: 350px;
   /* height: 350px;
-width: 30%;  */
+  width: 30%;  */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -154,19 +164,70 @@ width: 30%;  */
   justify-content: space-between;
   border-radius: 10px;
   overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: white;
+  padding-bottom: 15px;
 }
+
+.product-tags:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
 .product-tags h1 {
-height: 50px;
-overflow: hidden;
-font-weight: bold;
-font-size: 20px;
+  height: 50px;
+  overflow: hidden;
+  font-weight: 600;
+  font-size: 18px;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin: 12px 10px 5px 10px;
+  line-height: 1.2;
+  color: #333;
+  transition: color 0.3s;
+}
+
+/* Badges */
+.discount-badge, .out-of-stock-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  z-index: 2;
+}
+
+.discount-badge {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.out-of-stock-badge {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+}
+
+/* Nếu cả hai badges cùng xuất hiện, điều chỉnh vị trí */
+.product-img .out-of-stock-badge + .discount-badge {
+  top: 40px;
+}
+
+.product-tags:hover h1 {
+  color: #f3a93b;
 }
 
 .product-tags h2 {
-height: 30px;
-font-weight: bold;
-font-size: 20px;
-color: #fbc34b;
+  height: 30px;
+  font-weight: bold;
+  font-size: 20px;
+  color: #f3a93b;
+  margin: 5px 10px 0;
 }
 
 /* .product-tags h1 {
@@ -183,19 +244,11 @@ color: #fbc34b;
 .product-img {
   height: 267px;
   width: 100%;
-  border-radius: 10px;
+  border-radius: 10px 10px 0 0; /* Bo góc chỉ ở trên cùng */
   overflow: hidden;
   position: relative;
 }
 
-.product-img img {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease-in-out;
-}
-
-/* Lớp overlay chứa nút */
 .overlay {
   flex-direction: column;
   gap: 20px;
@@ -205,13 +258,20 @@ color: #fbc34b;
   height: 100%;
   width: 100%;
   background-color: rgba(255, 255, 255, 0.7);
-  /* Lớp mờ tối */
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.4s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
   backdrop-filter: blur(3px);
+}
+
+/* Thêm hiệu ứng zoom mượt mà hơn */
+.product-img img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 /* Khi hover, vừa phóng to ảnh vừa hiện overlay */
@@ -237,37 +297,48 @@ color: #fbc34b;
 
 .buy-btn {
   height: 45px;
-  width: 100px;
-  background-color: rgb(247, 168, 196);
+  width: 120px; /* Rộng hơn một chút */
+  background-color: #f3a93b; /* Màu sắc đồng bộ */
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 25px; /* Bo tròn hơn */
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.320, 1.275), opacity 0.3s ease;
-  transform: translateX(-50%) scale(0);
+  transform: translateY(20px) scale(0.9);
+  opacity: 0;
+  box-shadow: 0 4px 10px rgba(243, 169, 59, 0.3);
+}
+
+.product-img:hover .buy-btn {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .buy-btn div {
   height: 40px;
-  width: 95px;
+  width: 115px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: dashed 1.5px white;
-  border-radius: 9px;
+  border-radius: 20px;
 }
 
 .buy-btn div a {
   font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .buy-btn:hover {
-  background-color: #f3a93b;
+  background-color: #e08c0b;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(243, 169, 59, 0.4);
 }
 
 .icon-buttons {
@@ -398,4 +469,60 @@ color: #fbc34b;
 }
 
 
+
+@media screen and (max-width: 1200px) {
+  .product-tags {
+    width: calc(50% - 15px);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .product-tags {
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+  }
+  
+  .products-header h1 {
+    font-size: 28px;
+  }
+  
+  .main-products {
+    justify-content: center;
+  }
+}
+
+.skeleton-product {
+  height: 370px;
+  width: calc(33.333% - 20px);
+  max-width: 350px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f0f0f0;
+  position: relative;
+}
+
+.skeleton-product::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.5) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
 

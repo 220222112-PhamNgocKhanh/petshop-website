@@ -12,6 +12,7 @@
   "description": "Blog service for managing blog posts",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "blog-service": "file:",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",

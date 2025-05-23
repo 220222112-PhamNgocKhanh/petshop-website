@@ -85,7 +85,7 @@
                                 <img src="images/Accessories.jpg" alt="Pet Toys">
                                 <div class="spotlight-overlay">
                                     <h3>Pet Accessories</h3>
-                                    <a href="petmart.php?category=toys" class="btn outline-btn small">Xem ngay</a>
+                                   
                                 </div>
                             </div>
                         </div>
@@ -95,8 +95,7 @@
                                 <img src="images/Gromming.jpg" alt="Pet Accessories">
                                 <div class="spotlight-overlay">
                                     <h3>Gromming</h3>
-                                    <a href="petmart.php?category=accessories" class="btn outline-btn small">Xem
-                                        ngay</a>
+                                   
                                 </div>
                             </div>
                         </div>
@@ -106,7 +105,7 @@
                                 <img src="images/Health.jpg" alt="Pet Healthcare">
                                 <div class="spotlight-overlay">
                                     <h3>Health Center</h3>
-                                    <a href="petmart.php?category=health" class="btn outline-btn small">Xem ngay</a>
+                                   
                                 </div>
                             </div>
                         </div>
@@ -116,7 +115,7 @@
                                 <div class="spotlight-overlay">
                                     <h3>Food Area</h3>
 
-                                    <a href="petmart.php?category=dog-food" class="btn outline-btn small">Xem ngay</a>
+                                   
                                 </div>
                             </div>
                         </div>
@@ -124,7 +123,7 @@
                 </div>
             </div>
 
-            <!-- Newsletter Section -->
+            <!-- Newsletter Section
             <div class="newsletter-section" data-aos="fade-up">
                 <div class="newsletter-container">
                     <div class="newsletter-content">
@@ -139,7 +138,7 @@
                         <img src="images/newsletter-pet.jpg" alt="Đăng ký nhận thông tin">
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 
